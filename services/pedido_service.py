@@ -23,3 +23,17 @@ def listarPedido():
         listav.append(ped)
         
     return listav
+
+
+def registrarpedido(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, DETALLES):
+    c = current_app.mysql.connection.cursor()
+    sql = "insert into t_pedido (ped_id, ped_fecha, ped_metodo_pago, ped_estado_entrega, ped_total, ped_cli_id_fk, ped_det_id_fk) values (%s,%s,%s,%s,%s,%s,%s)"
+    
+    c.execute(sql,(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, DETALLES))
+    current_app.mysql.connection.commit()
+    
+    id = c.lastrowid
+    c.close()
+    return pedido(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, DETALLES).a_diccionario
+
+    return

@@ -9,3 +9,4 @@ def cnlistadodet():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+    
