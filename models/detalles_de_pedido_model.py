@@ -6,7 +6,7 @@ class detalle_de_pedido:
 
     def diccionario_ped(self):
         return{
-            "ID": int(self.det_id) if self.det_id is not None else None,
+            "ID":self.det_id,
             "CANTIDAD": int(self.det_cantidad),
             "SUB TOTAL": float(self.det_subtotal)
         }
