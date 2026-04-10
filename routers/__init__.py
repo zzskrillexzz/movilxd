@@ -15,6 +15,7 @@ from .reportes import reportes_bp
 from .sesiones import sesiones_bp
 from .usuarios import usuarios_bp
 from .proveedores_productos import proveedores_productos_bp
+from .documentacion import documentacion_bp
 
 def cargarruta(app):
     app.register_blueprint(clientes_bp, url_prefix='/clientes')
@@ -34,3 +35,4 @@ def cargarruta(app):
     app.register_blueprint(sesiones_bp, url_prefix='/sesiones')
     app.register_blueprint(usuarios_bp, url_prefix='/usuarios')
     app.register_blueprint(proveedores_productos_bp, url_prefix='/proveedores_productos')
+    app.register_blueprint(documentacion_bp, url_prefix = '/documentacion')
