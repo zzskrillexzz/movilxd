@@ -1,52 +1,76 @@
 from flask import jsonify, request, current_app
-from services.clientes_service import listarClientes, registrarClientes
+from services.clientes_service import listarClientes, registrarClientes, editarClientes, eliminarClientes, buscarClientes
 
 def cnlistadoclientes():
     try:
-        datos = listarClientes()
-        return jsonify(datos), 200
+        return jsonify(listarClientes()), 200
     except Exception as e:
-        import traceback
-        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 def cnregistrarclientes():
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
+        requerido = ["cli_id", "cli_tipo_documento", "cli_nombre", "cli_apellido", "cli_correo"]
+        
+        if not data or any(x not in data for x in requerido):
+            return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
 
-        requerido = ["cli_id", "cli_tipo_documento", "cli_nombre", "cli_apellido", "cli_telefono", "cli_direccion", "cli_correo"]
-        faltantes = [x for x in requerido if x not in data or str(data[x]).strip() == ""]
-        if faltantes:
-            return jsonify({"mensaje": f"Faltan los siguientes campos o están vacíos: {faltantes}"}), 400
+        # Validar ID duplicado
+        if buscarClientes(data["cli_id"]):
+            return jsonify({"mensaje": f"El cliente con ID {data['cli_id']} ya existe"}), 409
 
-        # Validar tipo documento
-        tipos_validos = ["CC", "NIT", "CE", "TI"]
-        if data["cli_tipo_documento"] not in tipos_validos:
-            return jsonify({"mensaje": f"Tipo de documento inválido. Valores permitidos: {tipos_validos}"}), 400
-
-        # Validar duplicado por ID
+        # Validar Correo duplicado
         c = current_app.mysql.connection.cursor()
-        c.execute("SELECT cli_id FROM t_cliente WHERE cli_id = %s", (data["cli_id"],))
-        if c.fetchone():
-            c.close()
-            return jsonify({"mensaje": f"Ya existe un cliente con el ID {data['cli_id']}"}), 409
-
-        # Validar correo duplicado
         c.execute("SELECT cli_id FROM t_cliente WHERE cli_correo = %s", (data["cli_correo"],))
         if c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"Ya existe un cliente con el correo {data['cli_correo']}"}), 409
+            return jsonify({"mensaje": "El correo ya está registrado"}), 409
         c.close()
 
         resultado = registrarClientes(
             data["cli_id"], data["cli_tipo_documento"], data["cli_nombre"],
-            data["cli_apellido"], data["cli_telefono"], data["cli_direccion"], data["cli_correo"]
+            data["cli_apellido"], data.get("cli_telefono"), data.get("cli_direccion"), data["cli_correo"]
         )
-        return jsonify({"mensaje": "Cliente registrado correctamente", "datos": resultado}), 201
-
+        return jsonify({"mensaje": "Cliente registrado", "datos": resultado}), 201
     except Exception as e:
-        import traceback
-        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+def cneditarclientes():
+    try:
+        data = request.get_json()
+        if not data or "cli_id" not in data:
+            return jsonify({"mensaje": "ID de cliente requerido"}), 400
+        
+        # Validar que el correo no lo tenga otro cliente
+        c = current_app.mysql.connection.cursor()
+        c.execute("SELECT cli_id FROM t_cliente WHERE cli_correo = %s AND cli_id != %s", (data["cli_correo"], data["cli_id"]))
+        if c.fetchone():
+            c.close()
+            return jsonify({"mensaje": "El correo ya pertenece a otro cliente"}), 409
+        c.close()
+
+        resultado = editarClientes(
+            data["cli_id"], data["cli_tipo_documento"], data["cli_nombre"],
+            data["cli_apellido"], data.get("cli_telefono"), data.get("cli_direccion"), data["cli_correo"]
+        )
+        return jsonify({"mensaje": "Cliente actualizado", "datos": resultado}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def cneliminarclientes(cli_id):
+    try:
+        if not buscarClientes(cli_id):
+            return jsonify({"mensaje": "Cliente no encontrado"}), 404
+        return jsonify(eliminarClientes(cli_id)), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def cnbuscarclientes():
+    try:
+        cli_id = request.args.get("cli_id")
+        resultado = buscarClientes(cli_id)
+        if resultado:
+            return jsonify(resultado), 200
+        return jsonify({"mensaje": "Cliente no encontrado"}), 404
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
