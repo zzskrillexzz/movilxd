@@ -1,35 +1,30 @@
 from flask import Blueprint
 from controllers.kardex_controllers import (
-    cnlistadokardex, cnregistrarkardex,
-    cneditarkardex, cneliminarkardex
+    cnlistadokardex,
+    cnregistrarkardex,
+    cneditarkardex,
+    cneliminarkardex,
+    cnbuscarkardex
 )
-
 
 kardex_bp = Blueprint('kardex', __name__)
 
-@kardex_bp.route('/', methods=["GET"])
-def listado():
+@kardex_bp.route('/', methods=['GET'])
+def listar_kardex():
     return cnlistadokardex()
 
-@kardex_bp.route('/', methods=["POST"])
-def registrar():
+@kardex_bp.route('/', methods=['POST'])
+def registrar_kardex():
     return cnregistrarkardex()
 
-@kardex_bp.route('/<string:id>', methods=["PUT"])
-def editar(id):
+@kardex_bp.route('/<id>', methods=['PUT'])
+def editar_kardex(id):
     return cneditarkardex(id)
 
-@kardex_bp.route('/<string:id>', methods=["DELETE"])
-def eliminar(id):
+@kardex_bp.route('/<id>', methods=['DELETE'])
+def eliminar_kardex(id):
     return cneliminarkardex(id)
-@kardex_bp.route('/', methods=["PUT"])
-def editar():
-    return cneditarkardex()
 
-@kardex_bp.route('/eliminar/<kar_id>', methods=["DELETE"])
-def eliminar(kar_id):
-    return cneliminarkardex(kar_id)
-
-@kardex_bp.route('/buscar', methods=["GET"])
-def buscar():
+@kardex_bp.route('/buscar', methods=['GET'])
+def buscar_kardex():
     return cnbuscarkardex()

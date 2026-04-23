@@ -14,6 +14,7 @@ def cnlistadokardex():
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
+
 def cnregistrarkardex():
     try:
         data = request.get_json()
@@ -25,12 +26,10 @@ def cnregistrarkardex():
         if faltantes:
             return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
-        # Validar tipo
         tipos_validos = ["Entrada", "Salida", "Ajuste"]
         if data["kar_tipo"] not in tipos_validos:
             return jsonify({"mensaje": f"Tipo inválido. Valores permitidos: {tipos_validos}"}), 400
 
-        # Validar cantidad positiva
         try:
             cantidad = int(data["kar_cantidad"])
             if cantidad <= 0:
@@ -38,7 +37,6 @@ def cnregistrarkardex():
         except (ValueError, TypeError):
             return jsonify({"mensaje": "La cantidad debe ser un número entero"}), 400
 
-        # Validar saldos no negativos
         try:
             saldo_ant = int(data["kar_saldo_anterior"])
             saldo_act = int(data["kar_saldo_actual"])
@@ -47,26 +45,22 @@ def cnregistrarkardex():
         except (ValueError, TypeError):
             return jsonify({"mensaje": "Los saldos deben ser números enteros"}), 400
 
-        # Validar duplicado
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT kar_id FROM t_kardex WHERE kar_id = %s", (data["kar_id"],))
         if c.fetchone():
             c.close()
             return jsonify({"mensaje": f"Ya existe un registro de kardex con el ID {data['kar_id']}"}), 409
 
-        # Validar que el producto exista
         c.execute("SELECT pro_id FROM t_producto WHERE pro_id = %s", (data["kar_pro_id_fk"],))
         if not c.fetchone():
             c.close()
             return jsonify({"mensaje": f"No existe un producto con el ID {data['kar_pro_id_fk']}"}), 404
 
-        # Validar que el lote exista
         c.execute("SELECT lot_id FROM t_lote WHERE lot_id = %s", (data["kar_lot_id_fk"],))
         if not c.fetchone():
             c.close()
             return jsonify({"mensaje": f"No existe un lote con el ID {data['kar_lot_id_fk']}"}), 404
 
-        # Validar que el movimiento exista
         c.execute("SELECT inm_id FROM t_inventario_movimiento WHERE inm_id = %s", (data["kar_inm_id_fk"],))
         if not c.fetchone():
             c.close()
@@ -85,7 +79,7 @@ def cnregistrarkardex():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-    
+
 
 def cneditarkardex(id):
     try:
@@ -165,4 +159,21 @@ def cneliminarkardex(id):
     except Exception as e:
         import traceback
         print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+def cnbuscarkardex():
+    try:
+        kar_id = request.args.get("kar_id")
+        if kar_id:
+            # Buscar específico
+            resultado = buscarKardex(kar_id)
+            if resultado:
+                return jsonify(resultado), 200
+            return jsonify({"mensaje": "Registro no encontrado"}), 404
+        else:
+            # Listar todos
+            resultado = buscarKardex()  # Sin parámetro, lista todos
+            return jsonify(resultado), 200
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
