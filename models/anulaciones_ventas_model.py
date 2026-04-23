@@ -11,6 +11,15 @@ class anulaciones_ventas:
             "id": self.anu_id,
             "factura_id": self.anu_fac_id_fk,
             "usuario_id": self.anu_usu_id_fk,
-            "fecha": str(self.anu_fecha) if self.anu_fecha else None,
+            "fecha": self.anu_fecha,
             "motivo": self.anu_motivo
         }
+
+    @staticmethod
+    def update_anulacion(mysql, anu_id, motivo):
+        cur = mysql.connection.cursor()
+        sql = "UPDATE t_anulacion_venta SET anu_motivo = %s WHERE anu_id = %s"
+        cur.execute(sql, (motivo, anu_id))
+        mysql.connection.commit()
+        cur.close()
+        return cur.rowcount

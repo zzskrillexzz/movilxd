@@ -22,3 +22,42 @@ def registrarPedidos(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_u
     current_app.mysql.connection.commit()
     c.close()
     return pedidos(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_usu_id_fk).a_diccionario()
+
+def editarPedidos(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_usu_id_fk=None):
+    c = current_app.mysql.connection.cursor()
+    sql = """
+        UPDATE t_pedido
+        SET ped_fecha=%s, ped_metodo_pago=%s, ped_estado_entrega=%s,
+            ped_total=%s, ped_cli_id_fk=%s, ped_usu_id_fk=%s
+        WHERE ped_id=%s
+    """
+    c.execute(sql, (FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_usu_id_fk, ID))
+    current_app.mysql.connection.commit()
+    filas = c.rowcount
+    c.close()
+    if filas == 0:
+        return None
+    return pedidos(ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_usu_id_fk).a_diccionario()
+
+
+def eliminarPedidos(ID):
+    c = current_app.mysql.connection.cursor()
+    c.execute("DELETE FROM t_pedido WHERE ped_id=%s", (ID,))
+    current_app.mysql.connection.commit()
+    filas = c.rowcount
+    c.close()
+    return filas > 0
+
+
+def buscarPedido(ID):
+    c = current_app.mysql.connection.cursor()
+    c.execute("""
+        SELECT ped_id, ped_fecha, ped_metodo_pago, ped_estado_entrega,
+               ped_total, ped_cli_id_fk, ped_usu_id_fk
+        FROM t_pedido WHERE ped_id=%s
+    """, (ID,))
+    r = c.fetchone()
+    c.close()
+    if not r:
+        return None
+    return pedidos(r[0], r[1], r[2], r[3], r[4], r[5], r[6]).a_diccionario()

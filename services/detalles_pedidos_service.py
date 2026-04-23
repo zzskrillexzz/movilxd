@@ -33,3 +33,41 @@ def registrarDetallesPedidos(ID, CANTIDAD, SUBTOTAL, det_ped_id_fk=None, det_pro
     
     c.close()
     return detalles_pedidos(ID, CANTIDAD, SUBTOTAL, det_ped_id_fk, det_pro_id_fk, det_precio_unitario).diccionario_ped()
+
+def editarDetallesPedidos(ID, CANTIDAD, SUBTOTAL, det_ped_id_fk, det_pro_id_fk, det_precio_unitario):
+    c = current_app.mysql.connection.cursor()
+    sql = """
+        UPDATE t_detalle_pedido
+        SET det_cantidad=%s, det_subtotal=%s, det_ped_id_fk=%s,
+            det_pro_id_fk=%s, det_precio_unitario=%s
+        WHERE det_id=%s
+    """
+    c.execute(sql, (CANTIDAD, SUBTOTAL, det_ped_id_fk, det_pro_id_fk, det_precio_unitario, ID))
+    current_app.mysql.connection.commit()
+    filas = c.rowcount
+    c.close()
+    if filas == 0:
+        return None
+    return detalles_pedidos(ID, CANTIDAD, SUBTOTAL, det_ped_id_fk, det_pro_id_fk, det_precio_unitario).diccionario_ped()
+
+
+def eliminarDetallesPedidos(ID):
+    c = current_app.mysql.connection.cursor()
+    c.execute("DELETE FROM t_detalle_pedido WHERE det_id=%s", (ID,))
+    current_app.mysql.connection.commit()
+    filas = c.rowcount
+    c.close()
+    return filas > 0
+
+
+def buscarDetallePedido(ID):
+    c = current_app.mysql.connection.cursor()
+    c.execute("""
+        SELECT det_id, det_cantidad, det_subtotal, det_ped_id_fk, det_pro_id_fk, det_precio_unitario
+        FROM t_detalle_pedido WHERE det_id=%s
+    """, (ID,))
+    r = c.fetchone()
+    c.close()
+    if not r:
+        return None
+    return detalles_pedidos(r[0], r[1], r[2], r[3], r[4], r[5]).diccionario_ped()

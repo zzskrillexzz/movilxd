@@ -1,5 +1,8 @@
 from flask import Blueprint
-from controllers.pedidos_controllers import cnlistadopedidos, cnregistrarpedidos
+from controllers.pedidos_controllers import (
+    cnlistadopedidos, cnregistrarpedidos,
+    cneditarpedidos, cneliminarpedidos
+)
 
 pedidos_bp = Blueprint('pedidos', __name__)
 
@@ -10,3 +13,11 @@ def listado_pedidos():
 @pedidos_bp.route('/', methods=["POST"])
 def registrar_pedidos():
     return cnregistrarpedidos()
+
+@pedidos_bp.route('/<string:id>', methods=["PUT"])
+def editar_pedidos(id):
+    return cneditarpedidos(id)
+
+@pedidos_bp.route('/<string:id>', methods=["DELETE"])
+def eliminar_pedidos(id):
+    return cneliminarpedidos(id)
