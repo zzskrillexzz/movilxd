@@ -1,229 +1,720 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "API de MISCELANEA",
-    "description": "API REST para gestión de usuarios y eventos.",
+    "title": "API FORMATIVO CESAR",
+    "description": "API REST para gestión de una distribuidora de medicamentos",
     "version": "2.0.0"
   },
   "servers": [
     {
-      "url": "http://miservidor.com"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Usuarios",
-      "description": "Gestión de aprendices"
-    },
-    {
-      "name": "Eventos",
-      "description": "Gestión de eventos"
+      "url": "http://127.0.0.1:5000",
+      "description": "Servidor Local"
     }
   ],
   "paths": {
-    
+    "/pedidos": {
+      "get": {
+        "tags": ["PEDIDOS"],
+        "summary": "Obtener todos los pedidos",
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Pedido" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["PEDIDOS"],
+        "summary": "Crear un nuevo pedido",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Pedido" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Pedido creado exitosamente" }
+        }
+      }
+    },
+    "/pedidos/{id}": {
+      "get": {
+        "tags": ["PEDIDOS"],
+        "summary": "obtener datos por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "datos del pedido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pedido" }
+              }
+            }
+          },
+          "404": { "description": "Pedido no encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["PEDIDOS"],
+        "summary": "Actualizar un pedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Pedido" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pedido actualizado correctamente" },
+          "404": { "description": "Pedido no encontrado" }
+        }
+      },
+      "delete": {
+        "tags": ["PEDIDOS"],
+        "summary": "Eliminar un pedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Pedido eliminado correctamente" },
+          "404": { "description": "Pedido no encontrado" }
+        }
+      }
+    },
+    "/sesiones": {
+      "get": {
+        "tags": ["SESSION"],
+        "summary": "Obtener todas las sesiones",
+        "responses": {
+          "200": {
+            "description": "Lista de sesiones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Sesion" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["SESSION"],
+        "summary": "Crear una nueva sesión",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Sesion" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Sesion creada exitosamente" }
+        }
+      }
+    },
+    "/sesiones/{id}": {
+      "get": {
+        "tags": ["SESSION"],
+        "summary": "obtener datos por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "datos de la sesión",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Sesion" }
+              }
+            }
+          },
+          "404": { "description": "Sesion no encontrada" }
+        }
+      },
+      "put": {
+        "tags": ["SESSION"],
+        "summary": "Actualizar una sesión",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Sesion" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Sesion actualizada correctamente" },
+          "404": { "description": "Sesion no encontrada" }
+        }
+      },
+      "delete": {
+        "tags": ["SESSION"],
+        "summary": "Eliminar una sesión",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Sesion eliminada correctamente" },
+          "404": { "description": "Sesion no encontrada" }
+        }
+      }
+    },
     "/usuarios": {
       "get": {
-        "tags": ["Usuarios"],
-        "summary": "Listar usuarios",
+        "tags": ["USUARIOS"],
+        "summary": "Obtener todos los usuarios",
         "responses": {
           "200": {
-            "description": "Lista de usuarios"
-          }
-        }
-      },
-      "post": {
-        "tags": ["Usuarios"],
-        "summary": "Crear usuario",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "nombre": { "type": "string" },
-                  "genero": { "type": "string" },
-                  "frm": { "type": "string" },
-                  "numdoc": { "type": "string" }
+            "description": "Lista de usuarios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Usuario" }
                 }
               }
             }
           }
+        }
+      },
+      "post": {
+        "tags": ["USUARIOS"],
+        "summary": "Crear un nuevo usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Usuario" }
+            }
+          }
         },
         "responses": {
-          "201": {
-            "description": "Usuario creado"
-          }
+          "201": { "description": "Usuario creado exitosamente" }
         }
       }
     },
-
     "/usuarios/{id}": {
       "get": {
-        "tags": ["Usuarios"],
-        "summary": "Obtener usuario por ID",
+        "tags": ["USUARIOS"],
+        "summary": "obtener datos por id",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Usuario encontrado"
+            "description": "datos del usuario",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Usuario" }
+              }
+            }
           },
-          "404": {
-            "description": "Usuario no encontrado"
-          }
+          "404": { "description": "Usuario no encontrado" }
         }
       },
-      "patch": {
-        "tags": ["Usuarios"],
-        "summary": "Actualizar usuario",
+      "put": {
+        "tags": ["USUARIOS"],
+        "summary": "Actualizar un usuario",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "nombre": { "type": "string" },
-                  "genero": { "type": "string" },
-                  "frm": { "type": "string" },
-                  "numdoc": { "type": "string" }
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/Usuario" }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Usuario actualizado"
-          }
+          "200": { "description": "Usuario actualizado correctamente" },
+          "404": { "description": "Usuario no encontrado" }
         }
       },
       "delete": {
-        "tags": ["Usuarios"],
-        "summary": "Eliminar usuario",
+        "tags": ["USUARIOS"],
+        "summary": "Eliminar un usuario",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Usuario eliminado"
-          }
+          "200": { "description": "Usuario eliminado correctamente" },
+          "404": { "description": "Usuario no encontrado" }
         }
       }
     },
-
-    "/eventos": {
+    "/reportes": {
       "get": {
-        "tags": ["Eventos"],
-        "summary": "Listar eventos",
+        "tags": ["REPORTES"],
+        "summary": "Obtener todos los reportes",
         "responses": {
           "200": {
-            "description": "Lista de eventos"
+            "description": "Lista de reportes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Reporte" }
+                }
+              }
+            }
           }
         }
       },
       "post": {
-        "tags": ["Eventos"],
-        "summary": "Crear evento",
+        "tags": ["REPORTES"],
+        "summary": "Crear un nuevo reporte",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "nombre": { "type": "string" },
-                  "fecha": { "type": "string", "format": "date" },
-                  "lugar": { "type": "string" }
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/Reporte" }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Evento creado"
-          }
+          "201": { "description": "Reporte creado exitosamente" }
         }
       }
     },
-
-    "/eventos/{id}": {
+    "/reportes/{id}": {
       "get": {
-        "tags": ["Eventos"],
-        "summary": "Obtener evento por ID",
+        "tags": ["REPORTES"],
+        "summary": "obtener datos por id",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Evento encontrado"
+            "description": "datos del reporte",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Reporte" }
+              }
+            }
           },
-          "404": {
-            "description": "Evento no encontrado"
-          }
+          "404": { "description": "Reporte no encontrado" }
         }
       },
-      "patch": {
-        "tags": ["Eventos"],
-        "summary": "Actualizar evento",
+      "put": {
+        "tags": ["REPORTES"],
+        "summary": "Actualizar un reporte",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Evento actualizado"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Reporte" }
+            }
           }
+        },
+        "responses": {
+          "200": { "description": "Reporte actualizado correctamente" },
+          "404": { "description": "Reporte no encontrado" }
         }
       },
       "delete": {
-        "tags": ["Eventos"],
-        "summary": "Eliminar evento",
+        "tags": ["REPORTES"],
+        "summary": "Eliminar un reporte",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Reporte eliminado correctamente" },
+          "404": { "description": "reporte no encontrado" }
+        }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "tags": ["CLIENTES"],
+        "summary": "Obtener todos los clientes",
+        "responses": {
+          "200": {
+            "description": "Lista de clientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Cliente" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["CLIENTES"],
+        "summary": "Crear un nuevo cliente",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Cliente" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Cliente creado exitosamente" }
+        }
+      }
+    },
+    "/clientes/{id}": {
+      "get": {
+        "tags": ["CLIENTES"],
+        "summary": "obtener datos por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Evento eliminado"
+            "description": "datos del cliente",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cliente" }
+              }
+            }
+          },
+          "404": { "description": "Cliente no encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["CLIENTES"],
+        "summary": "Actualizar un cliente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Cliente" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Cliente actualizado correctamente" },
+          "404": { "description": "Cliente no encontrado" }
+        }
+      },
+      "delete": {
+        "tags": ["CLIENTES"],
+        "summary": "Eliminar un cliente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Cliente eliminado correctamente" },
+          "404": { "description": "Cliente no encontrado" }
+        }
+      }
+    },
+    "/kardex": {
+      "get": {
+        "tags": ["KARDEX"],
+        "summary": "Obtener todos los kardex",
+        "responses": {
+          "200": {
+            "description": "Lista de kardex",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Kardex" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["KARDEX"],
+        "summary": "Crear un nuevo kardex",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Kardex" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Kardex creado exitosamente" }
+        }
+      }
+    },
+    "/kardex/{id}": {
+      "get": {
+        "tags": ["KARDEX"],
+        "summary": "obtener datos por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "datos del kardex",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Kardex" }
+              }
+            }
+          },
+          "404": { "description": "Kardex no encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["KARDEX"],
+        "summary": "Actualizar un kardex",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Kardex" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Kardex actualizado correctamente" },
+          "404": { "description": "Kardex no encontrado" }
+        }
+      },
+      "delete": {
+        "tags": ["KARDEX"],
+        "summary": "Eliminar un kardex",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Kardex eliminado correctamente" },
+          "404": { "description": "Kardex no encontrado" }
         }
       }
     }
+  },
 
+  
+
+  
+  "components": {
+    "schemas": {
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "ped_id": { 
+            "type": "string",
+            "description": "id del pedido" 
+          },
+          "ped_fecha": { 
+            "type": "string",
+            "format": "date",
+            "description": "fecha del pedido" 
+          },
+          "ped_metodo_pago": { 
+            "type": "string",
+            "description": "método de pago del pedido" 
+          },
+          "ped_estado_entrega": { 
+            "type": "string",
+            "description": "estado de entrega del pedido" 
+          },
+          "ped_total": { 
+            "type": "number",
+            "format": "float",
+            "description": "total del pedido" 
+          },
+          "ped_cli_id_fk": { 
+            "type": "string",
+            "description": "id del cliente del pedido" 
+          },
+          "ped_usu_id_fk": { 
+            "type": "string",
+            "description": "id del usuario del pedido" 
+          }
+        }
+      },
+      "Usuario": {
+      "type": "object",
+      "properties": {
+        "usu_id": { "type": "string", "description": "id del usuario" },
+        "usu_nombre": { "type": "string", "description": "nombre del usuario" },
+        "usu_rol": { "type": "string", "description": "rol del usuario" },
+        "usu_correo": { "type": "string", "format": "email", "description": "correo del usuario" },
+        "usu_contrasena": { "type": "string", "description": "contraseña del usuario" },
+        "usu_estado": { "type": "string", "description": "estado del usuario" },
+        "usu_ultimo_acceso": { "type": "string", "format": "date-time", "description": "último acceso del usuario" }
+        }
+      },
+      "Sesion":{
+        "type": "object",
+        "properties": {
+          "ses_id": { "type": "string", "description": "id de la sesión" },
+          "ses_usu_id_fk": { "type": "string", "description": "id del usuario de la sesión" },
+          "ses_fecha_inicio": { "type": "string", "format": "date-time", "description": "fecha de inicio de la sesión" },
+          "ses_fecha_fin": { "type": "string", "format": "date-time", "description": "fecha de fin de la sesión" },
+          "ses_ip":{
+            "type": "string",
+            "description": "dirección IP de la sesión"
+          },
+          "ses_activa":{
+            "type": "interger",
+            "description": "indica si la sesión está activa"
+          }
+        }
+      },
+      "reporte":{
+        "type": "object",
+        "properties": {
+          "rep_id": { "type": "string", "description": "id del reporte" },
+          "rep_fecha": { "type": "string", "format": "date-time", "description": "fecha del reporte" },
+          "rep_tipo": { "type": "string", "description": "tipo del reporte" },
+          "rep_parametros": { "type": "string", "description": "parámetros del reporte" },
+          "rep_usu_id_fk": { "type": "string", "description": "id del usuario del reporte" },
+          "rep_resultados": { "type": "string", "description": "resultados del reporte" }
+        }
+        },
+        "Cliente":{
+          "type": "object",
+          "properties": {
+            "cli_id": { "type": "string", "description": "id del cliente" },
+            "cli_nombre": { "type": "string", "description": "nombre del cliente" },
+            "cli_correo": { "type": "string", "format": "email", "description": "correo del cliente" },
+            "cli_telefono": { "type": "string", "description": "teléfono del cliente" },
+            "cli_direccion": { "type": "string", "description": "dirección del cliente" },
+            "cli_tipo_documento": { "type": "string", "description": "tipo de documento del cliente" }
+        }
+        },
+        "Kardex":{
+          "type": "object",
+          "properties": {
+            "kar_id": { "type": "string", "description": "id del kardex" },
+            "kar_fecha": { "type": "string", "format": "date-time", "description": "fecha del kardex" },
+            "kar_cantidad": { "type": "number", "format": "float", "description": "cantidad del kardex" },
+            "kar_pro_id_fk": { "type": "string", "description": "id del producto del kardex" },
+            "kar_lot_id_fk": { "type": "string", "description": "id del lote del kardex" },
+            "kar_inm_id_fk": { "type": "string", "description": "id del inventario del kardex" },
+            "kar_tipo": { "type": "string", "description": "tipo del kardex (entrada o salida)" },
+            "kar_saldo_anterior": { "type": "number", "format": "float", "description": "saldo anterior del kardex" },
+            "kar_saldo_actual": { "type": "number", "format": "float", "description": "saldo actual del kardex" },
+            "kar_costo_unitario": { "type": "number", "format": "float", "description": "costo unitario del kardex" },
+            "kar_costo_total": { "type": "number", "format": "float", "description": "costo total del kardex" }
+        }
+        }
+    }
   }
 }
