@@ -1,159 +1,157 @@
 from flask import jsonify, request, current_app
 from services.monitorias_service import (
-    listarmonitorias, registrarmonitorias,
-    editarmonitorias, eliminarmonitorias, buscarmonitorias
+    listarMonitoria, registrarMonitoria,
+    editarMonitoria, eliminarMonitoria, buscarMonitoria
 )
 
-
-def cnlistadomonitorias():
+def cnlistarMonitoria():
     try:
-        datos = listarmonitorias()
+        datos = listarMonitoria()
         return jsonify(datos), 200
     except Exception as e:
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-
-def cnregistrarmonitorias():
+def cnregistrarMonitoria():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
 
-        requerido = ["kar_id", "kar_pro_id_fk", "kar_lot_id_fk", "kar_inm_id_fk", "kar_fecha", "kar_tipo", "kar_cantidad", "kar_saldo_anterior", "kar_saldo_actual", "kar_costo_unitario", "kar_costo_total"]
+        requerido = ["mon_id", "mon_pro_id_fk", "mon_lot_id_fk", "mon_inm_id_fk", "mon_fecha", 
+                     "mon_tipo", "mon_cantidad", "mon_saldo_anterior", "mon_saldo_actual", 
+                     "mon_costo_unitario", "mon_costo_total"]
         faltantes = [x for x in requerido if x not in data]
         if faltantes:
             return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
         tipos_validos = ["Entrada", "Salida", "Ajuste"]
-        if data["kar_tipo"] not in tipos_validos:
+        if data["mon_tipo"] not in tipos_validos:
             return jsonify({"mensaje": f"Tipo inválido. Valores permitidos: {tipos_validos}"}), 400
 
         try:
-            cantidad = int(data["kar_cantidad"])
+            cantidad = int(data["mon_cantidad"])
             if cantidad <= 0:
                 return jsonify({"mensaje": "La cantidad debe ser mayor a 0"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "La cantidad debe ser un número entero"}), 400
 
         try:
-            saldo_ant = int(data["kar_saldo_anterior"])
-            saldo_act = int(data["kar_saldo_actual"])
+            saldo_ant = int(data["mon_saldo_anterior"])
+            saldo_act = int(data["mon_saldo_actual"])
             if saldo_ant < 0 or saldo_act < 0:
                 return jsonify({"mensaje": "Los saldos no pueden ser negativos"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "Los saldos deben ser números enteros"}), 400
 
         c = current_app.mysql.connection.cursor()
-        c.execute("SELECT kar_id FROM t_monitorias WHERE kar_id = %s", (data["kar_id"],))
+        c.execute("SELECT mon_id FROM t_monitoria WHERE mon_id = %s", (data["mon_id"],))
         if c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"Ya existe un registro de monitorias con el ID {data['kar_id']}"}), 409
+            return jsonify({"mensaje": f"Ya existe un registro de monitoria con el ID {data['mon_id']}"}), 409
 
-        c.execute("SELECT pro_id FROM t_producto WHERE pro_id = %s", (data["kar_pro_id_fk"],))
+        c.execute("SELECT pro_id FROM t_producto WHERE pro_id = %s", (data["mon_pro_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un producto con el ID {data['kar_pro_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un producto con el ID {data['mon_pro_id_fk']}"}), 404
 
-        c.execute("SELECT lot_id FROM t_lote WHERE lot_id = %s", (data["kar_lot_id_fk"],))
+        c.execute("SELECT lot_id FROM t_lote WHERE lot_id = %s", (data["mon_lot_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un lote con el ID {data['kar_lot_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un lote con el ID {data['mon_lot_id_fk']}"}), 404
 
-        c.execute("SELECT inm_id FROM t_inventario_movimiento WHERE inm_id = %s", (data["kar_inm_id_fk"],))
+        c.execute("SELECT inm_id FROM t_inventario_movimiento WHERE inm_id = %s", (data["mon_inm_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un movimiento con el ID {data['kar_inm_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un movimiento con el ID {data['mon_inm_id_fk']}"}), 404
         c.close()
 
-        resultado = registrarmonitorias(
-            data["kar_id"], data["kar_pro_id_fk"], data["kar_lot_id_fk"],
-            data["kar_inm_id_fk"], data["kar_fecha"], data["kar_tipo"],
-            data["kar_cantidad"], data["kar_saldo_anterior"], data["kar_saldo_actual"],
-            data["kar_costo_unitario"], data["kar_costo_total"]
+        resultado = registrarMonitoria(
+            data["mon_id"], data["mon_pro_id_fk"], data["mon_lot_id_fk"],
+            data["mon_inm_id_fk"], data["mon_fecha"], data["mon_tipo"],
+            data["mon_cantidad"], data["mon_saldo_anterior"], data["mon_saldo_actual"],
+            data["mon_costo_unitario"], data["mon_costo_total"]
         )
-        return jsonify({"mensaje": "Registro de monitorias guardado correctamente", "datos": resultado}), 201
+        return jsonify({"mensaje": "Registro de monitoria guardado correctamente", "datos": resultado}), 201
 
     except Exception as e:
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-
-def cneditarmonitorias(id):
+def cneditarMonitoria(id):
     try:
         data = request.get_json()
         if not data:
             return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
 
-        if not buscarmonitorias(id):
-            return jsonify({"mensaje": f"No existe un registro de monitorias con el ID {id}"}), 404
+        if not buscarMonitoria(id):
+            return jsonify({"mensaje": f"No existe un registro de monitoria con el ID {id}"}), 404
 
-        requerido = ["kar_pro_id_fk", "kar_lot_id_fk", "kar_inm_id_fk", "kar_fecha", "kar_tipo",
-                     "kar_cantidad", "kar_saldo_anterior", "kar_saldo_actual",
-                     "kar_costo_unitario", "kar_costo_total"]
+        requerido = ["mon_pro_id_fk", "mon_lot_id_fk", "mon_inm_id_fk", "mon_fecha", "mon_tipo",
+                     "mon_cantidad", "mon_saldo_anterior", "mon_saldo_actual",
+                     "mon_costo_unitario", "mon_costo_total"]
         faltantes = [x for x in requerido if x not in data]
         if faltantes:
             return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
         tipos_validos = ["Entrada", "Salida", "Ajuste"]
-        if data["kar_tipo"] not in tipos_validos:
+        if data["mon_tipo"] not in tipos_validos:
             return jsonify({"mensaje": f"Tipo inválido. Valores permitidos: {tipos_validos}"}), 400
 
         try:
-            cantidad = int(data["kar_cantidad"])
+            cantidad = int(data["mon_cantidad"])
             if cantidad <= 0:
                 return jsonify({"mensaje": "La cantidad debe ser mayor a 0"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "La cantidad debe ser un número entero"}), 400
 
         try:
-            saldo_ant = int(data["kar_saldo_anterior"])
-            saldo_act = int(data["kar_saldo_actual"])
+            saldo_ant = int(data["mon_saldo_anterior"])
+            saldo_act = int(data["mon_saldo_actual"])
             if saldo_ant < 0 or saldo_act < 0:
                 return jsonify({"mensaje": "Los saldos no pueden ser negativos"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "Los saldos deben ser números enteros"}), 400
 
         c = current_app.mysql.connection.cursor()
-        c.execute("SELECT pro_id FROM t_producto WHERE pro_id=%s", (data["kar_pro_id_fk"],))
+        c.execute("SELECT pro_id FROM t_producto WHERE pro_id=%s", (data["mon_pro_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un producto con el ID {data['kar_pro_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un producto con el ID {data['mon_pro_id_fk']}"}), 404
 
-        c.execute("SELECT lot_id FROM t_lote WHERE lot_id=%s", (data["kar_lot_id_fk"],))
+        c.execute("SELECT lot_id FROM t_lote WHERE lot_id=%s", (data["mon_lot_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un lote con el ID {data['kar_lot_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un lote con el ID {data['mon_lot_id_fk']}"}), 404
 
-        c.execute("SELECT inm_id FROM t_inventario_movimiento WHERE inm_id=%s", (data["kar_inm_id_fk"],))
+        c.execute("SELECT inm_id FROM t_inventario_movimiento WHERE inm_id=%s", (data["mon_inm_id_fk"],))
         if not c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"No existe un movimiento con el ID {data['kar_inm_id_fk']}"}), 404
+            return jsonify({"mensaje": f"No existe un movimiento con el ID {data['mon_inm_id_fk']}"}), 404
         c.close()
 
-        resultado = editarmonitorias(
-            id, data["kar_pro_id_fk"], data["kar_lot_id_fk"], data["kar_inm_id_fk"],
-            data["kar_fecha"], data["kar_tipo"], data["kar_cantidad"],
-            data["kar_saldo_anterior"], data["kar_saldo_actual"],
-            data["kar_costo_unitario"], data["kar_costo_total"]
+        resultado = editarMonitoria(
+            id, data["mon_pro_id_fk"], data["mon_lot_id_fk"], data["mon_inm_id_fk"],
+            data["mon_fecha"], data["mon_tipo"], data["mon_cantidad"],
+            data["mon_saldo_anterior"], data["mon_saldo_actual"],
+            data["mon_costo_unitario"], data["mon_costo_total"]
         )
-        return jsonify({"mensaje": "Registro de monitorias actualizado correctamente", "datos": resultado}), 200
+        return jsonify({"mensaje": "Registro de monitoria actualizado correctamente", "datos": resultado}), 200
 
     except Exception as e:
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-
-def cneliminarmonitorias(id):
+def cneliminarMonitoria(id):
     try:
-        if not buscarmonitorias(id):
-            return jsonify({"mensaje": f"No existe un registro de monitorias con el ID {id}"}), 404
+        if not buscarMonitoria(id):
+            return jsonify({"mensaje": f"No existe un registro de monitoria con el ID {id}"}), 404
 
-        if eliminarmonitorias(id):
-            return jsonify({"mensaje": f"Registro de monitorias {id} eliminado correctamente"}), 200
+        if eliminarMonitoria(id):
+            return jsonify({"mensaje": f"Registro de monitoria {id} eliminado correctamente"}), 200
         return jsonify({"mensaje": "No se pudo eliminar el registro"}), 500
 
     except Exception as e:
@@ -161,19 +159,16 @@ def cneliminarmonitorias(id):
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-
-def cnbuscarmonitorias():
+def cnbuscarMonitoria():
     try:
-        kar_id = request.args.get("kar_id")
-        if kar_id:
-            # Buscar específico
-            resultado = buscarmonitorias(kar_id)
+        mon_id = request.args.get("mon_id")
+        if mon_id:
+            resultado = buscarMonitoria(mon_id)
             if resultado:
                 return jsonify(resultado), 200
             return jsonify({"mensaje": "Registro no encontrado"}), 404
         else:
-            # Listar todos
-            resultado = buscarmonitorias()  # Sin parámetro, lista todos
+            resultado = buscarMonitoria()
             return jsonify(resultado), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

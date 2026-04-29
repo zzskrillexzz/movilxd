@@ -1,30 +1,30 @@
 from flask import Blueprint
 from controllers.monitorias_controllers import (
-    cnlistadomonitorias,
-    cnregistrarmonitorias,
-    cneditarmonitorias,
-    cneliminarmonitorias,
-    cnbuscarmonitorias
+    cnlistarMonitoria,
+    cnregistrarMonitoria,
+    cneditarMonitoria,
+    cneliminarMonitoria,
+    cnbuscarMonitoria
 )
 
-monitorias_bp = Blueprint('monitorias', __name__)
+monitoria_bp = Blueprint('monitoria', __name__)
 
-@monitorias_bp.route('/', methods=['GET'])
-def listar_monitorias():
-    return cnlistadomonitorias()
+@monitoria_bp.route('/', methods=['GET'])
+def listar():
+    return cnlistarMonitoria()
 
-@monitorias_bp.route('/', methods=['POST'])
-def registrar_monitorias():
-    return cnregistrarmonitorias()
+@monitoria_bp.route('/', methods=['POST'])
+def registrar():
+    return cnregistrarMonitoria()
 
-@monitorias_bp.route('/<id>', methods=['PUT'])
-def editar_monitorias(id):
-    return cneditarmonitorias(id)
+@monitoria_bp.route('/<id>', methods=['PUT'])
+def editar(id):
+    return cneditarMonitoria(id)
 
-@monitorias_bp.route('/<id>', methods=['DELETE'])
-def eliminar_monitorias(id):
-    return cneliminarmonitorias(id)
+@monitoria_bp.route('/<id>', methods=['DELETE'])
+def eliminar(id):
+    return cneliminarMonitoria(id)
 
-@monitorias_bp.route('/buscar', methods=['GET'])
-def buscar_monitorias():
-    return cnbuscarmonitorias()
+@monitoria_bp.route('/buscar', methods=['GET'])
+def buscar():
+    return cnbuscarMonitoria()

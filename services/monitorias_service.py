@@ -1,139 +1,138 @@
 from flask import current_app
-from models.monitorias_model import monitorias
+from models.monitorias_model import monitoria
 
-def listarmonitorias():
+def listarMonitoria():
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
-            SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
-                   kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-            FROM t_monitorias
+            SELECT mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo, 
+                   mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total 
+            FROM t_monitoria
         """
         c.execute(sql)
         datos = c.fetchall()
         lista = []
         for p in datos:
-            k = monitorias(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]).todic()
-            lista.append(k)
+            m = monitoria(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]).todic()
+            lista.append(m)
         c.close()
         return lista
     except Exception as e:
-        print(f"Error en listarmonitorias: {e}")
+        print(f"Error en listarMonitoria: {e}")
         return []
 
-def registrarmonitorias(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
-                    KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL):
+def registrarMonitoria(MON_ID, MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
+                       MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, MON_COSTO_UNITARIO, MON_COSTO_TOTAL):
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
-            INSERT INTO t_monitorias (kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
-                                  kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total) 
+            INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo, 
+                                     mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        c.execute(sql, (KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
-                       KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL))
+        c.execute(sql, (MON_ID, MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
+                       MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, MON_COSTO_UNITARIO, MON_COSTO_TOTAL))
         current_app.mysql.connection.commit()
         c.close()
-        return monitorias(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
-                     KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL).todic()
+        return monitoria(MON_ID, MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
+                         MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, MON_COSTO_UNITARIO, MON_COSTO_TOTAL).todic()
     except Exception as e:
-        print(f"Error en registrarmonitorias: {e}")
+        print(f"Error en registrarMonitoria: {e}")
         return None
 
-def editarmonitorias(id, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
-                KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL):
+def editarMonitoria(id, MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
+                    MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, MON_COSTO_UNITARIO, MON_COSTO_TOTAL):
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
-            UPDATE t_monitorias 
-            SET kar_pro_id_fk = %s, kar_lot_id_fk = %s, kar_inm_id_fk = %s, 
-                kar_fecha = %s, kar_tipo = %s, kar_cantidad = %s, 
-                kar_saldo_anterior = %s, kar_saldo_actual = %s, 
-                kar_costo_unitario = %s, kar_costo_total = %s
-            WHERE kar_id = %s
+            UPDATE t_monitoria 
+            SET mon_pro_id_fk = %s, mon_lot_id_fk = %s, mon_inm_id_fk = %s, 
+                mon_fecha = %s, mon_tipo = %s, mon_cantidad = %s, 
+                mon_saldo_anterior = %s, mon_saldo_actual = %s, 
+                mon_costo_unitario = %s, mon_costo_total = %s
+            WHERE mon_id = %s
         """
-        c.execute(sql, (KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
-                       KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, 
-                       KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL, id))
+        c.execute(sql, (MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
+                       MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, 
+                       MON_COSTO_UNITARIO, MON_COSTO_TOTAL, id))
         current_app.mysql.connection.commit()
         afectadas = c.rowcount
         c.close()
         
         if afectadas > 0:
-            return buscarmonitorias(id)
+            return buscarMonitoria(id)
         return None
     except Exception as e:
-        print(f"Error en editarmonitorias: {e}")
+        print(f"Error en editarMonitoria: {e}")
         return None
 
-def eliminarmonitorias(id):
+def eliminarMonitoria(id):
     try:
         c = current_app.mysql.connection.cursor()
-        sql = "DELETE FROM t_monitorias WHERE kar_id = %s"
+        sql = "DELETE FROM t_monitoria WHERE mon_id = %s"
         c.execute(sql, (id,))
         current_app.mysql.connection.commit()
         afectadas = c.rowcount
         c.close()
         return afectadas > 0
     except Exception as e:
-        print(f"Error en eliminarmonitorias: {e}")
+        print(f"Error en eliminarMonitoria: {e}")
         return False
 
-def buscarmonitorias(kar_id=None):
+def buscarMonitoria(mon_id=None):
     try:
         c = current_app.mysql.connection.cursor()
-        if kar_id:
+        if mon_id:
             sql = """
-                SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
-                       kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-                FROM t_monitorias 
-                WHERE kar_id = %s
+                SELECT mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo, 
+                       mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total 
+                FROM t_monitoria 
+                WHERE mon_id = %s
             """
-            c.execute(sql, (kar_id,))
+            c.execute(sql, (mon_id,))
             resultado = c.fetchone()
             c.close()
             if resultado:
                 return {
-                    "kar_id": resultado[0],
-                    "kar_pro_id_fk": resultado[1],
-                    "kar_lot_id_fk": resultado[2],
-                    "kar_inm_id_fk": resultado[3],
-                    "kar_fecha": resultado[4],
-                    "kar_tipo": resultado[5],
-                    "kar_cantidad": resultado[6],
-                    "kar_saldo_anterior": resultado[7],
-                    "kar_saldo_actual": resultado[8],
-                    "kar_costo_unitario": resultado[9],
-                    "kar_costo_total": resultado[10]
+                    "mon_id": resultado[0],
+                    "mon_pro_id_fk": resultado[1],
+                    "mon_lot_id_fk": resultado[2],
+                    "mon_inm_id_fk": resultado[3],
+                    "mon_fecha": str(resultado[4]) if resultado[4] else None,
+                    "mon_tipo": resultado[5],
+                    "mon_cantidad": resultado[6],
+                    "mon_saldo_anterior": resultado[7],
+                    "mon_saldo_actual": resultado[8],
+                    "mon_costo_unitario": float(resultado[9]) if resultado[9] else None,
+                    "mon_costo_total": float(resultado[10]) if resultado[10] else None
                 }
             return None
         else:
-            # Si no se pasa id, retorna todos los registros
             sql = """
-                SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
-                       kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-                FROM t_monitorias
+                SELECT mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo, 
+                       mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total 
+                FROM t_monitoria
             """
             c.execute(sql)
             datos = c.fetchall()
             lista = []
             for p in datos:
-                k = {
-                    "kar_id": p[0],
-                    "kar_pro_id_fk": p[1],
-                    "kar_lot_id_fk": p[2],
-                    "kar_inm_id_fk": p[3],
-                    "kar_fecha": p[4],
-                    "kar_tipo": p[5],
-                    "kar_cantidad": p[6],
-                    "kar_saldo_anterior": p[7],
-                    "kar_saldo_actual": p[8],
-                    "kar_costo_unitario": p[9],
-                    "kar_costo_total": p[10]
+                m = {
+                    "mon_id": p[0],
+                    "mon_pro_id_fk": p[1],
+                    "mon_lot_id_fk": p[2],
+                    "mon_inm_id_fk": p[3],
+                    "mon_fecha": str(p[4]) if p[4] else None,
+                    "mon_tipo": p[5],
+                    "mon_cantidad": p[6],
+                    "mon_saldo_anterior": p[7],
+                    "mon_saldo_actual": p[8],
+                    "mon_costo_unitario": float(p[9]) if p[9] else None,
+                    "mon_costo_total": float(p[10]) if p[10] else None
                 }
-                lista.append(k)
+                lista.append(m)
             c.close()
             return lista
     except Exception as e:
-        print(f"Error en buscarmonitorias: {e}")
-        return None if kar_id else []
+        print(f"Error en buscarMonitoria: {e}")
+        return None if mon_id else []
