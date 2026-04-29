@@ -10,7 +10,7 @@ from .compras import compras_bp
 from .detalles_compras import detalles_compras_bp
 from .anulaciones_ventas import anulaciones_ventas_bp
 from .alertas_vencimientos import alertas_vencimientos_bp
-from .kardex import kardex_bp  # <--- ESTA LÍNEA DEBE EXISTIR
+from .monitorias import monitorias_bp
 from .reportes import reportes_bp
 from .sesiones import sesiones_bp
 from .usuarios import usuarios_bp
@@ -31,7 +31,7 @@ def cargarruta(app):
     app.register_blueprint(detalles_compras_bp, url_prefix='/detalles_compras')
     app.register_blueprint(anulaciones_ventas_bp, url_prefix='/anulaciones_ventas')
     app.register_blueprint(alertas_vencimientos_bp, url_prefix='/alertas_vencimientos')
-    app.register_blueprint(kardex_bp, url_prefix='/kardex')  # <--- ESTA LÍNEA DEBE EXISTIR
+    app.register_blueprint(monitorias_bp, url_prefix='/monitorias')
     app.register_blueprint(reportes_bp, url_prefix='/reportes')
     app.register_blueprint(sesiones_bp, url_prefix='/sesiones')
     app.register_blueprint(usuarios_bp, url_prefix='/usuarios')

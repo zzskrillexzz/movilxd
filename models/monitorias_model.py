@@ -1,4 +1,4 @@
-class kardex:
+class monitorias:
     def __init__(self, kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total):
         self.kar_id = kar_id
         self.kar_pro_id_fk = kar_pro_id_fk
@@ -29,9 +29,9 @@ class kardex:
         }
 
     @staticmethod
-    def update_kardex(mysql, kar_id, cantidad, saldo_actual, costo_total):
+    def update_monitorias(mysql, kar_id, cantidad, saldo_actual, costo_total):
         cur = mysql.connection.cursor()
-        sql = "UPDATE t_kardex SET kar_cantidad = %s, kar_saldo_actual = %s, kar_costo_total = %s WHERE kar_id = %s"
+        sql = "UPDATE t_monitorias SET kar_cantidad = %s, kar_saldo_actual = %s, kar_costo_total = %s WHERE kar_id = %s"
         cur.execute(sql, (cantidad, saldo_actual, costo_total, kar_id))
         mysql.connection.commit()
         filas_afectadas = cur.rowcount

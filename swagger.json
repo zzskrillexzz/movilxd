@@ -356,75 +356,75 @@
         }
       }
     },
-    "/kardex": {
+    "/monitorias": {
       "get": {
-        "tags": ["KARDEX"],
-        "summary": "Obtener todos los kardex",
+        "tags": ["MONITORIAS"],
+        "summary": "Obtener todos los monitorias",
         "responses": {
           "200": {
-            "description": "Lista de kardex",
+            "description": "Lista de monitorias",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Kardex" } }
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/monitorias" } }
               }
             }
           }
         }
       },
       "post": {
-        "tags": ["KARDEX"],
-        "summary": "Crear un nuevo kardex",
+        "tags": ["monitorias"],
+        "summary": "Crear un nuevo monitorias",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Kardex" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/monitorias" } } }
         },
-        "responses": { "201": { "description": "Kardex creado exitosamente" } }
+        "responses": { "201": { "description": "monitorias creado exitosamente" } }
       }
     },
-    "/kardex/{id}": {
+    "/monitorias/{id}": {
       "get": {
-        "tags": ["KARDEX"],
+        "tags": ["MONITORIAS"],
         "summary": "Obtener datos por id",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": {
-            "description": "Datos del kardex",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Kardex" } } }
+            "description": "Datos del monitorias",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/monitorias" } } }
           },
-          "404": { "description": "Kardex no encontrado" }
+          "404": { "description": "monitorias no encontrado" }
         }
       },
       "put": {
-        "tags": ["KARDEX"],
-        "summary": "Actualizar un kardex",
+        "tags": ["MONITORIAS"],
+        "summary": "Actualizar un monitorias",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Kardex" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/monitorias" } } }
         },
         "responses": {
-          "200": { "description": "Kardex actualizado correctamente" },
-          "404": { "description": "Kardex no encontrado" }
+          "200": { "description": "monitorias actualizado correctamente" },
+          "404": { "description": "monitorias no encontrado" }
         }
       },
       "delete": {
-        "tags": ["KARDEX"],
-        "summary": "Eliminar un kardex",
+        "tags": ["MONITORIAS"],
+        "summary": "Eliminar un monitorias",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "200": { "description": "Kardex eliminado correctamente" },
-          "404": { "description": "Kardex no encontrado" }
+          "200": { "description": "monitorias eliminado correctamente" },
+          "404": { "description": "monitorias no encontrado" }
         }
       }
     },
 
-    "/alertas-vencimientos": {
+    "/alertas_vencimientos": {
       "get": {
         "tags": ["ALERTAS VENCIMIENTOS"],
         "summary": "Obtener todas las alertas de vencimiento",
@@ -449,7 +449,7 @@
         "responses": { "201": { "description": "Alerta de vencimiento creada exitosamente" } }
       }
     },
-    "/alertas-vencimientos/{id}": {
+    "/alertas_vencimientos/{id}": {
       "get": {
         "tags": ["ALERTAS VENCIMIENTOS"],
         "summary": "Obtener datos por id",
@@ -492,7 +492,7 @@
       }
     },
 
-    "/anulaciones-ventas": {
+    "/anulaciones_ventas": {
       "get": {
         "tags": ["ANULACIONES VENTAS"],
         "summary": "Obtener todas las anulaciones de ventas",
@@ -517,7 +517,7 @@
         "responses": { "201": { "description": "Anulación de venta creada exitosamente" } }
       }
     },
-    "/anulaciones-ventas/{id}": {
+    "/anulaciones_ventas/{id}": {
       "get": {
         "tags": ["ANULACIONES VENTAS"],
         "summary": "Obtener datos por id",
@@ -628,7 +628,7 @@
       }
     },
 
-    "/detalles-compras": {
+    "/detalles_compras": {
       "get": {
         "tags": ["DETALLES COMPRAS"],
         "summary": "Obtener todos los detalles de compras",
@@ -653,7 +653,7 @@
         "responses": { "201": { "description": "Detalle de compra creado exitosamente" } }
       }
     },
-    "/detalles-compras/{id}": {
+    "/detalles_compras/{id}": {
       "get": {
         "tags": ["DETALLES COMPRAS"],
         "summary": "Obtener datos por id",
@@ -696,7 +696,7 @@
       }
     },
 
-    "/detalles-pedidos": {
+    "/detalles_pedidos": {
       "get": {
         "tags": ["DETALLES PEDIDOS"],
         "summary": "Obtener todos los detalles de pedidos",
@@ -721,7 +721,7 @@
         "responses": { "201": { "description": "Detalle de pedido creado exitosamente" } }
       }
     },
-    "/detalles-pedidos/{id}": {
+    "/detalles_pedidos/{id}": {
       "get": {
         "tags": ["DETALLES PEDIDOS"],
         "summary": "Obtener datos por id",
@@ -832,7 +832,7 @@
       }
     },
 
-    "/inventarios-movimientos": {
+    "/inventarios_movimientos": {
       "get": {
         "tags": ["INVENTARIOS MOVIMIENTOS"],
         "summary": "Obtener todos los movimientos de inventario",
@@ -857,7 +857,7 @@
         "responses": { "201": { "description": "Movimiento de inventario creado exitosamente" } }
       }
     },
-    "/inventarios-movimientos/{id}": {
+    "/inventarios_movimientos/{id}": {
       "get": {
         "tags": ["INVENTARIOS MOVIMIENTOS"],
         "summary": "Obtener datos por id",
@@ -968,7 +968,7 @@
       }
     },
 
-    "/mas-vendidos": {
+    "/mas_vendidos": {
       "get": {
         "tags": ["MAS VENDIDOS"],
         "summary": "Obtener el ranking de productos más vendidos",
@@ -1121,13 +1121,13 @@
       }
     },
 
-    "/proveedores-productos": {
+    "/proveedores_productos": {
       "get": {
         "tags": ["PROVEEDORES PRODUCTOS"],
-        "summary": "Obtener todas las relaciones proveedor-producto",
+        "summary": "Obtener todas las relaciones proveedor_producto",
         "responses": {
           "200": {
-            "description": "Lista de relaciones proveedor-producto",
+            "description": "Lista de relaciones proveedor_producto",
             "content": {
               "application/json": {
                 "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProveedorProducto" } }
@@ -1138,40 +1138,40 @@
       },
       "post": {
         "tags": ["PROVEEDORES PRODUCTOS"],
-        "summary": "Crear una nueva relación proveedor-producto",
+        "summary": "Crear una nueva relación proveedor_producto",
         "requestBody": {
           "required": true,
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProveedorProducto" } } }
         },
-        "responses": { "201": { "description": "Relación proveedor-producto creada exitosamente" } }
+        "responses": { "201": { "description": "Relación proveedor_producto creada exitosamente" } }
       }
     },
-    "/proveedores-productos/{prov_id}/{pro_id}": {
+    "/proveedores_productos/{prov_id}/{pro_id}": {
       "get": {
         "tags": ["PROVEEDORES PRODUCTOS"],
-        "summary": "Obtener una relación proveedor-producto por sus ids",
+        "summary": "Obtener una relación proveedor_producto por sus ids",
         "parameters": [
           { "name": "prov_id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "ID del proveedor" },
           { "name": "pro_id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "ID del producto" }
         ],
         "responses": {
           "200": {
-            "description": "Datos de la relación proveedor-producto",
+            "description": "Datos de la relación proveedor_producto",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProveedorProducto" } } }
           },
-          "404": { "description": "Relación proveedor-producto no encontrada" }
+          "404": { "description": "Relación proveedor_producto no encontrada" }
         }
       },
       "delete": {
         "tags": ["PROVEEDORES PRODUCTOS"],
-        "summary": "Eliminar una relación proveedor-producto",
+        "summary": "Eliminar una relación proveedor_producto",
         "parameters": [
           { "name": "prov_id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "ID del proveedor" },
           { "name": "pro_id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "ID del producto" }
         ],
         "responses": {
-          "200": { "description": "Relación proveedor-producto eliminada correctamente" },
-          "404": { "description": "Relación proveedor-producto no encontrada" }
+          "200": { "description": "Relación proveedor_producto eliminada correctamente" },
+          "404": { "description": "Relación proveedor_producto no encontrada" }
         }
       }
     }
@@ -1236,20 +1236,20 @@
           "cli_tipo_documento": { "type": "string", "description": "Tipo de documento del cliente" }
         }
       },
-      "Kardex": {
+      "monitorias": {
         "type": "object",
         "properties": {
-          "kar_id": { "type": "string", "description": "ID del kardex" },
-          "kar_fecha": { "type": "string", "format": "date-time", "description": "Fecha del kardex" },
-          "kar_cantidad": { "type": "number", "format": "float", "description": "Cantidad del kardex" },
-          "kar_pro_id_fk": { "type": "string", "description": "ID del producto del kardex" },
-          "kar_lot_id_fk": { "type": "string", "description": "ID del lote del kardex" },
-          "kar_inm_id_fk": { "type": "string", "description": "ID del movimiento de inventario del kardex" },
-          "kar_tipo": { "type": "string", "description": "Tipo del kardex (entrada o salida)" },
-          "kar_saldo_anterior": { "type": "number", "format": "float", "description": "Saldo anterior del kardex" },
-          "kar_saldo_actual": { "type": "number", "format": "float", "description": "Saldo actual del kardex" },
-          "kar_costo_unitario": { "type": "number", "format": "float", "description": "Costo unitario del kardex" },
-          "kar_costo_total": { "type": "number", "format": "float", "description": "Costo total del kardex" }
+          "kar_id": { "type": "string", "description": "ID del monitorias" },
+          "kar_fecha": { "type": "string", "format": "date-time", "description": "Fecha del monitorias" },
+          "kar_cantidad": { "type": "number", "format": "float", "description": "Cantidad del monitorias" },
+          "kar_pro_id_fk": { "type": "string", "description": "ID del producto del monitorias" },
+          "kar_lot_id_fk": { "type": "string", "description": "ID del lote del monitorias" },
+          "kar_inm_id_fk": { "type": "string", "description": "ID del movimiento de inventario del monitorias" },
+          "kar_tipo": { "type": "string", "description": "Tipo del monitorias (entrada o salida)" },
+          "kar_saldo_anterior": { "type": "number", "format": "float", "description": "Saldo anterior del monitorias" },
+          "kar_saldo_actual": { "type": "number", "format": "float", "description": "Saldo actual del monitorias" },
+          "kar_costo_unitario": { "type": "number", "format": "float", "description": "Costo unitario del monitorias" },
+          "kar_costo_total": { "type": "number", "format": "float", "description": "Costo total del monitorias" }
         }
       },
 

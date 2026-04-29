@@ -1,13 +1,13 @@
 from flask import jsonify, request, current_app
-from services.kardex_service import (
-    listarKardex, registrarKardex,
-    editarKardex, eliminarKardex, buscarKardex
+from services.monitorias_service import (
+    listarmonitorias, registrarmonitorias,
+    editarmonitorias, eliminarmonitorias, buscarmonitorias
 )
 
 
-def cnlistadokardex():
+def cnlistadomonitorias():
     try:
-        datos = listarKardex()
+        datos = listarmonitorias()
         return jsonify(datos), 200
     except Exception as e:
         import traceback
@@ -15,7 +15,7 @@ def cnlistadokardex():
         return jsonify({"error": str(e)}), 500
 
 
-def cnregistrarkardex():
+def cnregistrarmonitorias():
     try:
         data = request.get_json()
         if not data:
@@ -46,10 +46,10 @@ def cnregistrarkardex():
             return jsonify({"mensaje": "Los saldos deben ser números enteros"}), 400
 
         c = current_app.mysql.connection.cursor()
-        c.execute("SELECT kar_id FROM t_kardex WHERE kar_id = %s", (data["kar_id"],))
+        c.execute("SELECT kar_id FROM t_monitorias WHERE kar_id = %s", (data["kar_id"],))
         if c.fetchone():
             c.close()
-            return jsonify({"mensaje": f"Ya existe un registro de kardex con el ID {data['kar_id']}"}), 409
+            return jsonify({"mensaje": f"Ya existe un registro de monitorias con el ID {data['kar_id']}"}), 409
 
         c.execute("SELECT pro_id FROM t_producto WHERE pro_id = %s", (data["kar_pro_id_fk"],))
         if not c.fetchone():
@@ -67,13 +67,13 @@ def cnregistrarkardex():
             return jsonify({"mensaje": f"No existe un movimiento con el ID {data['kar_inm_id_fk']}"}), 404
         c.close()
 
-        resultado = registrarKardex(
+        resultado = registrarmonitorias(
             data["kar_id"], data["kar_pro_id_fk"], data["kar_lot_id_fk"],
             data["kar_inm_id_fk"], data["kar_fecha"], data["kar_tipo"],
             data["kar_cantidad"], data["kar_saldo_anterior"], data["kar_saldo_actual"],
             data["kar_costo_unitario"], data["kar_costo_total"]
         )
-        return jsonify({"mensaje": "Registro de kardex guardado correctamente", "datos": resultado}), 201
+        return jsonify({"mensaje": "Registro de monitorias guardado correctamente", "datos": resultado}), 201
 
     except Exception as e:
         import traceback
@@ -81,14 +81,14 @@ def cnregistrarkardex():
         return jsonify({"error": str(e)}), 500
 
 
-def cneditarkardex(id):
+def cneditarmonitorias(id):
     try:
         data = request.get_json()
         if not data:
             return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
 
-        if not buscarKardex(id):
-            return jsonify({"mensaje": f"No existe un registro de kardex con el ID {id}"}), 404
+        if not buscarmonitorias(id):
+            return jsonify({"mensaje": f"No existe un registro de monitorias con el ID {id}"}), 404
 
         requerido = ["kar_pro_id_fk", "kar_lot_id_fk", "kar_inm_id_fk", "kar_fecha", "kar_tipo",
                      "kar_cantidad", "kar_saldo_anterior", "kar_saldo_actual",
@@ -133,13 +133,13 @@ def cneditarkardex(id):
             return jsonify({"mensaje": f"No existe un movimiento con el ID {data['kar_inm_id_fk']}"}), 404
         c.close()
 
-        resultado = editarKardex(
+        resultado = editarmonitorias(
             id, data["kar_pro_id_fk"], data["kar_lot_id_fk"], data["kar_inm_id_fk"],
             data["kar_fecha"], data["kar_tipo"], data["kar_cantidad"],
             data["kar_saldo_anterior"], data["kar_saldo_actual"],
             data["kar_costo_unitario"], data["kar_costo_total"]
         )
-        return jsonify({"mensaje": "Registro de kardex actualizado correctamente", "datos": resultado}), 200
+        return jsonify({"mensaje": "Registro de monitorias actualizado correctamente", "datos": resultado}), 200
 
     except Exception as e:
         import traceback
@@ -147,13 +147,13 @@ def cneditarkardex(id):
         return jsonify({"error": str(e)}), 500
 
 
-def cneliminarkardex(id):
+def cneliminarmonitorias(id):
     try:
-        if not buscarKardex(id):
-            return jsonify({"mensaje": f"No existe un registro de kardex con el ID {id}"}), 404
+        if not buscarmonitorias(id):
+            return jsonify({"mensaje": f"No existe un registro de monitorias con el ID {id}"}), 404
 
-        if eliminarKardex(id):
-            return jsonify({"mensaje": f"Registro de kardex {id} eliminado correctamente"}), 200
+        if eliminarmonitorias(id):
+            return jsonify({"mensaje": f"Registro de monitorias {id} eliminado correctamente"}), 200
         return jsonify({"mensaje": "No se pudo eliminar el registro"}), 500
 
     except Exception as e:
@@ -162,18 +162,18 @@ def cneliminarkardex(id):
         return jsonify({"error": str(e)}), 500
 
 
-def cnbuscarkardex():
+def cnbuscarmonitorias():
     try:
         kar_id = request.args.get("kar_id")
         if kar_id:
             # Buscar específico
-            resultado = buscarKardex(kar_id)
+            resultado = buscarmonitorias(kar_id)
             if resultado:
                 return jsonify(resultado), 200
             return jsonify({"mensaje": "Registro no encontrado"}), 404
         else:
             # Listar todos
-            resultado = buscarKardex()  # Sin parámetro, lista todos
+            resultado = buscarmonitorias()  # Sin parámetro, lista todos
             return jsonify(resultado), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

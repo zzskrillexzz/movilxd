@@ -1,32 +1,32 @@
 from flask import current_app
-from models.kardex_model import kardex
+from models.monitorias_model import monitorias
 
-def listarKardex():
+def listarmonitorias():
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
             SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
                    kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-            FROM t_kardex
+            FROM t_monitorias
         """
         c.execute(sql)
         datos = c.fetchall()
         lista = []
         for p in datos:
-            k = kardex(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]).todic()
+            k = monitorias(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]).todic()
             lista.append(k)
         c.close()
         return lista
     except Exception as e:
-        print(f"Error en listarKardex: {e}")
+        print(f"Error en listarmonitorias: {e}")
         return []
 
-def registrarKardex(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
+def registrarmonitorias(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
                     KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL):
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
-            INSERT INTO t_kardex (kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
+            INSERT INTO t_monitorias (kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
                                   kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -34,18 +34,18 @@ def registrarKardex(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FEC
                        KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL))
         current_app.mysql.connection.commit()
         c.close()
-        return kardex(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
+        return monitorias(KAR_ID, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
                      KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL).todic()
     except Exception as e:
-        print(f"Error en registrarKardex: {e}")
+        print(f"Error en registrarmonitorias: {e}")
         return None
 
-def editarKardex(id, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
+def editarmonitorias(id, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR_TIPO, 
                 KAR_CANTIDAD, KAR_SALDO_ANTERIOR, KAR_SALDO_ACTUAL, KAR_COSTO_UNITARIO, KAR_COSTO_TOTAL):
     try:
         c = current_app.mysql.connection.cursor()
         sql = """
-            UPDATE t_kardex 
+            UPDATE t_monitorias 
             SET kar_pro_id_fk = %s, kar_lot_id_fk = %s, kar_inm_id_fk = %s, 
                 kar_fecha = %s, kar_tipo = %s, kar_cantidad = %s, 
                 kar_saldo_anterior = %s, kar_saldo_actual = %s, 
@@ -60,33 +60,33 @@ def editarKardex(id, KAR_PRO_ID_FK, KAR_LOT_ID_FK, KAR_INM_ID_FK, KAR_FECHA, KAR
         c.close()
         
         if afectadas > 0:
-            return buscarKardex(id)
+            return buscarmonitorias(id)
         return None
     except Exception as e:
-        print(f"Error en editarKardex: {e}")
+        print(f"Error en editarmonitorias: {e}")
         return None
 
-def eliminarKardex(id):
+def eliminarmonitorias(id):
     try:
         c = current_app.mysql.connection.cursor()
-        sql = "DELETE FROM t_kardex WHERE kar_id = %s"
+        sql = "DELETE FROM t_monitorias WHERE kar_id = %s"
         c.execute(sql, (id,))
         current_app.mysql.connection.commit()
         afectadas = c.rowcount
         c.close()
         return afectadas > 0
     except Exception as e:
-        print(f"Error en eliminarKardex: {e}")
+        print(f"Error en eliminarmonitorias: {e}")
         return False
 
-def buscarKardex(kar_id=None):
+def buscarmonitorias(kar_id=None):
     try:
         c = current_app.mysql.connection.cursor()
         if kar_id:
             sql = """
                 SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
                        kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-                FROM t_kardex 
+                FROM t_monitorias 
                 WHERE kar_id = %s
             """
             c.execute(sql, (kar_id,))
@@ -112,7 +112,7 @@ def buscarKardex(kar_id=None):
             sql = """
                 SELECT kar_id, kar_pro_id_fk, kar_lot_id_fk, kar_inm_id_fk, kar_fecha, kar_tipo, 
                        kar_cantidad, kar_saldo_anterior, kar_saldo_actual, kar_costo_unitario, kar_costo_total 
-                FROM t_kardex
+                FROM t_monitorias
             """
             c.execute(sql)
             datos = c.fetchall()
@@ -135,5 +135,5 @@ def buscarKardex(kar_id=None):
             c.close()
             return lista
     except Exception as e:
-        print(f"Error en buscarKardex: {e}")
+        print(f"Error en buscarmonitorias: {e}")
         return None if kar_id else []
