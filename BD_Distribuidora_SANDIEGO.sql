@@ -472,7 +472,7 @@ DROP TABLE IF EXISTS `t_rol`;
 
 CREATE TABLE `t_rol` (
   `rol_id` varchar(20) NOT NULL COMMENT 'ID del rol',
-  `rol_nombre` varchar(50) NOT NULL COMMENT 'Nombre del rol (Administrador, Vendedor, Bodeguero, Contador)',
+  `rol_nombre` varchar(50) NOT NULL COMMENT 'Nombre del rol (Administrador, Vendedor, Bodeguero)',
   `rol_descripcion` varchar(255) DEFAULT NULL COMMENT 'Descripción del rol y sus permisos',
   `rol_estado` tinyint(1) DEFAULT 1 COMMENT '1=Activo / 0=Inactivo',
   PRIMARY KEY (`rol_id`),
