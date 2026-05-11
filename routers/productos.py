@@ -1,12 +1,15 @@
 from flask import Blueprint
+from services.auth_service import token_requerido
 from controllers.productos_controllers import cnListarProductos, cnRegistrarProductos
 
 productos_bp = Blueprint('productos', __name__)
 
 @productos_bp.route('/')
+@token_requerido
 def listado():
     return cnListarProductos()
 
 @productos_bp.route('/', methods=["POST"])
+@token_requerido
 def registrar():
     return cnRegistrarProductos()

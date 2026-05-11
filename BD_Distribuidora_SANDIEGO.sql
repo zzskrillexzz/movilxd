@@ -531,15 +531,15 @@ CREATE TABLE `t_usuario` (
 /*Data for the table `t_usuario` */
 
 insert  into `t_usuario`(`usu_id`,`usu_nombre`,`usu_rol_id_fk`,`usu_correo`,`usu_contrasena`,`usu_estado`,`usu_ultimo_acceso`) values 
-('USU001','Diana Lopez','ROL001','d.lopez@sd.com','Admin#2025',1,NULL),
-('USU002','Pedro Vargas','ROL002','p.vargas@sd.com','Vend#Pedro1',1,'2025-03-19 08:05:00'),
-('USU003','Sandra Nino','ROL002','s.nino@sd.com','Vend#Sandra2',1,'2025-03-19 08:10:00'),
-('USU004','Camilo Ruiz','ROL003','c.ruiz@sd.com','Bodeg#Cam3',1,'2025-03-12 07:55:00'),
-('USU005','Luisa Mora','ROL004','l.mora@sd.com','Cont#Luisa4',1,NULL),
-('USU050','Andres Gomez','ROL002','andres.gomez@farmacia.com','Andres#2026',1,NULL),
-('USU051','Maria Torres','ROL001','maria.torres@farmacia.com','Maria#2026',1,NULL),
-('USU052','Pedro Ruiz','ROL003','pedro.ruiz@farmacia.com','Pedro#2026',1,NULL),
-('USU099','Test User','ROL002','test@sd.com','Test#2026',1,NULL);
+('USU001','Diana Lopez','ROL001','d.lopez@sd.com','$2b$12$59BjXtraY8WfjhvQGCiJzuaT1HTJkS8SH8mtaLzL3xTxUj/Lb2ZgK',1,NULL),
+('USU002','Pedro Vargas','ROL002','p.vargas@sd.com','$2b$12$TX8izXrpNEFbDR1dE5qVBeJ5v51dXXhccldogD0dT6tuMFVoAh39W',1,'2025-03-19 08:05:00'),
+('USU003','Sandra Nino','ROL002','s.nino@sd.com','$2b$12$Gm5hGB1ELP41oc0NohHM9OtrcNpdZP75Mxxaxb96HFdSgsGUPEYW2',1,'2025-03-19 08:10:00'),
+('USU004','Camilo Ruiz','ROL003','c.ruiz@sd.com','$2b$12$C/3B2eDPwo0L49tYymBp/.jDU.qNA3fIAy1R.cCE8mz0J2d/6bjsi',1,'2025-03-12 07:55:00'),
+('USU005','Luisa Mora','ROL004','l.mora@sd.com','$2b$12$VaCU2NL494ycZp.BG1X70e3bkZc.Wosoi2e.XiXJzF/.e.2zlQJkq',1,NULL),
+('USU050','Andres Gomez','ROL002','andres.gomez@farmacia.com','$2b$12$HKI94lfawJsY1EENyeKBBu2cJgQAwnD6OyU8JrF9PDtBFhVZWUBZ6',1,NULL),
+('USU051','Maria Torres','ROL001','maria.torres@farmacia.com','$2b$12$QPLMu0R/x.p2wIrCQv2E1.BGPfGwLAHV2pEa7mti.iy9RskmQJ20i',1,NULL),
+('USU052','Pedro Ruiz','ROL003','pedro.ruiz@farmacia.com','$2b$12$mABNj6826p/AP1ubQlFZm.n2F6n0msL2gzVdRthlIxAPTIP/GtQaa',1,NULL),
+('USU099','Test User','ROL002','test@sd.com','$2b$12$D1AyTMydROT/YU9H5QHfwOZIyI1VOtn3mQSGGPZhTxeL/04aCN2li',1,NULL);
 
 /*Table structure for table `t_usuario_factura` */
 
