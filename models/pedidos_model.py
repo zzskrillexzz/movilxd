@@ -15,14 +15,14 @@ class pedidos:
 
     def a_diccionario(self):
         return {
-            "id": self.ped_id,
-            "fecha": str(self.ped_fecha) if self.ped_fecha else None,
-            "metodo_de_pago": self.ped_metodo_pago,
-            "estado": self.ped_estado_entrega,
-            "total": float(self.ped_total) if self.ped_total else None,
-            "cliente_id": self.ped_cli_id_fk,
-            "detalle_pedido_id": self.ped_det_id_fk,
-            "usuario_id": self.ped_usu_id_fk
+            "ped_id": self.ped_id,
+            "ped_fecha": str(self.ped_fecha) if self.ped_fecha else None,
+            "ped_metodo_pago": self.ped_metodo_pago,
+            "ped_estado_entrega": self.ped_estado_entrega,
+            "ped_total": float(self.ped_total) if self.ped_total else None,
+            "ped_cli_id_fk": self.ped_cli_id_fk,
+            "ped_det_id_fk": self.ped_det_id_fk,
+            "ped_usu_id_fk": self.ped_usu_id_fk
         }
 
     @staticmethod

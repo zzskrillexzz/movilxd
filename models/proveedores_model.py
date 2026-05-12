@@ -10,11 +10,13 @@ class proveedores:
 
     def todic(self):
         return {
-            "id": self.prov_id,
-            "nit": self.prov_nit,
-            "nombre": self.prov_nombre,
-            "tipo": self.prov_tipo,
-            "contacto": self.prov_contacto,
-            "direccion": self.prov_direccion,
-            "email": self.prov_email
+            "prov_id": self.prov_id,
+            "prov_nit": self.prov_nit,
+            "prov_nombre": self.prov_nombre,
+            "prov_tipo": self.prov_tipo,
+            "prov_contacto": self.prov_contacto,
+            "prov_telefono": self.prov_contacto,
+            "prov_direccion": self.prov_direccion,
+            "prov_email": self.prov_email,
+            "prov_correo": self.prov_email
         }

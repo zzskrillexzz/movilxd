@@ -10,11 +10,11 @@ class clientes:
 
     def todic(self):
         return {
-            "id": self.cli_id,
-            "tipo_documento": self.cli_tipo_documento,
-            "nombre": self.cli_nombre,
-            "apellido": self.cli_apellido,
-            "telefono": self.cli_telefono,
-            "direccion": self.cli_direccion,
-            "correo": self.cli_correo
+            "cli_id": self.cli_id,
+            "cli_tipo_documento": self.cli_tipo_documento,
+            "cli_nombre": self.cli_nombre,
+            "cli_apellido": self.cli_apellido,
+            "cli_telefono": self.cli_telefono,
+            "cli_direccion": self.cli_direccion,
+            "cli_correo": self.cli_correo
         }

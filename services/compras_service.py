@@ -3,13 +3,18 @@ from models.compras_model import compras
 
 def listarCompras():
     c = current_app.mysql.connection.cursor()
-    sql = "SELECT com_id, com_fecha, com_prov_id_fk, com_usu_id_fk, com_total, com_estado, com_observacion FROM t_compra"
+    sql = """
+        SELECT c.com_id, c.com_fecha, c.com_prov_id_fk, c.com_usu_id_fk, c.com_total, c.com_estado, c.com_observacion,
+               d.dco_pro_id_fk, d.dco_cantidad
+        FROM t_compra c
+        LEFT JOIN t_detalle_compra d ON c.com_id = d.dco_com_id_fk
+    """
     c.execute(sql)
     datos = c.fetchall()
     
     lista = []
     for x in datos:
-        com = compras(x[0], x[1], x[2], x[3], x[4], x[5], x[6]).todic()
+        com = compras(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8]).todic()
         lista.append(com)
     return lista
 
