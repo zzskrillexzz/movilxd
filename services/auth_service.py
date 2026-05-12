@@ -1,6 +1,7 @@
 from flask import current_app, request, jsonify
 from datetime import datetime, timedelta
 from functools import wraps
+import hashlib
 import bcrypt
 import jwt
 
@@ -53,9 +54,32 @@ def login(USU_CORREO, USU_CONTRASENA):
     return {
         "access_token": token,
         "token_type":   "bearer",
+        "usu_id":       usuario['usu_id'],
         "usu_nombre":   usuario['usu_nombre'],
         "usu_rol_id_fk": usuario['usu_rol_id_fk']
     }
+
+# ─── Blacklist de tokens ──────────────────────────────────────────────────────
+
+def tokenEstaRevocado(token):
+    """Verifica si un token JWT está en la lista negra (fue revocado por logout)."""
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    c = current_app.mysql.connection.cursor()
+    c.execute("SELECT tre_id FROM t_token_revocado WHERE tre_token_hash = %s", (token_hash,))
+    revocado = c.fetchone()
+    c.close()
+    return revocado is not None
+
+def revocarToken(token, usu_id):
+    """Revoca un token JWT insertándolo en la tabla de blacklist."""
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    c = current_app.mysql.connection.cursor()
+    c.execute(
+        "INSERT INTO t_token_revocado (tre_token_hash, tre_usu_id_fk) VALUES (%s, %s)",
+        (token_hash, usu_id)
+    )
+    current_app.mysql.connection.commit()
+    c.close()
 
 # ─── Decorador de autenticación ────────────────────────────────────────────────
 
@@ -148,6 +172,13 @@ def token_requerido(f):
             return jsonify({
                 "error": "Usuario inactivo",
                 "detalle": "El usuario está desactivado. Contacte al administrador"
+            }), 401
+
+        # ── 8. Validar que el token no esté revocado (logout) ──
+        if tokenEstaRevocado(token):
+            return jsonify({
+                "error": "Token revocado",
+                "detalle": "La sesión fue cerrada. Inicie sesión nuevamente"
             }), 401
 
         # ── Todo OK → ejecutar la ruta ──

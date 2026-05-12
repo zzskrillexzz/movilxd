@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from controllers.auth_controller import iniciarSesion
+from controllers.auth_controller import iniciarSesion, cerrarSesion
+from services.auth_service import token_requerido
 
 autenticacion_bp = Blueprint('autenticacion', __name__)
 
@@ -19,3 +20,11 @@ def login():
 
     # 4. ¿Todo ok?
     return jsonify(resultado), 200
+
+@autenticacion_bp.route('/logout', methods=['POST'])
+@token_requerido
+def logout():
+    resultado = cerrarSesion()
+    if not resultado:
+        return jsonify({"error": "No se pudo cerrar la sesión"}), 500
+    return jsonify({"mensaje": "Sesión cerrada correctamente"}), 200
