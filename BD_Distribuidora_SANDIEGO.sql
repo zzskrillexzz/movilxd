@@ -563,6 +563,20 @@ insert  into `t_usuario_factura`(`usa_usu_id_fk`,`usa_fac_id_fk`) values
 ('USU003','PED004'),
 ('USU002','PED005');
 
+/*Table structure for table `t_token_revocado` */
+
+DROP TABLE IF EXISTS `t_token_revocado`;
+
+CREATE TABLE `t_token_revocado` (
+  `tre_id` int(11) NOT NULL AUTO_INCREMENT,
+  `tre_token_hash` varchar(64) NOT NULL COMMENT 'SHA-256 del token JWT',
+  `tre_fecha_revocacion` datetime NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha y hora de revocación',
+  `tre_usu_id_fk` varchar(20) DEFAULT NULL COMMENT 'Usuario que cerró sesión',
+  PRIMARY KEY (`tre_id`),
+  KEY `tre_token_hash` (`tre_token_hash`),
+  KEY `tre_usu_id_fk` (`tre_usu_id_fk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 /* Trigger structure for table `t_inventario_movimiento` */
 
 DELIMITER $$
