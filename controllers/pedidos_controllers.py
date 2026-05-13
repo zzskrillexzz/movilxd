@@ -47,6 +47,14 @@ def cnregistrarpedidos():
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El total debe ser un número válido"}), 400
 
+        # Validar que ped_cli_id_fk sea un entero positivo
+        try:
+            cli_id_fk = int(data["ped_cli_id_fk"])
+            if cli_id_fk <= 0:
+                return jsonify({"mensaje": "El ID del cliente debe ser un número positivo"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
+
         # Validar duplicado
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT ped_id FROM t_pedido WHERE ped_id = %s", (data["ped_id"],))
@@ -109,6 +117,14 @@ def cneditarpedidos(id):
                 return jsonify({"mensaje": "El total debe ser mayor a 0"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El total debe ser un número válido"}), 400
+
+        # Validar que ped_cli_id_fk sea un entero positivo
+        try:
+            cli_id_fk = int(data["ped_cli_id_fk"])
+            if cli_id_fk <= 0:
+                return jsonify({"mensaje": "El ID del cliente debe ser un número positivo"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
 
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT cli_id FROM t_cliente WHERE cli_id=%s", (data["ped_cli_id_fk"],))

@@ -15,6 +15,14 @@ def cnregistrarclientes():
         if not data or any(x not in data for x in requerido):
             return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
 
+        # Validar que cli_id sea un entero positivo
+        try:
+            cli_id = int(data["cli_id"])
+            if cli_id <= 0:
+                return jsonify({"mensaje": "El ID del cliente debe ser un número positivo"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
+
         # Validar ID duplicado
         if buscarClientes(data["cli_id"]):
             return jsonify({"mensaje": f"El cliente con ID {data['cli_id']} ya existe"}), 409
@@ -40,7 +48,15 @@ def cneditarclientes():
         data = request.get_json()
         if not data or "cli_id" not in data:
             return jsonify({"mensaje": "ID de cliente requerido"}), 400
-        
+
+        # Validar que cli_id sea un entero positivo
+        try:
+            cli_id = int(data["cli_id"])
+            if cli_id <= 0:
+                return jsonify({"mensaje": "El ID del cliente debe ser un número positivo"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
+
         # Validar que el correo no lo tenga otro cliente
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT cli_id FROM t_cliente WHERE cli_correo = %s AND cli_id != %s", (data["cli_correo"], data["cli_id"]))

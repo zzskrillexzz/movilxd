@@ -77,7 +77,7 @@ insert  into `t_anulacion_venta`(`anu_id`,`anu_fac_id_fk`,`anu_usu_id_fk`,`anu_f
 DROP TABLE IF EXISTS `t_cliente`;
 
 CREATE TABLE `t_cliente` (
-  `cli_id` varchar(20) NOT NULL COMMENT 'Número de documento del cliente',
+  `cli_id` bigint(20) NOT NULL COMMENT 'Número de documento del cliente',
   `cli_tipo_documento` varchar(10) DEFAULT 'CC' COMMENT 'Tipo: CC / NIT / CE / TI',
   `cli_nombre` varchar(50) DEFAULT NULL COMMENT 'Nombre del cliente',
   `cli_apellido` varchar(50) DEFAULT NULL COMMENT 'Apellido del cliente',
@@ -90,13 +90,13 @@ CREATE TABLE `t_cliente` (
 /*Data for the table `t_cliente` */
 
 insert  into `t_cliente`(`cli_id`,`cli_tipo_documento`,`cli_nombre`,`cli_apellido`,`cli_telefono`,`cli_direccion`,`cli_correo`) values 
-('1023456789','CC','Carlos','Gomez','3157894561','Cl 80 #20-35','cgomez@hotmail.com'),
-('1065432198','CC','Maria','Salcedo','3143216547','Cl 45 #8-15','msalcedo@gmail.com'),
-('1076543219','CC','Jhon','Rios','3209876543','Cra 7 #12-50','jhonrios@gmail.com'),
-('1087654321','CC','Ana','Torres','3012345678','Av 68 #55-20','ana.torres@yahoo.com'),
-('1098765432','CC','Laura','Martinez','3104567890','Cra 15 #42-10','l.martinez@gmail.com'),
-('900123456','NIT','Farmacia','El Descuento SAS','6014567890','Av 68 #23-45 Cali','farmacia.descuento@empresa.co'),
-('9999999999','CC','Test','Usuario','3001234567','Calle 1 #2-3','test@test.com');
+(1023456789,'CC','Carlos','Gomez','3157894561','Cl 80 #20-35','cgomez@hotmail.com'),
+(1065432198,'CC','Maria','Salcedo','3143216547','Cl 45 #8-15','msalcedo@gmail.com'),
+(1076543219,'CC','Jhon','Rios','3209876543','Cra 7 #12-50','jhonrios@gmail.com'),
+(1087654321,'CC','Ana','Torres','3012345678','Av 68 #55-20','ana.torres@yahoo.com'),
+(1098765432,'CC','Laura','Martinez','3104567890','Cra 15 #42-10','l.martinez@gmail.com'),
+(900123456,'NIT','Farmacia','El Descuento SAS','6014567890','Av 68 #23-45 Cali','farmacia.descuento@empresa.co'),
+(9999999999,'CC','Test','Usuario','3001234567','Calle 1 #2-3','test@test.com');
 
 /*Table structure for table `t_compra` */
 
@@ -332,7 +332,7 @@ CREATE TABLE `t_pedido` (
   `ped_metodo_pago` varchar(50) DEFAULT NULL COMMENT 'Método de pago',
   `ped_estado_entrega` varchar(50) DEFAULT NULL COMMENT 'Estado: Entregado / En camino / No entregado / Anulado',
   `ped_total` decimal(12,2) DEFAULT NULL COMMENT 'Total del pedido',
-  `ped_cli_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del cliente',
+  `ped_cli_id_fk` bigint(20) DEFAULT NULL COMMENT 'ID del cliente',
   `ped_usu_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del vendedor que registró el pedido',
   PRIMARY KEY (`ped_id`),
   KEY `ped_cli_id_fk` (`ped_cli_id_fk`),
@@ -344,14 +344,14 @@ CREATE TABLE `t_pedido` (
 /*Data for the table `t_pedido` */
 
 insert  into `t_pedido`(`ped_id`,`ped_fecha`,`ped_metodo_pago`,`ped_estado_entrega`,`ped_total`,`ped_cli_id_fk`,`ped_usu_id_fk`) values 
-('PED001','2025-03-15','Efectivo','Entregado',8450.00,'1098765432','USU002'),
-('PED002','2025-03-16','Tarjeta','En camino',12700.00,'1023456789','USU003'),
-('PED003','2025-03-17','Nequi','Entregado',5880.00,'1087654321','USU002'),
-('PED004','2025-03-18','Efectivo','No entregado',4200.00,'1076543219','USU003'),
-('PED005','2025-03-19','Daviplata','En camino',9800.00,'1065432198','USU002'),
-('PED050','2026-04-09','Efectivo','Entregado',17000.00,'1098765432','USU050'),
-('PED051','2026-04-09','Tarjeta','En camino',30000.00,'1087654321','USU051'),
-('PED052','2026-04-09','Transferencia','En camino',5200.00,'900123456','USU052');
+('PED001','2025-03-15','Efectivo','Entregado',8450.00,1098765432,'USU002'),
+('PED002','2025-03-16','Tarjeta','En camino',12700.00,1023456789,'USU003'),
+('PED003','2025-03-17','Nequi','Entregado',5880.00,1087654321,'USU002'),
+('PED004','2025-03-18','Efectivo','No entregado',4200.00,1076543219,'USU003'),
+('PED005','2025-03-19','Daviplata','En camino',9800.00,1065432198,'USU002'),
+('PED050','2026-04-09','Efectivo','Entregado',17000.00,1098765432,'USU050'),
+('PED051','2026-04-09','Tarjeta','En camino',30000.00,1087654321,'USU051'),
+('PED052','2026-04-09','Transferencia','En camino',5200.00,900123456,'USU052');
 
 /*Table structure for table `t_producto` */
 
