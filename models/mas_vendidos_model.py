@@ -14,7 +14,7 @@ class mas_vendidos:
     @staticmethod
     def get_all(mysql):
         cur = mysql.connection.cursor()
-        cur.execute("SELECT pro_id, pro_nombre, total_vendido FROM v_mas_vendidos ORDER BY total_vendido DESC")
+        cur.execute("SELECT pro_id, pro_nombre, total_unidades_vendidas FROM v_mas_vendidos ORDER BY total_unidades_vendidas DESC")
         rows = cur.fetchall()
         cur.close()
         

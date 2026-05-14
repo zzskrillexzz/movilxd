@@ -3,10 +3,11 @@ import MySQLdb.cursors
 from datetime import datetime
 
 class pedidos:
-    def __init__(self, ID, FECHA, METODO_DE_PAGO, ESTADO, TOTAL, ID_CLIENTE, ped_det_id_fk=None, ped_usu_id_fk=None):
+    def __init__(self, ID, FECHA, METODO_DE_PAGO, CUENTA_BANCARIA=None, ESTADO=None, TOTAL=None, ID_CLIENTE=None, ped_det_id_fk=None, ped_usu_id_fk=None):
         self.ped_id = ID
         self.ped_fecha = FECHA
         self.ped_metodo_pago = METODO_DE_PAGO
+        self.ped_cuenta_bancaria = CUENTA_BANCARIA
         self.ped_estado_entrega = ESTADO
         self.ped_total = TOTAL
         self.ped_cli_id_fk = ID_CLIENTE
@@ -18,6 +19,7 @@ class pedidos:
             "ped_id": self.ped_id,
             "ped_fecha": str(self.ped_fecha) if self.ped_fecha else None,
             "ped_metodo_pago": self.ped_metodo_pago,
+            "ped_cuenta_bancaria": self.ped_cuenta_bancaria,
             "ped_estado_entrega": self.ped_estado_entrega,
             "ped_total": float(self.ped_total) if self.ped_total else None,
             "ped_cli_id_fk": self.ped_cli_id_fk,

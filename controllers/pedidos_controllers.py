@@ -30,7 +30,7 @@ def cnregistrarpedidos():
                 return jsonify({"mensaje": f"El campo {campo} no puede estar vacío"}), 400
 
         # Validar método de pago
-        metodos_validos = ["Efectivo", "Tarjeta", "Nequi", "Daviplata", "Transferencia"]
+        metodos_validos = ["Efectivo", "Tarjeta", "Transferencia"]
         if data["ped_metodo_pago"] not in metodos_validos:
             return jsonify({"mensaje": f"Método de pago inválido. Valores permitidos: {metodos_validos}"}), 400
 
@@ -103,7 +103,7 @@ def cneditarpedidos(id):
         if faltantes:
             return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
-        metodos_validos = ["Efectivo", "Tarjeta", "Nequi", "Daviplata", "Transferencia"]
+        metodos_validos = ["Efectivo", "Tarjeta", "Transferencia"]
         if data["ped_metodo_pago"] not in metodos_validos:
             return jsonify({"mensaje": f"Método de pago inválido. Valores permitidos: {metodos_validos}"}), 400
 
