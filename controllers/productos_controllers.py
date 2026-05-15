@@ -1,5 +1,5 @@
 from flask import jsonify, request, current_app
-from services.productos_service import listarProductos, registrarProductos
+from services.productos_service import listarProductos, registrarProductos, editarProductos
 
 def cnListarProductos():
     try:
@@ -64,6 +64,35 @@ def cnRegistrarProductos():
         resultado = registrarProductos(data)
         return jsonify(resultado), 201
 
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+def cnEditarProductos():
+    try:
+        data = request.get_json()
+        if not data or "id" not in data:
+            return jsonify({"mensaje": "ID del producto requerido"}), 400
+
+        if "precio" in data and data["precio"] is not None:
+            try:
+                precio = float(data["precio"])
+                if precio <= 0:
+                    return jsonify({"mensaje": "El precio debe ser mayor a 0"}), 400
+            except (ValueError, TypeError):
+                return jsonify({"mensaje": "El precio debe ser un número válido"}), 400
+
+        if "cantidad_disponible" in data and data["cantidad_disponible"] is not None:
+            try:
+                cantidad = int(data["cantidad_disponible"])
+                if cantidad < 0:
+                    return jsonify({"mensaje": "La cantidad no puede ser negativa"}), 400
+            except (ValueError, TypeError):
+                return jsonify({"mensaje": "La cantidad debe ser un número entero"}), 400
+
+        resultado = editarProductos(data["id"], data)
+        return jsonify(resultado), 200
     except Exception as e:
         import traceback
         print(traceback.format_exc())

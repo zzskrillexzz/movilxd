@@ -1,5 +1,5 @@
 from flask import jsonify, request, current_app
-from services.lotes_service import listarLotes, registrarLotes
+from services.lotes_service import listarLotes, registrarLotes, editarLotes
 
 def cnlistadolotes():
     try:
@@ -66,6 +66,35 @@ def cnregistrarlotes():
         )
         return jsonify({"mensaje": "Lote registrado correctamente", "datos": resultado}), 201
 
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+def cnEditarlotes():
+    try:
+        data = request.get_json()
+        if not data or "lot_id" not in data:
+            return jsonify({"mensaje": "ID del lote requerido"}), 400
+
+        if "lot_cantidad_inicial" in data and data["lot_cantidad_inicial"] is not None:
+            try:
+                cant = int(data["lot_cantidad_inicial"])
+                if cant <= 0:
+                    return jsonify({"mensaje": "La cantidad inicial debe ser mayor a 0"}), 400
+            except (ValueError, TypeError):
+                return jsonify({"mensaje": "La cantidad inicial debe ser un numero entero"}), 400
+
+        if "lot_cantidad_actual" in data and data["lot_cantidad_actual"] is not None:
+            try:
+                cant = int(data["lot_cantidad_actual"])
+                if cant < 0:
+                    return jsonify({"mensaje": "La cantidad actual no puede ser negativa"}), 400
+            except (ValueError, TypeError):
+                return jsonify({"mensaje": "La cantidad actual debe ser un numero entero"}), 400
+
+        resultado = editarLotes(data["lot_id"], data)
+        return jsonify(resultado), 200
     except Exception as e:
         import traceback
         print(traceback.format_exc())
