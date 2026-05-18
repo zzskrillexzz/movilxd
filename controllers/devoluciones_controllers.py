@@ -7,6 +7,23 @@ def cnListarDevoluciones():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def cnEditarDevolucion(dev_id):
+    try:
+        data = request.get_json()
+        if not data: return jsonify({"mensaje": "No se enviaron datos"}), 400
+        from services.devoluciones_service import editarDevolucion
+        result = editarDevolucion(dev_id, data.get("lote_id"), data.get("cantidad"), data.get("motivo"), data.get("fecha"))
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+def cnEliminarDevolucion(dev_id):
+    try:
+        from services.devoluciones_service import eliminarDevolucion
+        if eliminarDevolucion(dev_id):
+            return jsonify({"mensaje": "Devolucion eliminada"}), 200
+        return jsonify({"mensaje": "No se encontro"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 def cnRegistrarDevolucion():
     try:
         data = request.get_json()

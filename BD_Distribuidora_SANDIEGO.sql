@@ -333,6 +333,7 @@ CREATE TABLE `t_pedido` (
   `ped_metodo_pago` varchar(50) DEFAULT NULL COMMENT 'Método de pago',
   `ped_cuenta_bancaria` varchar(50) DEFAULT NULL COMMENT 'Cuenta bancaria para transferencia',
   `ped_estado_entrega` varchar(50) DEFAULT NULL COMMENT 'Estado: Entregado / En camino / No entregado / Anulado',
+  `ped_estado_pago` varchar(20) DEFAULT 'Pendiente' COMMENT 'Estado del pago: Pendiente / Verificado / Rechazado',
   `ped_total` decimal(12,2) DEFAULT NULL COMMENT 'Total del pedido',
   `ped_cli_id_fk` bigint(20) DEFAULT NULL COMMENT 'ID del cliente',
   `ped_usu_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del vendedor que registró el pedido',
@@ -737,3 +738,43 @@ DROP TABLE IF EXISTS `v_stock_minimo`;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+/* Nuevas columnas y tablas agregadas durante el desarrollo */
+
+-- Columnas para comprobante de pago en pedidos
+ALTER TABLE t_pedido ADD COLUMN IF NOT EXISTS ped_comprobante LONGBLOB DEFAULT NULL AFTER ped_cuenta_bancaria;
+ALTER TABLE t_pedido ADD COLUMN IF NOT EXISTS ped_comprobante_tipo VARCHAR(50) DEFAULT NULL AFTER ped_comprobante;
+
+-- Columnas para comprobante de pago en compras
+ALTER TABLE t_compra ADD COLUMN IF NOT EXISTS com_comprobante LONGBLOB DEFAULT NULL AFTER com_observacion;
+ALTER TABLE t_compra ADD COLUMN IF NOT EXISTS com_comprobante_tipo VARCHAR(50) DEFAULT NULL AFTER com_comprobante;
+
+-- Columna para trazabilidad por lote en detalle de pedido
+ALTER TABLE t_detalle_pedido ADD COLUMN IF NOT EXISTS det_lot_id_fk VARCHAR(20) DEFAULT NULL AFTER det_pro_id_fk;
+
+-- Columnas para control sanitario (INVIMA y control especial) en productos
+ALTER TABLE t_producto ADD COLUMN IF NOT EXISTS pro_registro_invima VARCHAR(50) DEFAULT NULL AFTER pro_fecha_caducidad;
+ALTER TABLE t_producto ADD COLUMN IF NOT EXISTS pro_fecha_vencimiento_registro DATE DEFAULT NULL AFTER pro_registro_invima;
+ALTER TABLE t_producto ADD COLUMN IF NOT EXISTS pro_control_especial TINYINT(1) DEFAULT 0 AFTER pro_fecha_vencimiento_registro;
+ALTER TABLE t_producto ADD COLUMN IF NOT EXISTS pro_tipo_control VARCHAR(50) DEFAULT NULL AFTER pro_control_especial;
+
+-- Columna para cuenta bancaria en facturas
+ALTER TABLE t_factura ADD COLUMN IF NOT EXISTS fac_cuenta_bancaria VARCHAR(100) DEFAULT NULL AFTER fac_forma_pago;
+
+-- Tabla de devoluciones
+CREATE TABLE IF NOT EXISTS t_devolucion (
+  dev_id VARCHAR(20) NOT NULL PRIMARY KEY,
+  dev_ped_id_fk VARCHAR(20) DEFAULT NULL,
+  dev_pro_id_fk VARCHAR(20) DEFAULT NULL,
+  dev_lot_id_fk VARCHAR(20) DEFAULT NULL,
+  dev_cantidad INT DEFAULT NULL,
+  dev_motivo TEXT DEFAULT NULL,
+  dev_fecha DATE DEFAULT NULL,
+  dev_usu_id_fk VARCHAR(20) DEFAULT NULL,
+  KEY dev_ped_id_fk (dev_ped_id_fk),
+  KEY dev_pro_id_fk (dev_pro_id_fk),
+  KEY dev_lot_id_fk (dev_lot_id_fk),
+  KEY dev_usu_id_fk (dev_usu_id_fk)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Columna para estado de pago en pedidos
+ALTER TABLE t_pedido ADD COLUMN IF NOT EXISTS ped_estado_pago VARCHAR(20) DEFAULT 'Pendiente' COMMENT 'Estado del pago: Pendiente / Verificado / Rechazado' AFTER ped_estado_entrega;

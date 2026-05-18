@@ -5,6 +5,7 @@ from config import config
 
 app = Flask(__name__)
 app.config.from_object(config)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 # ── CORS: permitir peticiones desde cualquier origen ──
 # Nota: se usa @app.after_request en lugar de CORS(app) porque

@@ -1,25 +1,71 @@
 from flask import current_app
 from models.monitorias_model import monitoria
 
-def listarMonitoria():
+def listarMonitoria(limit=None, offset=None, tipo=None, fecha_desde=None, fecha_hasta=None, q=None):
     try:
         c = current_app.mysql.connection.cursor()
+
+        # ── Consulta de total (sin filtros para contar) ──
+        count_sql = "SELECT COUNT(*) FROM t_monitoria"
+        count_params = []
+
+        # ── Consulta de datos ──
         sql = """
-            SELECT mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo, 
-                   mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total 
+            SELECT mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
+                   mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total
             FROM t_monitoria
         """
-        c.execute(sql)
+        where_clauses = []
+        params = []
+
+        if q:
+            where_clauses.append("(mon_id LIKE %s OR mon_pro_id_fk LIKE %s)")
+            q_param = f"%{q}%"
+            params.append(q_param)
+            params.append(q_param)
+        if tipo:
+            where_clauses.append("mon_tipo = %s")
+            params.append(tipo)
+        if fecha_desde:
+            where_clauses.append("mon_fecha >= %s")
+            params.append(fecha_desde)
+        if fecha_hasta:
+            where_clauses.append("mon_fecha <= %s")
+            params.append(fecha_hasta)
+
+        if where_clauses:
+            where = " WHERE " + " AND ".join(where_clauses)
+            sql += where
+            count_sql += where
+            count_params = params.copy()
+
+        sql += " ORDER BY mon_fecha DESC, mon_id DESC"
+
+        if limit is not None:
+            sql += " LIMIT %s"
+            params.append(limit)
+        if offset is not None:
+            sql += " OFFSET %s"
+            params.append(offset)
+
+        # Total de registros (sin paginación)
+        c.execute(count_sql, tuple(count_params))
+        total = c.fetchone()[0]
+
+        # Datos paginados
+        c.execute(sql, tuple(params))
         datos = c.fetchall()
+
         lista = []
         for p in datos:
             m = monitoria(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]).todic()
             lista.append(m)
         c.close()
-        return lista
+
+        return {"data": lista, "total": total}
     except Exception as e:
         print(f"Error en listarMonitoria: {e}")
-        return []
+        return {"data": [], "total": 0}
 
 def registrarMonitoria(MON_ID, MON_PRO_ID_FK, MON_LOT_ID_FK, MON_INM_ID_FK, MON_FECHA, MON_TIPO, 
                        MON_CANTIDAD, MON_SALDO_ANTERIOR, MON_SALDO_ACTUAL, MON_COSTO_UNITARIO, MON_COSTO_TOTAL):

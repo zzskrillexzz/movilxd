@@ -19,6 +19,7 @@ from .mas_vendidos import mas_vendidos_bp
 from .documentacion import documentacion_bp
 from .auth import autenticacion_bp
 from .devoluciones import devoluciones_bp
+from .publico import publico_bp
 
 def cargarruta(app):
     app.register_blueprint(clientes_bp, url_prefix='/clientes')
@@ -42,3 +43,4 @@ def cargarruta(app):
     app.register_blueprint(documentacion_bp, url_prefix='/documentacion')
     app.register_blueprint(devoluciones_bp, url_prefix='/devoluciones')
     app.register_blueprint(autenticacion_bp, url_prefix='')
+    app.register_blueprint(publico_bp, url_prefix='')

@@ -65,8 +65,13 @@ def cnregistrardetallespedidos():
         c.close()
 
         resultado = registrarDetallesPedidos(
-            data["det_id"], data["det_cantidad"], data["det_subtotal"],
-            data["det_ped_id_fk"], data["det_pro_id_fk"], data["det_precio_unitario"]
+            data["det_id"],
+            data["det_ped_id_fk"],
+            data["det_pro_id_fk"],
+            data.get("det_lot_id_fk"),
+            data["det_cantidad"],
+            data["det_precio_unitario"],
+            data["det_subtotal"]
         )
         return jsonify({"mensaje": "Detalle de pedido registrado correctamente", "datos": resultado}), 201
 
@@ -117,8 +122,13 @@ def cneditardetallespedidos(id):
         c.close()
 
         resultado = editarDetallesPedidos(
-            id, data["det_cantidad"], data["det_subtotal"],
-            data["det_ped_id_fk"], data["det_pro_id_fk"], data["det_precio_unitario"]
+            id,
+            data["det_ped_id_fk"],
+            data["det_pro_id_fk"],
+            data.get("det_lot_id_fk"),
+            data["det_cantidad"],
+            data["det_precio_unitario"],
+            data["det_subtotal"]
         )
         return jsonify({"mensaje": "Detalle de pedido actualizado correctamente", "datos": resultado}), 200
 

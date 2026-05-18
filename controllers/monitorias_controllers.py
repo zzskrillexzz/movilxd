@@ -6,8 +6,20 @@ from services.monitorias_service import (
 
 def cnlistarMonitoria():
     try:
-        datos = listarMonitoria()
-        return jsonify(datos), 200
+        # ── Leer query params opcionales ──
+        limit = request.args.get("limit", type=int)
+        offset = request.args.get("offset", type=int)
+        tipo = request.args.get("tipo")
+        fecha_desde = request.args.get("fecha_desde")
+        fecha_hasta = request.args.get("fecha_hasta")
+        q = request.args.get("q")
+
+        resultado = listarMonitoria(
+            limit=limit, offset=offset,
+            tipo=tipo, fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta, q=q
+        )
+        return jsonify(resultado), 200
     except Exception as e:
         import traceback
         print(traceback.format_exc())
