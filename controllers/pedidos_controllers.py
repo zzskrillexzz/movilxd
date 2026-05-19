@@ -250,7 +250,36 @@ def cneverificarpago(id):
 
         ok = verificarPago(id, estado)
         if ok:
-            return jsonify({"mensaje": f"Pago del pedido {id} marcado como {estado}", "ped_estado_pago": estado}), 200
+            # Si se verificó el pago, crear la factura automáticamente
+            factura_creada = None
+            if estado == 'Verificado':
+                try:
+                    from services.facturas_service import buscarFacturas, registrarFacturas
+                    from datetime import date
+                    factura_existente = buscarFacturas(id)
+                    if not factura_existente:
+                        factura_data = {
+                            'id': id,
+                            'fecha_emision': pedido.get('ped_fecha', date.today().isoformat()),
+                            'email_enviado': 0,
+                            'forma_pago': pedido.get('ped_metodo_pago', ''),
+                            'cuenta_bancaria': pedido.get('ped_cuenta_bancaria', ''),
+                            'total': pedido.get('ped_total', 0),
+                            'usuario_id': pedido.get('ped_usu_id_fk', ''),
+                            'estado': 'Vigente'
+                        }
+                        registrarFacturas(factura_data)
+                        factura_creada = True
+                except Exception as e:
+                    # La factura no es crítica, reportar pero no fallar
+                    print(f"Error al crear factura automática para pedido {id}: {e}")
+                    factura_creada = str(e)
+
+            return jsonify({
+                "mensaje": f"Pago del pedido {id} marcado como {estado}",
+                "ped_estado_pago": estado,
+                "factura_creada": factura_creada
+            }), 200
         return jsonify({"mensaje": "No se pudo actualizar el estado del pago"}), 500
 
     except Exception as e:
