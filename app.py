@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 import socket
 from flask import Flask, jsonify
 from flask_mysqldb import MySQL
@@ -23,6 +25,11 @@ def add_cors_headers(response):
 # ── Manejador global de errores: siempre devuelve JSON con CORS ──
 @app.errorhandler(Exception)
 def handle_exception(error):
+    print(f"\n{'='*60}")
+    print(f"  ❌ ERROR 500 — {type(error).__name__}")
+    print(f"{'='*60}")
+    traceback.print_exc()
+    print(f"{'='*60}\n")
     response = jsonify({
         "error": "Error interno del servidor",
         "detalle": str(error)
@@ -53,6 +60,18 @@ def find_free_port(preferred_port):
 
 mysql = MySQL(app)
 app.mysql = mysql
+
+# ── Verificar conexión a MySQL al arrancar ──
+with app.app_context():
+    try:
+        c = mysql.connection.cursor()
+        c.execute("SELECT 1")
+        c.close()
+        print("  ✅ Conexión a MySQL establecida correctamente")
+    except Exception as e:
+        print(f"\n  ❌ ERROR DE CONEXIÓN A MYSQL: {e}")
+        print(f"     Revisa las credenciales en Backend/.env\n")
+
 cargarruta(app)
 
 if __name__ == '__main__':
