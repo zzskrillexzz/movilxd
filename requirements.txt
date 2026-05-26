@@ -1,8 +1,10 @@
 flask
+flask-cors
 flask-mysqldb
 python-dotenv
 PyJWT
 bcrypt
-pytest
+
 
 # pip install -r requirements.txt
+#xd
