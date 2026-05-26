@@ -16,3 +16,6 @@ dist/app/.env
 # Ignorar la carpeta pesada de dependencias internas
 dist/app/_internal/
 _internal/
+
+# Ignorar archivo de registro de la consola de PyInstaller
+app.log
