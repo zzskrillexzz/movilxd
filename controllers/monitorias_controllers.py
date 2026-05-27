@@ -11,8 +11,20 @@ def cnlistarMonitoria():
     limit = request.args.get('limit', 50, type=int)
     q = request.args.get('q', None)
     order_by = request.args.get('order_by', None)
-    # Pasar filtros específicos desde request.args
-    filtros = {k: v for k, v in request.args.items() if k not in ('page', 'limit', 'q', 'order_by')}
+
+    # Mapear nombres de parámetros HTTP → columnas internas del SearchBuilder
+    MAPEO = {
+        'tipo': 'mon_tipo',
+        'fecha_desde': 'mon_fecha_from',
+        'fecha_hasta': 'mon_fecha_to',
+    }
+    filtros = {}
+    for k, v in request.args.items():
+        if k in ('page', 'limit', 'q', 'order_by'):
+            continue
+        columna = MAPEO.get(k, k)
+        filtros[columna] = v
+
     resultado = listarMonitoria(page=page, limit=limit, q=q, order_by=order_by, **filtros)
     return jsonify(resultado), 200
 

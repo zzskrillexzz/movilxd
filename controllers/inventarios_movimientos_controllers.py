@@ -9,7 +9,20 @@ def cnlistadoinventariosmovimientos():
     limit = request.args.get('limit', 50, type=int)
     q = request.args.get('q', None)
     order_by = request.args.get('order_by', None)
-    filtros = {k: v for k, v in request.args.items() if k not in ('page', 'limit', 'q', 'order_by')}
+
+    # Mapear nombres de parámetros HTTP → columnas internas del SearchBuilder
+    MAPEO = {
+        'tipo': 'inm_tipo_movimiento',
+        'fecha_desde': 'inm_fecha_from',
+        'fecha_hasta': 'inm_fecha_to',
+    }
+    filtros = {}
+    for k, v in request.args.items():
+        if k in ('page', 'limit', 'q', 'order_by'):
+            continue
+        columna = MAPEO.get(k, k)
+        filtros[columna] = v
+
     datos = listarInventariosMovimientos(page=page, limit=limit, q=q, order_by=order_by, **filtros)
     return jsonify(datos), 200
 
