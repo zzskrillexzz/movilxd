@@ -54,6 +54,12 @@ def cnregistrarlotes():
         c.close()
         return jsonify({"mensaje": f"Ya existe un lote con el ID {data['lot_id']}"}), 409
 
+    # Validar que el número de lote no esté duplicado
+    c.execute("SELECT lot_id FROM t_lote WHERE lot_numero = %s AND lot_id != %s", (data.get("lot_numero", ""), data.get("lot_id", "")))
+    if c.fetchone():
+        c.close()
+        return jsonify({"mensaje": f"El número de lote '{data.get('lot_numero')}' ya existe. Debe ser único."}), 409
+
     # Validar que el producto exista
     c.execute("SELECT pro_id FROM t_producto WHERE pro_id = %s", (data["lot_pro_id_fk"],))
     if not c.fetchone():

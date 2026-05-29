@@ -9,7 +9,7 @@ def listarLotes(page=1, limit=50, q=None, order_by=None, **filters):
         search_fields=['lot_id', 'lot_numero', 'lot_estado'],
         exact_fields=['lot_estado', 'lot_pro_id_fk', 'lot_prov_id_fk'],
         range_fields={'lot_fecha_fabricacion': 'date', 'lot_fecha_vencimiento': 'date', 'lot_cantidad_actual': 'int'},
-        default_order='lot_fecha_vencimiento ASC'
+        default_order='lot_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()
