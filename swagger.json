@@ -113,41 +113,12 @@
         "responses": { "201": { "description": "Sesion creada exitosamente" } }
       }
     },
-    "/sesiones/{id}": {
-      "get": {
-        "tags": ["SESSION"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Datos de la sesión",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Sesion" } } }
-          },
-          "404": { "description": "Sesion no encontrada" }
-        }
-      },
-      "put": {
-        "tags": ["SESSION"],
-        "summary": "Actualizar una sesión",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Sesion" } } }
-        },
-        "responses": {
-          "200": { "description": "Sesion actualizada correctamente" },
-          "404": { "description": "Sesion no encontrada" }
-        }
-      },
+    "/sesiones/eliminar/{ses_id}": {
       "delete": {
         "tags": ["SESSION"],
         "summary": "Eliminar una sesión",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "ses_id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Sesion eliminada correctamente" },
@@ -180,41 +151,12 @@
         "responses": { "201": { "description": "Usuario creado exitosamente" } }
       }
     },
-    "/usuarios/{id}": {
-      "get": {
-        "tags": ["USUARIOS"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Datos del usuario",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Usuario" } } }
-          },
-          "404": { "description": "Usuario no encontrado" }
-        }
-      },
-      "put": {
-        "tags": ["USUARIOS"],
-        "summary": "Actualizar un usuario",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Usuario" } } }
-        },
-        "responses": {
-          "200": { "description": "Usuario actualizado correctamente" },
-          "404": { "description": "Usuario no encontrado" }
-        }
-      },
+    "/usuarios/eliminar/{usu_id}": {
       "delete": {
         "tags": ["USUARIOS"],
         "summary": "Eliminar un usuario",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "usu_id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Usuario eliminado correctamente" },
@@ -247,41 +189,12 @@
         "responses": { "201": { "description": "Reporte creado exitosamente" } }
       }
     },
-    "/reportes/{id}": {
-      "get": {
-        "tags": ["REPORTES"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Datos del reporte",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reporte" } } }
-          },
-          "404": { "description": "Reporte no encontrado" }
-        }
-      },
-      "put": {
-        "tags": ["REPORTES"],
-        "summary": "Actualizar un reporte",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reporte" } } }
-        },
-        "responses": {
-          "200": { "description": "Reporte actualizado correctamente" },
-          "404": { "description": "Reporte no encontrado" }
-        }
-      },
+    "/reportes/eliminar/{rep_id}": {
       "delete": {
         "tags": ["REPORTES"],
         "summary": "Eliminar un reporte",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "rep_id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Reporte eliminado correctamente" },
@@ -314,41 +227,12 @@
         "responses": { "201": { "description": "Cliente creado exitosamente" } }
       }
     },
-    "/clientes/{id}": {
-      "get": {
-        "tags": ["CLIENTES"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Datos del cliente",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cliente" } } }
-          },
-          "404": { "description": "Cliente no encontrado" }
-        }
-      },
-      "put": {
-        "tags": ["CLIENTES"],
-        "summary": "Actualizar un cliente",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cliente" } } }
-        },
-        "responses": {
-          "200": { "description": "Cliente actualizado correctamente" },
-          "404": { "description": "Cliente no encontrado" }
-        }
-      },
+    "/clientes/eliminar/{cli_id}": {
       "delete": {
         "tags": ["CLIENTES"],
         "summary": "Eliminar un cliente",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "cli_id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "Cliente eliminado correctamente" },
@@ -449,39 +333,27 @@
         "responses": { "201": { "description": "Alerta de vencimiento creada exitosamente" } }
       }
     },
-    "/alertas_vencimientos/{id}": {
+    "/alertas_vencimientos": {
       "get": {
         "tags": ["ALERTAS VENCIMIENTOS"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
+        "summary": "Listar alertas de vencimiento",
         "responses": {
           "200": {
-            "description": "Datos de la alerta de vencimiento",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AlertaVencimiento" } } }
-          },
-          "404": { "description": "Alerta de vencimiento no encontrada" }
+            "description": "Lista de alertas",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AlertaVencimiento" } }
+              }
+            }
+          }
         }
       },
-      "put": {
+      "post": {
         "tags": ["ALERTAS VENCIMIENTOS"],
-        "summary": "Actualizar una alerta de vencimiento",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AlertaVencimiento" } } }
-        },
-        "responses": {
-          "200": { "description": "Alerta de vencimiento actualizada correctamente" },
-          "404": { "description": "Alerta de vencimiento no encontrada" }
-        }
-      },
-      "delete": {
-        "tags": ["ALERTAS VENCIMIENTOS"],
-        "summary": "Eliminar una alerta de vencimiento",
+        "summary": "Crear alerta de vencimiento",
+        "responses": { "201": { "description": "Alerta creada exitosamente" } }
+      }
+    }
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -857,39 +729,27 @@
         "responses": { "201": { "description": "Movimiento de inventario creado exitosamente" } }
       }
     },
-    "/inventarios_movimientos/{id}": {
+    "/inventarios_movimientos": {
       "get": {
         "tags": ["INVENTARIOS MOVIMIENTOS"],
-        "summary": "Obtener datos por id",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
+        "summary": "Listar movimientos de inventario",
         "responses": {
           "200": {
-            "description": "Datos del movimiento de inventario",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InventarioMovimiento" } } }
-          },
-          "404": { "description": "Movimiento de inventario no encontrado" }
+            "description": "Lista de movimientos",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/InventarioMovimiento" } }
+              }
+            }
+          }
         }
       },
-      "put": {
+      "post": {
         "tags": ["INVENTARIOS MOVIMIENTOS"],
-        "summary": "Actualizar un movimiento de inventario",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InventarioMovimiento" } } }
-        },
-        "responses": {
-          "200": { "description": "Movimiento de inventario actualizado correctamente" },
-          "404": { "description": "Movimiento de inventario no encontrado" }
-        }
-      },
-      "delete": {
-        "tags": ["INVENTARIOS MOVIMIENTOS"],
-        "summary": "Eliminar un movimiento de inventario",
+        "summary": "Registrar movimiento de inventario",
+        "responses": { "201": { "description": "Movimiento registrado exitosamente" } }
+      }
+    }
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -1504,17 +1364,17 @@
       "monitorias": {
         "type": "object",
         "properties": {
-          "kar_id": { "type": "string", "description": "ID del monitorias" },
-          "kar_fecha": { "type": "string", "format": "date-time", "description": "Fecha del monitorias" },
-          "kar_cantidad": { "type": "number", "format": "float", "description": "Cantidad del monitorias" },
-          "kar_pro_id_fk": { "type": "string", "description": "ID del producto del monitorias" },
-          "kar_lot_id_fk": { "type": "string", "description": "ID del lote del monitorias" },
-          "kar_inm_id_fk": { "type": "string", "description": "ID del movimiento de inventario del monitorias" },
-          "kar_tipo": { "type": "string", "description": "Tipo del monitorias (entrada o salida)" },
-          "kar_saldo_anterior": { "type": "number", "format": "float", "description": "Saldo anterior del monitorias" },
-          "kar_saldo_actual": { "type": "number", "format": "float", "description": "Saldo actual del monitorias" },
-          "kar_costo_unitario": { "type": "number", "format": "float", "description": "Costo unitario del monitorias" },
-          "kar_costo_total": { "type": "number", "format": "float", "description": "Costo total del monitorias" }
+          "mon_id": { "type": "string", "description": "ID del monitorias" },
+          "mon_fecha": { "type": "string", "format": "date", "description": "Fecha del monitorias" },
+          "mon_cantidad": { "type": "integer", "description": "Cantidad del monitorias" },
+          "mon_pro_id_fk": { "type": "string", "description": "ID del producto del monitorias" },
+          "mon_lot_id_fk": { "type": "string", "description": "ID del lote del monitorias" },
+          "mon_inm_id_fk": { "type": "string", "description": "ID del movimiento de inventario del monitorias" },
+          "mon_tipo": { "type": "string", "description": "Tipo del monitorias (Entrada/Salida)" },
+          "mon_saldo_anterior": { "type": "integer", "description": "Saldo anterior del monitorias" },
+          "mon_saldo_actual": { "type": "integer", "description": "Saldo actual del monitorias" },
+          "mon_costo_unitario": { "type": "number", "format": "float", "description": "Costo unitario del monitorias" },
+          "mon_costo_total": { "type": "number", "format": "float", "description": "Costo total del monitorias" }
         }
       },
 

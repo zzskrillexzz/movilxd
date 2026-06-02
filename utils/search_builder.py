@@ -37,7 +37,7 @@ def _parse_value(value, field_type='string'):
 
 
 class SearchBuilder:
-    def __init__(self, table, search_fields=None, exact_fields=None, range_fields=None, join_clause=None, select_columns='*', default_order=None):
+    def __init__(self, table, search_fields=None, exact_fields=None, range_fields=None, join_clause=None, select_columns='*', default_order=None, allowed_extra_params=None):
         """
         table: nombre de la tabla principal (ej: 't_producto')
         search_fields: columnas donde buscar con LIKE (ej: ['pro_id', 'pro_nombre'])
@@ -46,6 +46,7 @@ class SearchBuilder:
         join_clause: cláusula JOIN adicional (opcional, ej: 'LEFT JOIN t_cliente ON ...')
         select_columns: qué seleccionar (ej: 'p.*, c.cli_nombre')
         default_order: orden por defecto (ej: 'pro_nombre ASC')
+        allowed_extra_params: BUG-001 — lista de columnas permitidas como filtros extra (SQLi prevention)
         """
         self.table = table
         self.search_fields = search_fields or []
@@ -54,6 +55,7 @@ class SearchBuilder:
         self.join_clause = join_clause or ''
         self.select_columns = select_columns
         self.default_order = default_order or '1 ASC'
+        self.allowed_extra_params = allowed_extra_params or []  # BUG-001
 
     def _build_where(self, params):
         """Construye la cláusula WHERE y la tupla de valores."""
@@ -92,11 +94,15 @@ class SearchBuilder:
                     conditions.append(f'{field} <= %s')
                     values.append(parsed)
 
-        # ── Parámetros extra (cualquier columna = valor) ──
+        # ── Parámetros extra (solo columnas autorizadas) ──
+        # BUG-001: Validar contra whitelist para prevenir SQLi
         for key, val in params.items():
             if key.startswith('_') or key in ('page', 'limit', 'order_by', 'offset'):
                 continue
             if val is not None and str(val).strip():
+                # Si hay whitelist definida, solo permitir columnas listadas
+                if self.allowed_extra_params and key not in self.allowed_extra_params:
+                    continue  # Silenciosamente ignorar columnas no autorizadas
                 conditions.append(f'{key} = %s')
                 values.append(_parse_value(val))
 
@@ -105,6 +111,25 @@ class SearchBuilder:
             where_clause = 'WHERE ' + ' AND '.join(conditions)
 
         return where_clause, values
+
+    def _sanitize_order_by(self, order_str):
+        """
+        BUG-001: Sanitiza ORDER BY para prevenir SQLi.
+        Solo permite: identificador (columna) opcionalmente seguido de ASC/DESC.
+        """
+        if not order_str or not isinstance(order_str, str):
+            return self.default_order
+        order_str = order_str.strip()
+        parts = order_str.split()
+        column = parts[0]
+        direction = parts[1].upper() if len(parts) > 1 else 'ASC'
+        # Validar que el nombre de columna solo contenga caracteres permitidos
+        import re
+        if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_.]*$', column):
+            return self.default_order
+        if direction not in ('ASC', 'DESC'):
+            direction = 'ASC'
+        return f'{column} {direction}'
 
     def execute(self, cursor, page=1, limit=50, order_by=None, **filters):
         """
@@ -124,10 +149,12 @@ class SearchBuilder:
         total = cursor.fetchone()[0]
 
         # ── Datos paginados ──
+        # BUG-001: Sanitizar order_by para prevenir SQLi
+        _order_sanitized = self._sanitize_order_by(order)
         data_sql = (
             f'SELECT {self.select_columns} '
             f'FROM {self.table} {self.join_clause} {where_clause} '
-            f'ORDER BY {order} LIMIT %s OFFSET %s'
+            f'ORDER BY {_order_sanitized} LIMIT %s OFFSET %s'
         )
         cursor.execute(data_sql, values + [limit, offset])
         rows = cursor.fetchall()

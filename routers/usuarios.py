@@ -1,5 +1,5 @@
 from flask import Blueprint
-from services.auth_service import token_requerido
+from services.auth_service import token_requerido, rol_requerido
 from controllers.usuarios_controllers import cnlistadousuarios, cnregistrarusuarios, cneliminarusuarios, cnbuscarusuarios, cneditarusuarios
 
 usuarios_bp = Blueprint('usuarios', __name__)
@@ -13,18 +13,21 @@ def listado():
 # Registrar un nuevo usuario
 @usuarios_bp.route('/', methods=["POST"])
 @token_requerido
+@rol_requerido('Administrador')
 def registrar():
     return cnregistrarusuarios()
 
 # Editar un usuario existente
 @usuarios_bp.route('/', methods=["PUT"])
 @token_requerido
+@rol_requerido('Administrador')
 def editar():
     return cneditarusuarios()
 
 # Eliminar un usuario
 @usuarios_bp.route('/eliminar/<usu_id>', methods=["DELETE"])
 @token_requerido
+@rol_requerido('Administrador')
 def eliminar(usu_id):
     return cneliminarusuarios(usu_id)
 

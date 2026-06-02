@@ -6,26 +6,27 @@ Centraliza las reglas de longitud máxima por campo.
 # ── Diccionario de límites máximos por campo ──
 # Cada entrada: nombre_campo → (max_caracteres, "descripción legible")
 LIMITES = {
-    # Clientes
+    # Clientes (BD: cli_nombre varchar(50), cli_correo varchar(100))
     "cli_tipo_documento": (20, "tipo de documento"),
-    "cli_nombre": (80, "nombre"),
-    "cli_apellido": (80, "apellido"),
-    "cli_correo": (120, "correo electrónico"),
+    "cli_nombre": (50, "nombre"),
+    "cli_apellido": (50, "apellido"),
+    "cli_correo": (100, "correo electrónico"),
     "cli_telefono": (20, "teléfono"),
     "cli_direccion": (200, "dirección"),
-    # Productos
+    # Productos (BD: pro_nombre varchar(100), pro_descripcion varchar(255))
     "nombre": (100, "nombre del producto"),
     "categoria": (50, "categoría"),
-    "descripcion": (500, "descripción"),
-    # Proveedores
+    "descripcion": (255, "descripción"),
+    # Proveedores (BD: prov_nombre varchar(100), prov_contacto varchar(20), prov_email varchar(100))
     "nit": (30, "NIT"),
-    "contacto": (100, "contacto"),
-    "email": (120, "correo electrónico"),
+    "prov_nombre": (100, "nombre del proveedor"),
+    "contacto": (20, "contacto"),
+    "email": (100, "correo electrónico"),
     "direccion": (200, "dirección"),
     "tipo": (30, "tipo"),
-    # Usuarios
-    "usu_nombre": (80, "nombre de usuario"),
-    "usu_correo": (120, "correo electrónico"),
+    # Usuarios (BD: usu_nombre varchar(100), usu_correo varchar(100))
+    "usu_nombre": (100, "nombre de usuario"),
+    "usu_correo": (100, "correo electrónico"),
     "usu_contrasena": (255, "contraseña"),
     "usu_rol": (20, "rol"),
     # Pedidos

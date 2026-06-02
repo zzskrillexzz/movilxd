@@ -222,13 +222,17 @@ def revertirInventarioPedido(ped_id):
     for det in detalles:
         det_id, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_precio_unitario, det_subtotal = det
 
-        # Reingresar stock al producto
+        # Reingresar stock al producto (BUG-009: UPDATE atómico)
+        c.execute(
+            "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible + %s "
+            "WHERE pro_id = %s",
+            (det_cantidad, det_pro_id_fk)
+        )
         c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (det_pro_id_fk,))
         row = c.fetchone()
         if row:
-            stock_anterior = row[0] or 0
-            nuevo_stock = stock_anterior + det_cantidad
-            c.execute("UPDATE t_producto SET pro_cantidad_disponible = %s WHERE pro_id = %s", (nuevo_stock, det_pro_id_fk))
+            nuevo_stock = row[0] or 0
+            stock_anterior = nuevo_stock - det_cantidad
         else:
             stock_anterior = 0
             nuevo_stock = det_cantidad

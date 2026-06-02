@@ -18,6 +18,19 @@ app = Flask(__name__)
 app.config.from_object(config)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
+# ── BUG-007: Validar SECRET_KEY al arranque ──
+_secret = app.config.get('SECRET_KEY')
+if not _secret:
+    raise RuntimeError(
+        "SECRET_KEY no está configurada. "
+        "Revisa Backend/.env — debe contener SECRET_KEY=..."
+    )
+if len(str(_secret)) < 16:
+    raise RuntimeError(
+        f"SECRET_KEY demasiado corta ({len(str(_secret))} chars). "
+        "Mínimo recomendado: 32 caracteres."
+    )
+
 # ── CORS: permitir peticiones desde cualquier origen ──
 # Nota: se usa @app.after_request en lugar de CORS(app) porque
 # es más robusto con blueprints y rutas registradas dinámicamente.
@@ -36,9 +49,12 @@ def add_cors_headers(response):
 @app.errorhandler(Exception)
 def handle_exception(error):
     log.error("ERROR 500 — %s: %s", type(error).__name__, str(error), exc_info=True)
+    
+    # BUG-012: No exponer stack traces en producción
+    es_produccion = os.getenv('FLASK_ENV', 'development') == 'production'
     response = jsonify({
         "error": "Error interno del servidor",
-        "detalle": str(error)
+        "detalle": str(error) if not es_produccion else "Ocurrió un error inesperado. Contacta al administrador."
     })
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'

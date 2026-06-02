@@ -1,6 +1,6 @@
 from datetime import date
 from flask import Blueprint, jsonify, current_app
-from services.auth_service import token_requerido
+from services.auth_service import token_requerido, rol_requerido
 from controllers.lotes_controllers import cnlistadolotes, cnregistrarlotes, cnEditarlotes, cnEliminarLotes
 from utils.error_handler import safe_controller
 
@@ -13,11 +13,13 @@ def listado():
 
 @lotes_bp.route('/', methods=["POST"])
 @token_requerido
+@rol_requerido('Administrador', 'Bodeguero')
 def registrar():
     return cnregistrarlotes()
 
 @lotes_bp.route('/', methods=["PUT"])
 @token_requerido
+@rol_requerido('Administrador', 'Bodeguero')
 def editar():
     return cnEditarlotes()
 
