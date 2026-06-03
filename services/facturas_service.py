@@ -11,7 +11,7 @@ def listarFacturas(page=1, limit=50, q=None, order_by=None, **filters):
         range_fields={'fac_fecha_emision': 'date', 'fac_total': 'decimal'},
         join_clause='LEFT JOIN t_pedido ON fac_id = ped_id LEFT JOIN t_cliente ON ped_cli_id_fk = cli_id',
         select_columns='f.*, cli_nombre, cli_apellido, cli_correo, ped_cli_id_fk as fac_cli_id_fk',
-        default_order='fac_fecha_emision DESC'
+        default_order='fac_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

@@ -10,7 +10,7 @@ def listarDevoluciones(page=1, limit=50, q=None, order_by=None, **filters):
         search_fields=['dev_id', 'dev_motivo'],
         exact_fields=['dev_fac_id_fk', 'dev_usu_id_fk'],
         range_fields={'dev_fecha': 'date'},
-        default_order='dev_fecha DESC'
+        default_order='dev_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

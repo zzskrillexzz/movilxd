@@ -11,7 +11,7 @@ def listarProductos(page=1, limit=50, q=None, order_by=None, **filters):
         range_fields={'pro_precio': 'decimal', 'pro_cantidad_disponible': 'int', 'pro_stock_minimo': 'int'},
         join_clause='LEFT JOIN t_proveedor ON pro_prov_id_fk = prov_id',
         select_columns='t_producto.*, prov_nombre as proveedor_nombre',
-        default_order='pro_nombre ASC'
+        default_order='pro_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

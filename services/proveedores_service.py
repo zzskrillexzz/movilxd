@@ -8,7 +8,7 @@ def listarProveedores(page=1, limit=50, q=None, order_by=None, **filters):
         table='t_proveedor',
         search_fields=['prov_id', 'prov_nit', 'prov_nombre', 'prov_tipo', 'prov_contacto', 'prov_email'],
         exact_fields=['prov_tipo'],
-        default_order='prov_nombre ASC'
+        default_order='prov_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

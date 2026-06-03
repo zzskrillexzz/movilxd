@@ -12,7 +12,7 @@ def listarPedidos(page=1, limit=50, q=None, order_by=None, **filters):
         search_fields=['ped_id', 'ped_metodo_pago', 'ped_estado_entrega', 'ped_estado_pago'],
         exact_fields=['ped_estado_entrega', 'ped_estado_pago', 'ped_metodo_pago', 'ped_cli_id_fk', 'ped_usu_id_fk'],
         range_fields={'ped_fecha': 'date', 'ped_total': 'decimal'},
-        default_order='ped_fecha DESC'
+        default_order='ped_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

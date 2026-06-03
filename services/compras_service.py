@@ -10,7 +10,7 @@ def listarCompras(page=1, limit=50, q=None, order_by=None, **filters):
         search_fields=['com_id', 'com_estado', 'com_observacion'],
         exact_fields=['com_estado', 'com_prov_id_fk', 'com_usu_id_fk'],
         range_fields={'com_fecha': 'date', 'com_total': 'decimal'},
-        default_order='com_fecha DESC'
+        default_order='comp_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()

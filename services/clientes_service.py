@@ -8,7 +8,7 @@ def listarClientes(page=1, limit=50, q=None, order_by=None, **filters):
         table='t_cliente',
         search_fields=['cli_id', 'cli_nombre', 'cli_apellido', 'cli_correo', 'cli_telefono'],
         exact_fields=['cli_tipo_documento'],
-        default_order='cli_nombre ASC'
+        default_order='cli_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()
