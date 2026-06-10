@@ -174,6 +174,13 @@ def confirmar_entrega(token):
     return cnconfirmarentrega(token)
 
 
+@publico_bp.route('/public-url')
+def public_url():
+    """Devuelve la URL pública actual (ngrok si está disponible, localhost si no)."""
+    from utils.ngrok_manager import obtener_url_publica
+    return jsonify({"url": obtener_url_publica()}), 200
+
+
 @publico_bp.route('/respaldar')
 @token_requerido
 def respaldar_bd():

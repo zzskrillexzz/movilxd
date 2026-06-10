@@ -158,10 +158,6 @@ def cnbuscarpedido(id):
 
 def cnsubircomprobante(id):
     try:
-        pedido = buscarPedido(id)
-        if not pedido:
-            return jsonify({"mensaje": f"No existe un pedido con el ID {id}"}), 404
-
         data = request.get_json()
         if not data or not data.get("ped_comprobante") or not data.get("ped_comprobante_tipo"):
             return jsonify({"mensaje": "Debe enviar ped_comprobante (base64) y ped_comprobante_tipo"}), 400
@@ -169,12 +165,42 @@ def cnsubircomprobante(id):
         resultado = subirComprobante(
             id, data["ped_comprobante"], data["ped_comprobante_tipo"]
         )
-        if resultado:
-            return jsonify({"mensaje": "Comprobante subido correctamente", "datos": resultado}), 200
-        return jsonify({"mensaje": "No se pudo actualizar el comprobante"}), 500
+        if resultado is None:
+            return jsonify({"mensaje": f"No existe un pedido con el ID {id}"}), 404
+        return jsonify({"mensaje": "Comprobante subido correctamente", "datos": resultado}), 200
 
     except Exception as e:
         log.error(f"Error en subirComprobante: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+
+def cndescargarcomprobante(id):
+    """Retorna el archivo de comprobante — soporta tanto blob en DB como archivo en disco."""
+    try:
+        import os
+        c = current_app.mysql.connection.cursor()
+        c.execute("SELECT ped_comprobante, ped_comprobante_tipo FROM t_pedido WHERE ped_id = %s", (id,))
+        r = c.fetchone()
+        c.close()
+        if not r or not r[0] or not r[1]:
+            return jsonify({"mensaje": "No hay comprobante para este pedido"}), 404
+
+        dato = r[0]
+        mime = r[1]
+
+        # Si es un string corto (< 100 chars), es un nombre de archivo en disco
+        if isinstance(dato, str) and len(dato) < 100:
+            filepath = os.path.join(current_app.root_path, 'comprobantes', dato)
+            if not os.path.exists(filepath):
+                return jsonify({"mensaje": "El archivo de comprobante no existe en el servidor"}), 404
+            from flask import send_file
+            return send_file(filepath, mimetype=mime)
+        else:
+            # Es un blob binario (datos viejos guardados en DB)
+            binary = dato if isinstance(dato, bytes) else dato.encode('latin-1')
+            return current_app.response_class(binary, mimetype=mime)
+    except Exception as e:
+        log.error(f"Error al descargar comprobante: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 def cnavanzarestado(id):

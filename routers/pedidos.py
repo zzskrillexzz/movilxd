@@ -3,7 +3,7 @@ from services.auth_service import token_requerido, rol_requerido
 from controllers.pedidos_controllers import (
     cnlistadopedidos, cnregistrarpedidos, cnbuscarpedido,
     cneditarpedidos, cneliminarpedidos, cneverificarpago, cnnotificarpedido,
-    cnsubircomprobante, cnavanzarestado, cnenviarfactura
+    cnsubircomprobante, cndescargarcomprobante, cnavanzarestado, cnenviarfactura
 )
 
 pedidos_bp = Blueprint('pedidos', __name__)
@@ -47,6 +47,11 @@ def avanzar_estado(id):
 @rol_requerido('Administrador', 'Vendedor')
 def subir_comprobante(id):
     return cnsubircomprobante(id)
+
+@pedidos_bp.route('/<string:id>/comprobante', methods=["GET"])
+@token_requerido
+def descargar_comprobante(id):
+    return cndescargarcomprobante(id)
 
 @pedidos_bp.route('/<string:id>/verificar-pago', methods=["PUT"])
 @token_requerido

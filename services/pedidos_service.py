@@ -23,6 +23,7 @@ def listarPedidos(page=1, limit=50, q=None, order_by=None, **filters):
         ped = pedidos(
             ID=item['ped_id'], FECHA=item['ped_fecha'], METODO_DE_PAGO=item['ped_metodo_pago'],
             CUENTA_BANCARIA=item.get('ped_cuenta_bancaria'),
+            ped_comprobante=None,
             ped_comprobante_tipo=item.get('ped_comprobante_tipo'),
             ESTADO=item['ped_estado_entrega'], TOTAL=item['ped_total'],
             ID_CLIENTE=item['ped_cli_id_fk'], ped_usu_id_fk=item.get('ped_usu_id_fk')
@@ -145,18 +146,32 @@ def confirmarEntregaPorToken(token):
     return buscarPedido(ped_id)
 
 def subirComprobante(id, comprobante_b64, comprobante_tipo):
-    c = current_app.mysql.connection.cursor()
+    import os
+    # Guardar el archivo en disco en lugar de en la DB (evita límites de max_allowed_packet)
+    upload_dir = os.path.join(current_app.root_path, 'comprobantes')
+    os.makedirs(upload_dir, exist_ok=True)
     comprobante_bin = base64.b64decode(comprobante_b64) if comprobante_b64 else None
+    extension = comprobante_tipo.split('/')[-1] if comprobante_tipo else 'bin'
+    filename = f"{id}_{int(__import__('time').time())}.{extension}"
+    filepath = os.path.join(upload_dir, filename)
+    with open(filepath, 'wb') as f:
+        f.write(comprobante_bin)
+
+    # Guardar solo la ruta en la DB
+    c = current_app.mysql.connection.cursor()
     c.execute(
         "UPDATE t_pedido SET ped_comprobante=%s, ped_comprobante_tipo=%s, ped_estado_pago=%s WHERE ped_id=%s",
-        (comprobante_bin, comprobante_tipo, 'Comprobante recibido', id)
+        (filename, comprobante_tipo, 'Comprobante recibido', id)
     )
     current_app.mysql.connection.commit()
     filas = c.rowcount
     c.close()
     if filas == 0:
+        # Limpiar archivo si no se pudo actualizar
+        try: os.remove(filepath)
+        except: pass
         return None
-    return buscarPedido(id)
+    return {"id": id, "estado_pago": "Comprobante recibido", "tiene_comprobante": True}
 
 def enviarFacturaEmail(id):
     """Envía la factura del pedido por email al cliente."""
@@ -290,7 +305,7 @@ def eliminarPedidos(ID):
 
 def buscarPedido(ID):
     c = current_app.mysql.connection.cursor()
-    sql = """SELECT ped_id, ped_fecha, ped_metodo_pago, ped_cuenta_bancaria, ped_comprobante, ped_comprobante_tipo, ped_estado_entrega, ped_estado_pago, ped_total, ped_cli_id_fk, ped_usu_id_fk, ped_token_entrega, ped_notificado, ped_factura_enviada FROM t_pedido WHERE ped_id=%s"""
+    sql = """SELECT ped_id, ped_fecha, ped_metodo_pago, ped_cuenta_bancaria, ped_comprobante, ped_comprobante_tipo, ped_estado_entrega, ped_estado_pago, ped_total, ped_cli_id_fk, ped_usu_id_fk FROM t_pedido WHERE ped_id=%s"""
     c.execute(sql, (ID,))
     r = c.fetchone()
     c.close()
@@ -299,8 +314,8 @@ def buscarPedido(ID):
         ped = pedidos(ID=r[0], FECHA=r[1], METODO_DE_PAGO=r[2], CUENTA_BANCARIA=r[3], ped_comprobante=r[4], ped_comprobante_tipo=r[5], ESTADO=r[6], TOTAL=r[8], ID_CLIENTE=r[9], ped_usu_id_fk=r[10]).a_diccionario()
         ped['ped_estado_pago'] = r[7] or 'Pendiente de pago'
         ped['ped_tiene_comprobante'] = tiene
-        ped['ped_token_entrega'] = r[11]
-        ped['ped_notificado'] = bool(r[12]) if len(r) > 12 else False
-        ped['ped_factura_enviada'] = bool(r[13]) if len(r) > 13 else False
+        ped['ped_token_entrega'] = None
+        ped['ped_notificado'] = False
+        ped['ped_factura_enviada'] = False
         return ped
     return None

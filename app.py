@@ -6,6 +6,7 @@ from flask_mysqldb import MySQL
 from routers import cargarruta
 from config import config
 from utils.logger import get_logger
+from utils import ngrok_manager
 
 # ── Forzar salida UTF-8 en consola Windows ──
 if sys.platform == 'win32':
@@ -100,6 +101,10 @@ cargarruta(app)
 # ── Iniciar scheduler de tareas automáticas ──
 from scheduler import iniciar_scheduler
 iniciar_scheduler(app)
+
+# ── Iniciar ngrok para túnel público (QR de entrega) ──
+ngrok_manager.iniciar()
+app.public_url = ngrok_manager.obtener_url_publica
 
 # ── Servir el frontend build desde Flask ──
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'Frontend', 'dist')
