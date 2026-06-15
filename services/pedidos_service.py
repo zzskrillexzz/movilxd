@@ -151,7 +151,14 @@ def subirComprobante(id, comprobante_b64, comprobante_tipo):
     upload_dir = os.path.join(current_app.root_path, 'comprobantes')
     os.makedirs(upload_dir, exist_ok=True)
     comprobante_bin = base64.b64decode(comprobante_b64) if comprobante_b64 else None
-    extension = comprobante_tipo.split('/')[-1] if comprobante_tipo else 'bin'
+    # BUG-021: Validar tipo MIME contra allowlist para prevenir path traversal
+    mime_allowlist = {
+        'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif',
+        'application/pdf': 'pdf',
+    }
+    extension = mime_allowlist.get(comprobante_tipo)
+    if not extension:
+        raise ValueError(f"Tipo de archivo no permitido: {comprobante_tipo}. Permitidos: {', '.join(mime_allowlist.keys())}")
     filename = f"{id}_{int(__import__('time').time())}.{extension}"
     filepath = os.path.join(upload_dir, filename)
     with open(filepath, 'wb') as f:
