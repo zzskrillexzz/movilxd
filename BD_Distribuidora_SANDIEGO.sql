@@ -175,7 +175,7 @@ DROP TABLE IF EXISTS `t_devolucion`;
 
 CREATE TABLE `t_devolucion` (
   `dev_id` varchar(20) NOT NULL,
-  `dev_ped_id_fk` varchar(20) DEFAULT NULL,
+  `dev_com_id_fk` varchar(20) DEFAULT NULL,
   `dev_pro_id_fk` varchar(20) DEFAULT NULL,
   `dev_lot_id_fk` varchar(20) DEFAULT NULL,
   `dev_cantidad` int(11) DEFAULT NULL,
@@ -183,22 +183,22 @@ CREATE TABLE `t_devolucion` (
   `dev_fecha` date DEFAULT NULL,
   `dev_usu_id_fk` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`dev_id`),
-  KEY `dev_ped_id_fk` (`dev_ped_id_fk`),
+  KEY `dev_com_id_fk` (`dev_com_id_fk`),
   KEY `dev_pro_id_fk` (`dev_pro_id_fk`),
   KEY `dev_lot_id_fk` (`dev_lot_id_fk`),
   KEY `dev_usu_id_fk` (`dev_usu_id_fk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `t_devolucion` */
-insert  into `t_devolucion`(`dev_id`, `dev_ped_id_fk`, `dev_pro_id_fk`, `dev_lot_id_fk`, `dev_cantidad`, `dev_motivo`, `dev_fecha`, `dev_usu_id_fk`) values 
-('DEV001', 'PED001', 'PRO001', 'LOT001', 1, 'Producto llegó con empaque dañado — blister roto', '2025-03-17', 'USU002'),
-('DEV002', 'PED002', 'PRO002', 'LOT002', 1, 'Cliente reportó producto con olor extraño al abrir', '2025-03-18', 'USU003'),
-('DEV003', 'PED003', 'PRO003', 'LOT003', 2, 'Reacción alérgica leve reportada — prevención', '2025-03-20', 'USU002'),
-('DEV004', 'PED004', 'PRO004', 'LOT004', 1, 'Suero oral derramado durante el transporte', '2025-03-19', 'USU003'),
-('DEV005', 'PED005', 'PRO005', 'LOT005', 1, 'Tapa del envase llegó floja — producto contaminado', '2025-03-21', 'USU002'),
-('DEV050', 'PED050', 'PRO050', 'LOT006', 1, 'Blister abierto — producto defectuoso', '2026-04-10', 'USU050'),
-('DEV051', 'PED051', 'PRO051', 'LOT007', 2, 'Error en el pedido — cliente solicitó presentación de 15 unidades no de 30', '2026-04-11', 'USU051'),
-('DEV052', 'PED052', 'PRO052', 'LOT008', 1, 'Tabletas llegaron fragmentadas — defecto de fabricación', '2026-04-12', 'USU052');
+insert  into `t_devolucion`(`dev_id`, `dev_com_id_fk`, `dev_pro_id_fk`, `dev_lot_id_fk`, `dev_cantidad`, `dev_motivo`, `dev_fecha`, `dev_usu_id_fk`) values 
+('DEV001', 'COM001', 'PRO001', 'LOT001', 1, 'Producto llegó con empaque dañado — blister roto', '2025-03-17', 'USU002'),
+('DEV002', 'COM002', 'PRO002', 'LOT002', 1, 'Cliente reportó producto con olor extraño al abrir', '2025-03-18', 'USU003'),
+('DEV003', 'COM003', 'PRO003', 'LOT003', 2, 'Reacción alérgica leve reportada — prevención', '2025-03-20', 'USU002'),
+('DEV004', 'COM004', 'PRO004', 'LOT004', 1, 'Suero oral derramado durante el transporte', '2025-03-19', 'USU003'),
+('DEV005', 'COM005', 'PRO005', 'LOT005', 1, 'Tapa del envase llegó floja — producto contaminado', '2025-03-21', 'USU002'),
+('DEV050', 'COM050', 'PRO050', 'LOT006', 1, 'Blister abierto — producto defectuoso', '2026-04-10', 'USU050'),
+('DEV051', 'COM051', 'PRO051', 'LOT007', 2, 'Error en el pedido — cliente solicitó presentación de 15 unidades no de 30', '2026-04-11', 'USU051'),
+('DEV052', 'COM052', 'PRO052', 'LOT008', 1, 'Tabletas llegaron fragmentadas — defecto de fabricación', '2026-04-12', 'USU052');
 
 DROP TABLE IF EXISTS `t_factura`;
 

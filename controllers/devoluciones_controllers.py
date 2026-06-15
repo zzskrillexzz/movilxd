@@ -30,7 +30,7 @@ def cnRegistrarDevolucion():
     data = request.get_json()
     if not data:
         return jsonify({"mensaje": "No se enviaron datos"}), 400
-    requerido = ["pedido_id", "producto_id", "cantidad", "motivo", "fecha"]
+    requerido = ["compra_id", "producto_id", "cantidad", "motivo", "fecha"]
     faltantes = [x for x in requerido if x not in data]
     if faltantes:
         return jsonify({"mensaje": f"Faltan: {faltantes}"}), 400
@@ -51,9 +51,17 @@ def cnRegistrarDevolucion():
     if not c.fetchone():
         c.close()
         return jsonify({"mensaje": "Producto no existe"}), 404
+    # Validar que la compra exista
+    c.execute("SELECT com_id FROM t_compra WHERE com_id=%s", (data["compra_id"],))
+    if not c.fetchone():
+        c.close()
+        return jsonify({"mensaje": "La compra no existe"}), 404
     c.close()
-    result = registrarDevolucion(
-        data["pedido_id"], data["producto_id"], data.get("lote_id"),
-        cant, data["motivo"], data["fecha"], data.get("usuario_id")
-    )
-    return jsonify(result), 201
+    try:
+        result = registrarDevolucion(
+            data["compra_id"], data["producto_id"], data.get("lote_id"),
+            cant, data["motivo"], data["fecha"], data.get("usuario_id")
+        )
+        return jsonify(result), 201
+    except ValueError as e:
+        return jsonify({"mensaje": str(e)}), 400

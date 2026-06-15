@@ -17,7 +17,7 @@ def listarDevoluciones(page=1, limit=50, q=None, order_by=None, **filters):
 
     lista = []
     for item in result['data']:
-        d = devoluciones(item['dev_id'], item.get('dev_ped_id_fk'), item.get('dev_pro_id_fk'),
+        d = devoluciones(item['dev_id'], item.get('dev_com_id_fk'), item.get('dev_pro_id_fk'),
                          item.get('dev_lot_id_fk'), item.get('dev_cantidad'),
                          item['dev_motivo'], item.get('dev_fecha'), item.get('dev_usu_id_fk'))
         lista.append(d.todic())
@@ -49,7 +49,7 @@ def editarDevolucion(dev_id, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha)
     c.close()
     return {"mensaje": "Devolucion actualizada"}
 
-def registrarDevolucion(dev_ped_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk):
+def registrarDevolucion(dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk):
     dev_id = generarId()
     c = current_app.mysql.connection.cursor()
     
@@ -57,10 +57,37 @@ def registrarDevolucion(dev_ped_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantida
     try:
         current_app.mysql.connection.begin()
 
+        # ── Validar cantidad contra la compra ──
+        c.execute(
+            "SELECT dco_cantidad FROM t_detalle_compra "
+            "WHERE dco_com_id_fk = %s AND dco_pro_id_fk = %s AND (dco_lot_id_fk = %s OR (dco_lot_id_fk IS NULL AND %s IS NULL))",
+            (dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_lot_id_fk)
+        )
+        detalle = c.fetchone()
+        if not detalle:
+            raise ValueError(f"El producto {dev_pro_id_fk} no pertenece a la compra {dev_com_id_fk}")
+
+        cantidad_comprada = detalle[0]
+
+        c.execute(
+            "SELECT COALESCE(SUM(dev_cantidad), 0) FROM t_devolucion "
+            "WHERE dev_com_id_fk = %s AND dev_pro_id_fk = %s AND (dev_lot_id_fk = %s OR (dev_lot_id_fk IS NULL AND %s IS NULL))",
+            (dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_lot_id_fk)
+        )
+        ya_devuelto = c.fetchone()[0]
+
+        if dev_cantidad + ya_devuelto > cantidad_comprada:
+            disponible = cantidad_comprada - ya_devuelto
+            raise ValueError(
+                f"La cantidad a devolver ({dev_cantidad}) excede lo disponible. "
+                f"Comprados: {cantidad_comprada}, ya devueltos: {ya_devuelto}, "
+                f"máximo disponible: {disponible}"
+            )
+
         # ── Insertar la devolución ──
-        c.execute("""INSERT INTO t_devolucion (dev_id, dev_ped_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk)
+        c.execute("""INSERT INTO t_devolucion (dev_id, dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk)
                      VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-                  (dev_id, dev_ped_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk))
+                  (dev_id, dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk))
 
         # ── Reingresar stock al producto (BUG-009: UPDATE atómico) ──
         c.execute(
