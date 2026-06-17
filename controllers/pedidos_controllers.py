@@ -251,13 +251,15 @@ def cneditarpedidos(id):
         if faltantes:
             return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
-        # Validar formato de fecha (se permite cualquier fecha en edición)
+        # Validar formato de fecha — también bloqueamos fechas pasadas en edición
         from datetime import date
         try:
             fecha_pedido = data["ped_fecha"]
             if isinstance(fecha_pedido, str):
                 año, mes, dia = map(int, fecha_pedido.split("-"))
-                date(año, mes, dia)  # solo validar que sea fecha válida
+                fecha_obj = date(año, mes, dia)
+                if fecha_obj < date.today():
+                    return jsonify({"mensaje": "No se pueden crear pedidos en fechas pasadas. La fecha debe ser hoy o posterior."}), 400
             else:
                 return jsonify({"mensaje": "El formato de ped_fecha no es válido (use YYYY-MM-DD)"}), 400
         except (ValueError, TypeError):

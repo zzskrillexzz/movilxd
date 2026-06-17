@@ -46,3 +46,46 @@ def registrarProveedores(data):
         return {"mensaje": "Proveedor registrado correctamente"}
     except Exception as e:
         raise e
+
+
+def buscarProveedores(prov_id):
+    """Busca un proveedor por su ID y retorna dict o None."""
+    cursor = current_app.mysql.connection.cursor()
+    cursor.execute("SELECT * FROM t_proveedor WHERE prov_id = %s", (prov_id,))
+    row = cursor.fetchone()
+    cursor.close()
+    if row:
+        return proveedores(
+            provID=row['prov_id'], provNit=row['prov_nit'], provNombre=row['prov_nombre'],
+            provTipo=row['prov_tipo'], provContacto=row['prov_contacto'],
+            provDireccion=row['prov_direccion'], provEmail=row['prov_email']
+        ).todic()
+    return None
+
+
+def editarProveedores(prov_id, data):
+    """Actualiza un proveedor existente."""
+    cursor = current_app.mysql.connection.cursor()
+    sql = """
+        UPDATE t_proveedor SET
+            prov_nit = %s, prov_nombre = %s, prov_tipo = %s,
+            prov_contacto = %s, prov_direccion = %s, prov_email = %s
+        WHERE prov_id = %s
+    """
+    cursor.execute(sql, (
+        data.get('nit'), data.get('nombre'), data.get('tipo'),
+        data.get('contacto'), data.get('direccion'), data.get('email'),
+        prov_id
+    ))
+    current_app.mysql.connection.commit()
+    cursor.close()
+    return {"mensaje": "Proveedor actualizado correctamente"}
+
+
+def eliminarProveedores(prov_id):
+    """Elimina un proveedor por su ID."""
+    cursor = current_app.mysql.connection.cursor()
+    cursor.execute("DELETE FROM t_proveedor WHERE prov_id = %s", (prov_id,))
+    current_app.mysql.connection.commit()
+    cursor.close()
+    return {"mensaje": "Proveedor eliminado correctamente"}
