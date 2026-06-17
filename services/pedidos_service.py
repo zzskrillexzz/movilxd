@@ -300,9 +300,16 @@ def eliminarPedidos(ID):
     c.execute("SELECT det_id FROM t_detalle_pedido WHERE det_ped_id_fk=%s LIMIT 1", (ID,))
     if c.fetchone():
         c.close()
-        # Revertir inventario de los detalles y eliminarlos
         revertirInventarioPedido(ID)
         c = current_app.mysql.connection.cursor()
+
+    # Eliminar registros relacionados (cascada manual por FK)
+    # 1. Anulaciones vinculadas a la factura del pedido
+    c.execute("DELETE FROM t_anulacion WHERE anu_fac_id_fk=%s", (ID,))
+    # 2. Factura del pedido (fac_id = ped_id)
+    c.execute("DELETE FROM t_factura WHERE fac_id=%s", (ID,))
+    # 3. Devoluciones vinculadas al pedido
+    c.execute("DELETE FROM t_devolucion WHERE dev_ped_id_fk=%s", (ID,))
 
     c.execute("DELETE FROM t_pedido WHERE ped_id=%s", (ID,))
     current_app.mysql.connection.commit()
