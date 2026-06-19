@@ -66,23 +66,35 @@ def registrarUsuarios(USU_ID, USU_NOMBRE, USU_ROL, USU_CORREO, USU_CONTRASENA, U
 
 
 def editarUsuarios(USU_ID, USU_NOMBRE, USU_ROL, USU_CORREO, USU_CONTRASENA, USU_ESTADO, USU_ULTIMO_ACCESO):
-    # BUG-003: Hashear solo si es texto plano (no un hash ya existente)
-    if not USU_CONTRASENA.startswith('$2b$') and not USU_CONTRASENA.startswith('$2a$'):
-        contrasena_hash = bcrypt.hashpw(
-            USU_CONTRASENA.encode('utf-8'),
-            bcrypt.gensalt()
-        ).decode('utf-8')
-    else:
-        contrasena_hash = USU_CONTRASENA
     # Resolver nombre de rol a código (ej: 'Administrador' → 'ROL001')
     rol_codigo = _resolver_rol(USU_ROL)
     c = current_app.mysql.connection.cursor()
-    sql = """
-        UPDATE t_usuario 
-        SET usu_nombre=%s, usu_rol_id_fk=%s, usu_correo=%s, usu_contrasena=%s, usu_estado=%s, usu_ultimo_acceso=%s
-        WHERE usu_id=%s
-    """
-    c.execute(sql, (USU_NOMBRE, rol_codigo, USU_CORREO, contrasena_hash, USU_ESTADO, USU_ULTIMO_ACCESO, USU_ID))
+    
+    # Si no se envía contraseña (es None o vacía), mantener la actual
+    if USU_CONTRASENA and USU_CONTRASENA.strip() != '':
+        if not USU_CONTRASENA.startswith('$2b$') and not USU_CONTRASENA.startswith('$2a$'):
+            contrasena_hash = bcrypt.hashpw(
+                USU_CONTRASENA.encode('utf-8'),
+                bcrypt.gensalt()
+            ).decode('utf-8')
+        else:
+            contrasena_hash = USU_CONTRASENA
+        
+        sql = """
+            UPDATE t_usuario 
+            SET usu_nombre=%s, usu_rol_id_fk=%s, usu_correo=%s, usu_contrasena=%s, usu_estado=%s, usu_ultimo_acceso=%s
+            WHERE usu_id=%s
+        """
+        c.execute(sql, (USU_NOMBRE, rol_codigo, USU_CORREO, contrasena_hash, USU_ESTADO, USU_ULTIMO_ACCESO, USU_ID))
+    else:
+        # No cambiar la contraseña
+        sql = """
+            UPDATE t_usuario 
+            SET usu_nombre=%s, usu_rol_id_fk=%s, usu_correo=%s, usu_estado=%s, usu_ultimo_acceso=%s
+            WHERE usu_id=%s
+        """
+        c.execute(sql, (USU_NOMBRE, rol_codigo, USU_CORREO, USU_ESTADO, USU_ULTIMO_ACCESO, USU_ID))
+    
     current_app.mysql.connection.commit()
     c.close()
     return usuarios(USU_ID, USU_NOMBRE, USU_ROL, USU_CORREO, USU_CONTRASENA, USU_ESTADO, USU_ULTIMO_ACCESO).todic()

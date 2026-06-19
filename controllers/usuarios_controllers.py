@@ -72,13 +72,13 @@ def cneditarusuarios():
     if not data or "usu_id" not in data:
         return jsonify({"mensaje": "Se requiere el ID del usuario"}), 400
 
-    # Validar campos requeridos para la edición
-    requerido = ["usu_nombre", "usu_rol", "usu_correo", "usu_contrasena", "usu_estado"]
+    # Validar campos requeridos para la edición (contraseña es opcional en edición)
+    requerido = ["usu_nombre", "usu_rol", "usu_correo", "usu_estado"]
     faltantes = [x for x in requerido if x not in data]
     if faltantes:
         return jsonify({"mensaje": f"Faltan los siguientes campos: {faltantes}"}), 400
 
-    # Validar campos no vacíos
+    # Validar campos no vacíos (excepto contraseña que es opcional en edición)
     for campo in requerido:
         if str(data[campo]).strip() == "":
             return jsonify({"mensaje": f"El campo {campo} no puede estar vacío"}), 400
