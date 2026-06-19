@@ -6,26 +6,30 @@ from utils.error_handler import safe_controller
 
 # ── Constantes ──
 VIDA_UTIL_MINIMA_DIAS = 14          # Mínimo de días entre fabricación y vencimiento
-AÑO_MINIMO = 2000                    # No se permiten fechas antes del año 2000
-AÑO_MAXIMO_FUTURO = 10              # Años máximos hacia adelante desde el año actual
+AÑOS_ATRAS_MAXIMO = 5               # Años máximos hacia atrás desde el año actual (dinámico)
+AÑOS_ADELANTE_MAXIMO = 5            # Años máximos hacia adelante desde el año actual (dinámico)
+VIDA_UTIL_MAXIMA_DIAS = 5 * 365     # Máximo ~5 años entre fabricación y vencimiento
 CANTIDAD_MAXIMA = 999999            # Tope máximo para cantidades en lote
 
 
 def _validar_fechas_lote(fecha_fabricacion, fecha_vencimiento, es_post=True):
     """
     Valida que las fechas del lote sean razonables:
-    - Año >= AÑO_MINIMO y <= año actual + AÑO_MAXIMO_FUTURO
+    - Año >= año actual - AÑOS_ATRAS_MAXIMO y <= año actual + AÑOS_ADELANTE_MAXIMO
     - Fecha de vencimiento >= fecha de fabricación + VIDA_UTIL_MINIMA_DIAS
+    - Fecha de vencimiento <= fecha de fabricación + VIDA_UTIL_MAXIMA_DIAS (~5 años)
+    Los límites se recalculan cada vez (dinámicos, no estáticos).
     Retorna (None, None) si ok, o (mensaje_error_400, "mensaje") si hay error.
     """
     hoy = date.today()
-    año_maximo = hoy.year + AÑO_MAXIMO_FUTURO
+    año_minimo = hoy.year - AÑOS_ATRAS_MAXIMO
+    año_maximo = hoy.year + AÑOS_ADELANTE_MAXIMO
 
     try:
         if fecha_fabricacion:
             fab = datetime.strptime(fecha_fabricacion, "%Y-%m-%d").date()
-            if fab.year < AÑO_MINIMO or fab.year > año_maximo:
-                return f"La fecha de fabricación debe estar entre {AÑO_MINIMO} y {año_maximo}", 400
+            if fab.year < año_minimo or fab.year > año_maximo:
+                return f"La fecha de fabricación debe estar entre {año_minimo} y {año_maximo}", 400
         else:
             fab = None
     except (ValueError, TypeError):
@@ -33,8 +37,8 @@ def _validar_fechas_lote(fecha_fabricacion, fecha_vencimiento, es_post=True):
 
     try:
         ven = datetime.strptime(fecha_vencimiento, "%Y-%m-%d").date()
-        if ven.year < AÑO_MINIMO or ven.year > año_maximo:
-            return f"La fecha de vencimiento debe estar entre {AÑO_MINIMO} y {año_maximo}", 400
+        if ven.year < año_minimo or ven.year > año_maximo:
+            return f"La fecha de vencimiento debe estar entre {año_minimo} y {año_maximo}", 400
     except (ValueError, TypeError):
         return "La fecha de vencimiento no tiene un formato válido (YYYY-MM-DD)", 400
 
@@ -43,6 +47,9 @@ def _validar_fechas_lote(fecha_fabricacion, fecha_vencimiento, es_post=True):
 
     if fab and (ven - fab).days < VIDA_UTIL_MINIMA_DIAS:
         return f"La fecha de vencimiento debe ser al menos {VIDA_UTIL_MINIMA_DIAS} días después de la fecha de fabricación", 400
+
+    if fab and (ven - fab).days > VIDA_UTIL_MAXIMA_DIAS:
+        return f"La fecha de vencimiento no puede ser más de {AÑOS_ADELANTE_MAXIMO} años después de la fecha de fabricación", 400
 
     return None, None
 

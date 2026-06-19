@@ -54,15 +54,20 @@ def cnRegistrarProductos():
         return jsonify({"mensaje": "La cantidad disponible debe ser un número entero"}), 400
 
     # Validar stock mínimo con tope
+    stock_min = 0
     if "stock_minimo" in data and data["stock_minimo"] is not None:
         try:
-            stock = int(data["stock_minimo"])
-            if stock < 0:
+            stock_min = int(data["stock_minimo"])
+            if stock_min < 0:
                 return jsonify({"mensaje": "El stock mínimo no puede ser negativo"}), 400
-            if stock > CANTIDAD_MAXIMA:
+            if stock_min > CANTIDAD_MAXIMA:
                 return jsonify({"mensaje": f"El stock mínimo no puede ser mayor a {CANTIDAD_MAXIMA:,}"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El stock mínimo debe ser un número entero"}), 400
+
+    # Validar que stock mínimo no supere al stock disponible
+    if stock_min > cantidad:
+        return jsonify({"mensaje": "El stock mínimo no puede superar al stock disponible"}), 400
 
     # Validar longitud de campos de texto
     errores = validar_campos_texto(data, "nombre", "categoria", "descripcion")
@@ -132,15 +137,25 @@ def cnEditarProductos():
         except (ValueError, TypeError):
             return jsonify({"mensaje": "La cantidad debe ser un número entero"}), 400
 
+    stock_min = None
     if "stock_minimo" in data and data["stock_minimo"] is not None:
         try:
-            stock = int(data["stock_minimo"])
-            if stock < 0:
+            stock_min = int(data["stock_minimo"])
+            if stock_min < 0:
                 return jsonify({"mensaje": "El stock mínimo no puede ser negativo"}), 400
-            if stock > CANTIDAD_MAXIMA:
+            if stock_min > CANTIDAD_MAXIMA:
                 return jsonify({"mensaje": f"El stock mínimo no puede ser mayor a {CANTIDAD_MAXIMA:,}"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El stock mínimo debe ser un número entero"}), 400
+
+    # Validar que stock mínimo no supere al stock (si ambos se envían en la edición)
+    cant_actualizada = data.get("cantidad_disponible")
+    if stock_min is not None and cant_actualizada is not None:
+        try:
+            if stock_min > int(cant_actualizada):
+                return jsonify({"mensaje": "El stock mínimo no puede superar al stock disponible"}), 400
+        except (ValueError, TypeError):
+            pass
 
     resultado = editarProductos(data["id"], data)
     return jsonify(resultado), 200

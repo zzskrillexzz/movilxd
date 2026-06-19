@@ -1,3 +1,4 @@
+from datetime import date
 from flask import jsonify, request, current_app
 from services.compras_service import listarCompras, registrarCompras, buscarCompras, editarCompras, eliminarCompras
 from utils.validators import validar_campos_texto
@@ -27,6 +28,19 @@ def cnregistrarcompras():
     for campo in ["com_id", "com_fecha", "com_prov_id_fk", "com_usu_id_fk"]:
         if str(data[campo]).strip() == "":
             return jsonify({"mensaje": f"El campo {campo} no puede estar vacío"}), 400
+
+    # Validar fecha (no fechas futuras ni absurdas)
+    try:
+        fecha_str = data["com_fecha"]
+        if isinstance(fecha_str, str):
+            año, mes, dia = map(int, fecha_str.split("-"))
+            fecha_obj = date(año, mes, dia)
+            if fecha_obj > date.today():
+                return jsonify({"mensaje": "La fecha de la compra no puede ser futura"}), 400
+            if año < 2000:
+                return jsonify({"mensaje": "La fecha de la compra no es válida (año muy antiguo)"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"mensaje": "El formato de la fecha no es válido (use YYYY-MM-DD)"}), 400
 
     # Validar longitud de campos de texto
     errores = validar_campos_texto(data, "com_observacion", "com_comprobante_tipo")
@@ -83,6 +97,20 @@ def cneditarcompras(COM_ID):
     data = request.get_json()
     if not data:
         return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
+
+    # Validar fecha (no fechas futuras ni absurdas)
+    if data.get("com_fecha"):
+        try:
+            fecha_str = data["com_fecha"]
+            if isinstance(fecha_str, str):
+                año, mes, dia = map(int, fecha_str.split("-"))
+                fecha_obj = date(año, mes, dia)
+                if fecha_obj > date.today():
+                    return jsonify({"mensaje": "La fecha de la compra no puede ser futura"}), 400
+                if año < 2000:
+                    return jsonify({"mensaje": "La fecha de la compra no es válida (año muy antiguo)"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"mensaje": "El formato de la fecha no es válido (use YYYY-MM-DD)"}), 400
 
     if data.get("com_estado"):
         estados_validos = ["Pendiente", "Recibida", "Cancelada"]

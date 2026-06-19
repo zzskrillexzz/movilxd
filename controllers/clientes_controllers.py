@@ -1,7 +1,7 @@
 import re
 from flask import jsonify, request, current_app
 from services.clientes_service import listarClientes, registrarClientes, editarClientes, eliminarClientes, buscarClientes
-from utils.validators import validar_campos_texto
+from utils.validators import validar_campos_texto, validar_nombre_apellido
 from utils.error_handler import safe_controller
 
 # ── Patrón para teléfono: solo dígitos, espacios, +, -, ( ) ──
@@ -53,6 +53,14 @@ def cnregistrarclientes():
     if errores:
         return jsonify({"mensaje": " | ".join(errores)}), 400
 
+    # Validar que nombres no tengan caracteres especiales
+    err_nom = validar_nombre_apellido(data.get("cli_nombre"), "nombre")
+    if err_nom:
+        return jsonify({"mensaje": err_nom}), 400
+    err_ape = validar_nombre_apellido(data.get("cli_apellido"), "apellido")
+    if err_ape:
+        return jsonify({"mensaje": err_ape}), 400
+
     # Validar formato del teléfono
     err_tel = _validar_telefono(data.get("cli_telefono"))
     if err_tel:
@@ -93,6 +101,14 @@ def cneditarclientes():
     )
     if errores:
         return jsonify({"mensaje": " | ".join(errores)}), 400
+
+    # Validar que nombres no tengan caracteres especiales
+    err_nom = validar_nombre_apellido(data.get("cli_nombre"), "nombre")
+    if err_nom:
+        return jsonify({"mensaje": err_nom}), 400
+    err_ape = validar_nombre_apellido(data.get("cli_apellido"), "apellido")
+    if err_ape:
+        return jsonify({"mensaje": err_ape}), 400
 
     # Validar formato del teléfono
     err_tel = _validar_telefono(data.get("cli_telefono"))

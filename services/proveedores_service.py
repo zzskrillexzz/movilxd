@@ -51,14 +51,15 @@ def registrarProveedores(data):
 def buscarProveedores(prov_id):
     """Busca un proveedor por su ID y retorna dict o None."""
     cursor = current_app.mysql.connection.cursor()
-    cursor.execute("SELECT * FROM t_proveedor WHERE prov_id = %s", (prov_id,))
+    cursor.execute("SELECT prov_id, prov_nit, prov_nombre, prov_tipo, prov_contacto, prov_direccion, prov_email FROM t_proveedor WHERE prov_id = %s", (prov_id,))
     row = cursor.fetchone()
     cursor.close()
     if row:
+        # El cursor de flask_mysqldb retorna tuplas, no dicts — usar índices posicionales
         return proveedores(
-            provID=row['prov_id'], provNit=row['prov_nit'], provNombre=row['prov_nombre'],
-            provTipo=row['prov_tipo'], provContacto=row['prov_contacto'],
-            provDireccion=row['prov_direccion'], provEmail=row['prov_email']
+            provID=row[0], provNit=row[1], provNombre=row[2],
+            provTipo=row[3], provContacto=row[4],
+            provDireccion=row[5], provEmail=row[6]
         ).todic()
     return None
 

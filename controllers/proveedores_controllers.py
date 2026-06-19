@@ -1,7 +1,11 @@
 from flask import jsonify, request, current_app
 from services.proveedores_service import listarProveedores, registrarProveedores, buscarProveedores, editarProveedores, eliminarProveedores
+import re
 from utils.validators import validar_campos_texto
 from utils.error_handler import safe_controller
+
+# ── Patrón básico de email ──
+_EMAIL_RE = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
 @safe_controller
 def cnlistadoproveedores():
@@ -24,10 +28,9 @@ def cnregistrarproveedores():
     if faltantes:
         return jsonify({"mensaje": f"Faltan los siguientes campos o están vacíos: {faltantes}"}), 400
 
-    # Auto-generar ID si no se envió
-    if not data.get('id') or str(data.get('id', '')).strip() == '':
-        from utils.id_generator import generarIdSiguiente
-        data['id'] = generarIdSiguiente('t_proveedor', 'prov_id', 'PROV', 3)
+    # Auto-generar ID siempre (el backend es la autoridad, ignora lo que envíe el frontend)
+    from utils.id_generator import generarIdSiguiente
+    data['id'] = generarIdSiguiente('t_proveedor', 'prov_id', 'PROV', 3)
 
     # Validar longitud de campos de texto
     errores = validar_campos_texto(data, "nit", "nombre", "tipo", "contacto", "direccion", "email")
@@ -38,6 +41,10 @@ def cnregistrarproveedores():
     tipos_validos = ["Laboratorio", "Distribuidor", "Importador"]
     if data["tipo"] not in tipos_validos:
         return jsonify({"mensaje": f"Tipo inválido. Valores permitidos: {tipos_validos}"}), 400
+
+    # Validar formato email
+    if not _EMAIL_RE.match(data.get("email", "")):
+        return jsonify({"mensaje": "El formato del email no es válido"}), 400
 
     # Validar duplicado por ID
     c = current_app.mysql.connection.cursor()
@@ -93,6 +100,10 @@ def cneditarproveedores():
     tipos_validos = ["Laboratorio", "Distribuidor", "Importador"]
     if data["tipo"] not in tipos_validos:
         return jsonify({"mensaje": f"Tipo inválido. Valores permitidos: {tipos_validos}"}), 400
+
+    # Validar formato email
+    if not _EMAIL_RE.match(data.get("email", "")):
+        return jsonify({"mensaje": "El formato del email no es válido"}), 400
 
     # Validar NIT duplicado (si cambió)
     c = current_app.mysql.connection.cursor()
