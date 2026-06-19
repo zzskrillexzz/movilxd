@@ -85,7 +85,8 @@ def login(USU_CORREO, USU_CONTRASENA):
         "token_type":   "bearer",
         "usu_id":       usuario['usu_id'],
         "usu_nombre":   usuario['usu_nombre'],
-        "usu_rol_id_fk": usuario['usu_rol_id_fk']
+        "usu_rol_id_fk": usuario['usu_rol_id_fk'],
+        "usu_rol":      rol_nombre
     }
 
 # ─── Blacklist de tokens ──────────────────────────────────────────────────────
