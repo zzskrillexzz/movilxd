@@ -69,6 +69,16 @@ def cnregistrarpedidos():
         if data["ped_metodo_pago"] not in metodos_validos:
             return jsonify({"mensaje": f"Método de pago inválido. Valores permitidos: {metodos_validos}"}), 400
 
+        # Validar cuenta bancaria (solo si es transferencia)
+        BANCOS_PERMITIDOS = [
+            "Bancolombia", "Davivienda", "Banco de Bogotá", "BBVA Colombia",
+            "Banco de Occidente", "Banco Popular", "Banco Agrario", "Banco Caja Social",
+            "Banco Falabella", "Scotiabank Colpatria", "Itaú Colombia", "Banco Pichincha",
+            "Bancamía", "Bancoomeva", "AV Villas", "Nequi", "Daviplata", "Movii", "Dale"
+        ]
+        if data.get("ped_cuenta_bancaria") and data["ped_cuenta_bancaria"] not in BANCOS_PERMITIDOS:
+            return jsonify({"mensaje": "Cuenta bancaria no válida. Seleccione una de la lista."}), 400
+
         # Validar estado entrega
         estados_validos = ["Pendiente", "En preparación", "En camino", "Entregado", "Anulado"]
         if data["ped_estado_entrega"] not in estados_validos:
@@ -273,6 +283,16 @@ def cneditarpedidos(id):
         metodos_validos = ["Efectivo", "Tarjeta", "Transferencia", "Nequi", "Daviplata"]
         if data["ped_metodo_pago"] not in metodos_validos:
             return jsonify({"mensaje": f"Método de pago inválido. Valores permitidos: {metodos_validos}"}), 400
+
+        # Validar cuenta bancaria (solo si es transferencia)
+        BANCOS_PERMITIDOS = [
+            "Bancolombia", "Davivienda", "Banco de Bogotá", "BBVA Colombia",
+            "Banco de Occidente", "Banco Popular", "Banco Agrario", "Banco Caja Social",
+            "Banco Falabella", "Scotiabank Colpatria", "Itaú Colombia", "Banco Pichincha",
+            "Bancamía", "Bancoomeva", "AV Villas", "Nequi", "Daviplata", "Movii", "Dale"
+        ]
+        if data.get("ped_cuenta_bancaria") and data["ped_cuenta_bancaria"] not in BANCOS_PERMITIDOS:
+            return jsonify({"mensaje": "Cuenta bancaria no válida. Seleccione una de la lista."}), 400
 
         estados_validos = ["Pendiente", "En preparación", "En camino", "Entregado", "Anulado"]
         if data["ped_estado_entrega"] not in estados_validos:

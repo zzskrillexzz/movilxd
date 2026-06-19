@@ -40,6 +40,16 @@ def cnRegistrarFacturas():
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]+$', str(data["forma_pago"])):
             return jsonify({"mensaje": "La forma de pago solo puede contener letras, números, espacios y guiones"}), 400
 
+    # Validar cuenta bancaria (solo bancos colombianos permitidos)
+    BANCOS_PERMITIDOS = [
+        "Bancolombia", "Davivienda", "Banco de Bogotá", "BBVA Colombia",
+        "Banco de Occidente", "Banco Popular", "Banco Agrario", "Banco Caja Social",
+        "Banco Falabella", "Scotiabank Colpatria", "Itaú Colombia", "Banco Pichincha",
+        "Bancamía", "Bancoomeva", "AV Villas", "Nequi", "Daviplata", "Movii", "Dale"
+    ]
+    if data.get("cuenta_bancaria") and data["cuenta_bancaria"] not in BANCOS_PERMITIDOS:
+        return jsonify({"mensaje": "Cuenta bancaria no válida. Seleccione una de la lista."}), 400
+
     # Validar email_enviado (0 o 1)
     if data["email_enviado"] not in [0, 1]:
         return jsonify({"mensaje": "email_enviado debe ser 0 o 1"}), 400
