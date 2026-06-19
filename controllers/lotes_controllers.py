@@ -9,7 +9,7 @@ VIDA_UTIL_MINIMA_DIAS = 14          # Mínimo de días entre fabricación y venc
 AÑOS_ATRAS_MAXIMO = 5               # Años máximos hacia atrás desde el año actual (dinámico)
 AÑOS_ADELANTE_MAXIMO = 5            # Años máximos hacia adelante desde el año actual (dinámico)
 VIDA_UTIL_MAXIMA_DIAS = 5 * 365     # Máximo ~5 años entre fabricación y vencimiento
-CANTIDAD_MAXIMA = 999999            # Tope máximo para cantidades en lote
+CANTIDAD_MAXIMA = 1000              # Tope máximo para cantidades en lote
 
 
 def _validar_fechas_lote(fecha_fabricacion, fecha_vencimiento, es_post=True):
