@@ -34,15 +34,28 @@ def listarUsuarios(page=1, limit=50, q=None, order_by=None, **filters):
 
 
 def _resolver_rol(nombre_rol):
-    """Convierte nombre de rol ('Administrador') a código ('ROL001')."""
+    """Convierte nombre de rol ('Administrador') a código ('ROL001'). Crea el rol si no existe."""
     c = current_app.mysql.connection.cursor()
     c.execute("SELECT rol_id FROM t_rol WHERE rol_nombre = %s", (nombre_rol,))
     row = c.fetchone()
-    c.close()
     if row:
+        c.close()
         return row[0]
-    # Si no se encuentra, retornar el nombre tal cual (fallback para roles no mapeados)
-    return nombre_rol
+    # Auto-crear el rol si no existe
+    c.execute("SELECT MAX(rol_id) FROM t_rol")
+    max_row = c.fetchone()
+    next_num = 1
+    if max_row and max_row[0]:
+        try:
+            next_num = int(max_row[0].replace('ROL', '')) + 1
+        except (ValueError, TypeError):
+            next_num = 1
+    new_id = f"ROL{next_num:03d}"
+    c.execute("INSERT INTO t_rol (rol_id, rol_nombre, rol_descripcion) VALUES (%s, %s, %s)",
+              (new_id, nombre_rol, f'Rol {nombre_rol} (auto-creado)'))
+    current_app.mysql.connection.commit()
+    c.close()
+    return new_id
 
 
 def registrarUsuarios(USU_ID, USU_NOMBRE, USU_ROL, USU_CORREO, USU_CONTRASENA, USU_ESTADO, USU_ULTIMO_ACCESO):
