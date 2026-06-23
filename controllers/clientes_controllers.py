@@ -43,6 +43,8 @@ def cnregistrarclientes():
         cli_id = int(data["cli_id"])
         if cli_id <= 0:
             return jsonify({"mensaje": "El ID del cliente debe ser un número positivo"}), 400
+        if len(str(cli_id)) > 11:
+            return jsonify({"mensaje": "El ID del cliente no puede tener más de 11 dígitos"}), 400
     except (ValueError, TypeError):
         return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
 
