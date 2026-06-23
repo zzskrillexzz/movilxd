@@ -19,6 +19,11 @@ app = Flask(__name__)
 app.config.from_object(config)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
+# ── Directorio para comprobantes subidos (app de escritorio) ──
+COMPROBANTES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'comprobantes')
+os.makedirs(COMPROBANTES_DIR, exist_ok=True)
+app.config['COMPROBANTES_DIR'] = COMPROBANTES_DIR
+
 # ── BUG-007: Validar SECRET_KEY al arranque ──
 _secret = app.config.get('SECRET_KEY')
 if not _secret:

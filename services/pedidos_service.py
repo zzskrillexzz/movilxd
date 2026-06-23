@@ -77,7 +77,8 @@ def verificarPago(id, nuevo_estado):
         c.execute("SELECT ped_comprobante FROM t_pedido WHERE ped_id = %s", (id,))
         old = c.fetchone()
         if old and old[0] and isinstance(old[0], str) and len(old[0]) < 100:
-            filepath = os.path.join(current_app.root_path, 'comprobantes', old[0])
+            upload_dir = current_app.config.get('COMPROBANTES_DIR', os.path.join(current_app.root_path, 'comprobantes'))
+            filepath = os.path.join(upload_dir, old[0])
             if os.path.exists(filepath):
                 try:
                     os.remove(filepath)
@@ -160,7 +161,7 @@ def confirmarEntregaPorToken(token):
 def subirComprobante(id, comprobante_b64, comprobante_tipo):
     import os
     # Guardar el archivo en disco en lugar de en la DB (evita límites de max_allowed_packet)
-    upload_dir = os.path.join(current_app.root_path, 'comprobantes')
+    upload_dir = current_app.config.get('COMPROBANTES_DIR', os.path.join(current_app.root_path, 'comprobantes'))
     os.makedirs(upload_dir, exist_ok=True)
     comprobante_bin = base64.b64decode(comprobante_b64) if comprobante_b64 else None
     # BUG-021: Validar tipo MIME contra allowlist para prevenir path traversal

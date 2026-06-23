@@ -258,7 +258,8 @@ def cndescargarcomprobante(id):
                     pass
 
         if es_filename:
-            filepath = os.path.join(current_app.root_path, 'comprobantes', filename)
+            upload_dir = current_app.config.get('COMPROBANTES_DIR', os.path.join(current_app.root_path, 'comprobantes'))
+            filepath = os.path.join(upload_dir, filename)
             if not os.path.exists(filepath):
                 return jsonify({"mensaje": "El archivo de comprobante no existe en el servidor"}), 404
             from flask import send_file
