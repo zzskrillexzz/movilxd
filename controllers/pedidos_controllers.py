@@ -227,6 +227,7 @@ def cndescargarcomprobante(id):
     """Retorna el archivo de comprobante — soporta tanto blob en DB como archivo en disco."""
     try:
         import os
+        import base64 as b64
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT ped_comprobante, ped_comprobante_tipo FROM t_pedido WHERE ped_id = %s", (id,))
         r = c.fetchone()
@@ -237,33 +238,49 @@ def cndescargarcomprobante(id):
         dato = r[0]
         mime = r[1]
 
-        # Si es un string corto (< 100 chars), es un nombre de archivo en disco
-        if isinstance(dato, str) and len(dato) < 100:
-            filepath = os.path.join(current_app.root_path, 'comprobantes', dato)
+        # Determinar si es un nombre de archivo en disco
+        es_filename = False
+        filename = None
+        if isinstance(dato, str):
+            # String: si es corto (< 100 chars) y no parece base64, es filename
+            if len(dato) < 100:
+                es_filename = True
+                filename = dato
+        elif isinstance(dato, bytes):
+            # Bytes: si es corto y decodifica como ASCII limpio, es filename
+            if len(dato) < 150:
+                try:
+                    decoded = dato.decode('ascii')
+                    if len(decoded) < 100 and not any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.{}' for c in decoded):
+                        es_filename = True
+                        filename = decoded
+                except Exception:
+                    pass
+
+        if es_filename:
+            filepath = os.path.join(current_app.root_path, 'comprobantes', filename)
             if not os.path.exists(filepath):
                 return jsonify({"mensaje": "El archivo de comprobante no existe en el servidor"}), 404
             from flask import send_file
             return send_file(filepath, mimetype=mime)
-        else:
-            # Datos legacy guardados en la DB (blob o base64 string)
-            import base64 as b64
-            if isinstance(dato, bytes):
-                # Puede ser binario puro (blob) o base64 texto en bytes
-                # Detectamos: si empieza con magic bytes de PNG/JPEG/PDF es binario
-                if dato[:4] == b'\x89PNG' or dato[:2] == b'\xff\xd8' or dato[:4] == b'%PDF':
-                    binary = dato
-                else:
-                    try:
-                        binary = b64.b64decode(dato)
-                    except Exception:
-                        binary = dato
+
+        # Datos legacy guardados en la DB (blob o base64)
+        if isinstance(dato, bytes):
+            # Puede ser binario puro (blob) o base64 texto en bytes
+            if dato[:4] == b'\x89PNG' or dato[:2] == b'\xff\xd8' or dato[:4] == b'%PDF':
+                binary = dato
             else:
-                # String largo: es base64 texto
                 try:
                     binary = b64.b64decode(dato)
                 except Exception:
-                    binary = dato.encode('latin-1')
-            return current_app.response_class(binary, mimetype=mime)
+                    binary = dato
+        else:
+            # String largo: es base64 texto
+            try:
+                binary = b64.b64decode(dato)
+            except Exception:
+                binary = dato.encode('latin-1')
+        return current_app.response_class(binary, mimetype=mime)
     except Exception as e:
         log.error(f"Error al descargar comprobante: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500

@@ -72,7 +72,19 @@ def verificarPago(id, nuevo_estado):
         c.execute("UPDATE t_pedido SET ped_estado_pago=%s, ped_estado_entrega=%s WHERE ped_id=%s",
                    (nuevo_estado, 'En preparación', id))
     else:
-        c.execute("UPDATE t_pedido SET ped_estado_pago=%s WHERE ped_id=%s", (nuevo_estado, id))
+        # Al rechazar, eliminar el comprobante para permitir subir uno nuevo
+        import os
+        c.execute("SELECT ped_comprobante FROM t_pedido WHERE ped_id = %s", (id,))
+        old = c.fetchone()
+        if old and old[0] and isinstance(old[0], str) and len(old[0]) < 100:
+            filepath = os.path.join(current_app.root_path, 'comprobantes', old[0])
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception:
+                    pass
+        c.execute("UPDATE t_pedido SET ped_estado_pago=%s, ped_comprobante=NULL, ped_comprobante_tipo=NULL WHERE ped_id=%s",
+                   (nuevo_estado, id))
     current_app.mysql.connection.commit()
     filas = c.rowcount
     c.close()
