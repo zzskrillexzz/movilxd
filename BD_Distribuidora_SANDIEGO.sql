@@ -67,6 +67,7 @@ CREATE TABLE `t_anulacion_venta` (
 /*Data for the table `t_anulacion_venta` */
 
 insert  into `t_anulacion_venta`(`anu_id`,`anu_fac_id_fk`,`anu_usu_id_fk`,`anu_fecha`,`anu_motivo`) values 
+('ANU001','PED004','USU001','2026-06-17 00:00:00','Anulación automática por cancelación de pedido'),
 ('ANU050','PED050','USU051','2026-04-09 16:00:00','Cliente solicito devolucion'),
 ('ANU051','PED051','USU051','2026-04-09 17:00:00','Error en facturacion'),
 ('ANU052','PED052','USU052','2026-04-09 18:00:00','Producto defectuoso'),
@@ -91,6 +92,7 @@ CREATE TABLE `t_cliente` (
 
 insert  into `t_cliente`(`cli_id`,`cli_tipo_documento`,`cli_nombre`,`cli_apellido`,`cli_telefono`,`cli_direccion`,`cli_correo`) values 
 (900123456,'NIT','Farmacia','El Descuento SAS','6014567890','Av 68 #23-45 Cali','farmacia.descuento@empresa.co'),
+(998877665,'CC','Maria','Gomez','3007654321','Carrera 45','maria@test.com'),
 (1023456789,'CC','Carlos','Gomez','3157894561','Cl 80 #20-35','cgomez@hotmail.com'),
 (1065432198,'CC','Maria','Salcedo','3143216547','Cl 45 #8-15','msalcedo@gmail.com'),
 (1076543219,'CC','Jhon','Rios','3209876543','Cra 7 #12-50','jhonrios@gmail.com'),
@@ -187,7 +189,8 @@ insert  into `t_detalle_pedido`(`det_id`,`det_ped_id_fk`,`det_pro_id_fk`,`det_lo
 ('DET005','PED005','PRO005',NULL,1,4200.00,4200.00),
 ('DET050','PED050','PRO050',NULL,2,8500.00,17000.00),
 ('DET051','PED051','PRO051',NULL,2,15000.00,30000.00),
-('DET052','PED052','PRO052',NULL,1,5200.00,5200.00);
+('DET052','PED052','PRO052',NULL,1,5200.00,5200.00),
+('PED053-DET001','PED053','PRO001','LOT001',1,850.00,850.00);
 
 /*Table structure for table `t_devolucion` */
 
@@ -201,7 +204,7 @@ CREATE TABLE `t_devolucion` (
   `dev_cantidad` int(11) DEFAULT NULL,
   `dev_motivo` text DEFAULT NULL,
   `dev_fecha` date DEFAULT NULL,
-  `dev_com_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID de la compra asociada (opcional)',
+  `dev_com_id_fk` varchar(20) DEFAULT NULL,
   `dev_usu_id_fk` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`dev_id`),
   KEY `dev_ped_id_fk` (`dev_ped_id_fk`),
@@ -212,15 +215,15 @@ CREATE TABLE `t_devolucion` (
 
 /*Data for the table `t_devolucion` */
 
-insert  into `t_devolucion`(`dev_id`,`dev_ped_id_fk`,`dev_pro_id_fk`,`dev_lot_id_fk`,`dev_cantidad`,`dev_motivo`,`dev_fecha`,`dev_usu_id_fk`) values 
-('DEV001','PED001','PRO001','LOT001',1,'Producto llegó con empaque dañado — blister roto','2025-03-17','USU002'),
-('DEV002','PED002','PRO002','LOT002',1,'Cliente reportó producto con olor extraño al abrir','2025-03-18','USU003'),
-('DEV003','PED003','PRO003','LOT003',2,'Reacción alérgica leve reportada — prevención','2025-03-20','USU002'),
-('DEV004','PED004','PRO004','LOT004',1,'Suero oral derramado durante el transporte','2025-03-19','USU003'),
-('DEV005','PED005','PRO005','LOT005',1,'Tapa del envase llegó floja — producto contaminado','2025-03-21','USU002'),
-('DEV050','PED050','PRO050','LOT006',1,'Blister abierto — producto defectuoso','2026-04-10','USU050'),
-('DEV051','PED051','PRO051','LOT007',2,'Error en el pedido — cliente solicitó presentación de 15 unidades no de 30','2026-04-11','USU051'),
-('DEV052','PED052','PRO052','LOT008',1,'Tabletas llegaron fragmentadas — defecto de fabricación','2026-04-12','USU052');
+insert  into `t_devolucion`(`dev_id`,`dev_ped_id_fk`,`dev_pro_id_fk`,`dev_lot_id_fk`,`dev_cantidad`,`dev_motivo`,`dev_fecha`,`dev_com_id_fk`,`dev_usu_id_fk`) values 
+('DEV001','PED001','PRO001','LOT001',1,'Producto llegó con empaque dañado — blister roto','2025-03-17',NULL,'USU002'),
+('DEV002','PED002','PRO002','LOT002',1,'Cliente reportó producto con olor extraño al abrir','2025-03-18',NULL,'USU003'),
+('DEV003','PED003','PRO003','LOT003',2,'Reacción alérgica leve reportada — prevención','2025-03-20',NULL,'USU002'),
+('DEV004','PED004','PRO004','LOT004',1,'Suero oral derramado durante el transporte','2025-03-19',NULL,'USU003'),
+('DEV005','PED005','PRO005','LOT005',1,'Tapa del envase llegó floja — producto contaminado','2025-03-21',NULL,'USU002'),
+('DEV050','PED050','PRO050','LOT006',1,'Blister abierto — producto defectuoso','2026-04-10',NULL,'USU050'),
+('DEV051','PED051','PRO051','LOT007',2,'Error en el pedido — cliente solicitó presentación de 15 unidades no de 30','2026-04-11',NULL,'USU051'),
+('DEV052','PED052','PRO052','LOT008',1,'Tabletas llegaron fragmentadas — defecto de fabricación','2026-04-12',NULL,'USU052');
 
 /*Table structure for table `t_factura` */
 
@@ -235,7 +238,7 @@ CREATE TABLE `t_factura` (
   `fac_total` decimal(12,2) DEFAULT NULL COMMENT 'Total de la factura',
   `fac_estado` varchar(20) DEFAULT 'Vigente' COMMENT 'Estado: Vigente / Anulada',
   `fac_usu_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del usuario que generó la factura',
-  `fac_cli_id_fk` bigint(20) DEFAULT NULL COMMENT 'ID del cliente',
+  `fac_cli_id_fk` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`fac_id`),
   KEY `fac_usu_id_fk` (`fac_usu_id_fk`),
   CONSTRAINT `factura_ibfk_1` FOREIGN KEY (`fac_id`) REFERENCES `t_pedido` (`ped_id`),
@@ -244,15 +247,15 @@ CREATE TABLE `t_factura` (
 
 /*Data for the table `t_factura` */
 
-insert  into `t_factura`(`fac_id`,`fac_fecha_emision`,`fac_email_enviado`,`fac_forma_pago`,`fac_cuenta_bancaria`,`fac_total`,`fac_estado`,`fac_usu_id_fk`) values 
-('PED001','2025-03-15',1,'Efectivo',NULL,8450.00,'Vigente','USU002'),
-('PED002','2025-03-16',1,'Tarjeta',NULL,12700.00,'Vigente','USU003'),
-('PED003','2025-03-17',0,'Nequi',NULL,5880.00,'Vigente','USU002'),
-('PED004','2025-03-18',0,'Efectivo',NULL,4200.00,'Vigente','USU003'),
-('PED005','2025-03-19',1,'Daviplata',NULL,9800.00,'Vigente','USU002'),
-('PED050','2026-04-09',1,'Efectivo',NULL,17000.00,'Vigente','USU050'),
-('PED051','2026-04-09',0,'Tarjeta',NULL,30000.00,'Vigente','USU051'),
-('PED052','2026-04-09',1,'Transferencia',NULL,5200.00,'Vigente','USU052');
+insert  into `t_factura`(`fac_id`,`fac_fecha_emision`,`fac_email_enviado`,`fac_forma_pago`,`fac_cuenta_bancaria`,`fac_total`,`fac_estado`,`fac_usu_id_fk`,`fac_cli_id_fk`) values 
+('PED001','2025-03-15',1,'Efectivo',NULL,8450.00,'Vigente','USU002',NULL),
+('PED002','2025-03-16',1,'Tarjeta',NULL,12700.00,'Vigente','USU003',NULL),
+('PED003','2025-03-17',0,'Nequi',NULL,5880.00,'Vigente','USU002',NULL),
+('PED004','2025-03-18',0,'Efectivo',NULL,4200.00,'Vigente','USU003',NULL),
+('PED005','2025-03-19',1,'Daviplata',NULL,9800.00,'Vigente','USU002',NULL),
+('PED050','2026-04-09',1,'Efectivo',NULL,17000.00,'Vigente','USU050',NULL),
+('PED051','2026-04-09',0,'Tarjeta',NULL,30000.00,'Vigente','USU051',NULL),
+('PED052','2026-04-09',1,'Transferencia',NULL,5200.00,'Vigente','USU052',NULL);
 
 /*Table structure for table `t_inventario_movimiento` */
 
@@ -287,7 +290,8 @@ insert  into `t_inventario_movimiento`(`inm_id`,`inm_tipo_movimiento`,`inm_pro_i
 ('INM050','Entrada','PRO050','LOT050',100,'2026-04-09','Compra COM050','USU051'),
 ('INM051','Entrada','PRO051','LOT051',150,'2026-04-09','Compra COM051','USU051'),
 ('INM052','Salida','PRO052','LOT052',10,'2026-04-09','Venta PED052','USU052'),
-('INM053','Salida ','PRO052','LOT099',1,'2026-04-09','Venta PED052','USU052');
+('INM053','Salida ','PRO052','LOT099',1,'2026-04-09','Venta PED052','USU052'),
+('INM054','Salida','PRO001','LOT001',1,'2026-06-15','Venta PED053',NULL);
 
 /*Table structure for table `t_lote` */
 
@@ -313,7 +317,7 @@ CREATE TABLE `t_lote` (
 /*Data for the table `t_lote` */
 
 insert  into `t_lote`(`lot_id`,`lot_numero`,`lot_fecha_fabricacion`,`lot_fecha_vencimiento`,`lot_cantidad_inicial`,`lot_cantidad_actual`,`lot_pro_id_fk`,`lot_prov_id_fk`,`lot_estado`) values 
-('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,195,'PRO001','PROV002','Activo'),
+('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,194,'PRO001','PROV002','Activo'),
 ('LOT002','LT-IBU-2025-001','2025-02-05','2026-06-30',150,147,'PRO002','PROV001','Activo'),
 ('LOT003','LT-LOR-2025-001','2025-01-20','2027-01-31',80,80,'PRO003','PROV003','Activo'),
 ('LOT004','LT-SUE-2025-001','2025-03-01','2026-12-15',60,60,'PRO004','PROV004','Activo'),
@@ -321,7 +325,8 @@ insert  into `t_lote`(`lot_id`,`lot_numero`,`lot_fecha_fabricacion`,`lot_fecha_v
 ('LOT050','LT-IBU-2026-050','2026-01-15','2027-06-30',100,100,'PRO050','PROV050','Activo'),
 ('LOT051','LT-AMO-2026-051','2026-02-01','2027-09-15',150,150,'PRO051','PROV051','Activo'),
 ('LOT052','LT-LOR-2026-052','2026-03-10','2028-01-20',300,300,'PRO052','PROV052','Activo'),
-('LOT099','LT-TEST-2026','2026-01-01','2027-06-30',100,100,'PRO001','PROV002','Activo');
+('LOT099','LT-TEST-2026','2026-01-01','2027-06-30',100,100,'PRO001','PROV002','Activo'),
+('LOT200','LOT200','2026-06-01','2027-06-01',100,100,'PRO200','PROV001','Activo');
 
 /*Table structure for table `t_monitoria` */
 
@@ -358,7 +363,9 @@ insert  into `t_monitoria`(`mon_id`,`mon_pro_id_fk`,`mon_lot_id_fk`,`mon_inm_id_
 ('MON005','PRO005','LOT005','INM005','2025-03-18','Salida',1,45,44,4200.00,4200.00),
 ('MON050','PRO050','LOT050','INM050','2026-04-09','Entrada',100,200,300,8500.00,850000.00),
 ('MON051','PRO051','LOT051','INM051','2026-04-09','Entrada',150,150,300,15000.00,2250000.00),
-('MON052','PRO052','LOT052','INM052','2026-04-09','Salida',10,300,290,5200.00,52000.00);
+('MON052','PRO052','LOT052','INM052','2026-04-09','Salida',10,300,290,5200.00,52000.00),
+('MON26061515571266','PRO001','LOT001','INM054','2026-06-15','Salida',1,199,198,850.00,850.00),
+('MON26061515571267','PRO001','LOT001','INM054','2026-06-15','Salida',1,200,199,850.00,850.00);
 
 /*Table structure for table `t_pedido` */
 
@@ -373,9 +380,9 @@ CREATE TABLE `t_pedido` (
   `ped_comprobante_tipo` varchar(50) DEFAULT NULL,
   `ped_estado_entrega` varchar(50) DEFAULT NULL COMMENT 'Estado: Entregado / En camino / No entregado / Anulado',
   `ped_estado_pago` varchar(20) DEFAULT 'Pendiente' COMMENT 'Estado del pago: Pendiente / Verificado / Rechazado',
-  `ped_token_entrega` varchar(64) DEFAULT NULL COMMENT 'Token único para confirmación de entrega via QR',
-  `ped_notificado` tinyint(1) DEFAULT 0 COMMENT '1=Cliente notificado / 0=No notificado',
-  `ped_factura_enviada` tinyint(1) DEFAULT 0 COMMENT '1=Factura enviada por email / 0=No enviada',
+  `ped_token_entrega` varchar(64) DEFAULT NULL,
+  `ped_notificado` tinyint(1) DEFAULT 0,
+  `ped_factura_enviada` tinyint(1) DEFAULT 0,
   `ped_total` decimal(12,2) DEFAULT NULL COMMENT 'Total del pedido',
   `ped_cli_id_fk` bigint(20) DEFAULT NULL COMMENT 'ID del cliente',
   `ped_usu_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del vendedor que registró el pedido',
@@ -388,15 +395,16 @@ CREATE TABLE `t_pedido` (
 
 /*Data for the table `t_pedido` */
 
-insert  into `t_pedido`(`ped_id`,`ped_fecha`,`ped_metodo_pago`,`ped_cuenta_bancaria`,`ped_comprobante`,`ped_comprobante_tipo`,`ped_estado_entrega`,`ped_estado_pago`,`ped_total`,`ped_cli_id_fk`,`ped_usu_id_fk`) values 
-('PED001','2025-03-15','Efectivo',NULL,NULL,NULL,'Entregado','Pendiente',8450.00,1098765432,'USU002'),
-('PED002','2025-03-16','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',12700.00,1023456789,'USU003'),
-('PED003','2025-03-17','Nequi',NULL,NULL,NULL,'Entregado','Pendiente',5880.00,1087654321,'USU002'),
-('PED004','2025-03-18','Efectivo',NULL,NULL,NULL,'No entregado','Pendiente',4200.00,1076543219,'USU003'),
-('PED005','2025-03-19','Daviplata',NULL,NULL,NULL,'En camino','Pendiente',9800.00,1065432198,'USU002'),
-('PED050','2026-04-09','Efectivo',NULL,NULL,NULL,'Entregado','Pendiente',17000.00,1098765432,'USU050'),
-('PED051','2026-04-09','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',30000.00,1087654321,'USU051'),
-('PED052','2026-04-09','Transferencia',NULL,NULL,NULL,'En camino','Pendiente',5200.00,900123456,'USU052');
+insert  into `t_pedido`(`ped_id`,`ped_fecha`,`ped_metodo_pago`,`ped_cuenta_bancaria`,`ped_comprobante`,`ped_comprobante_tipo`,`ped_estado_entrega`,`ped_estado_pago`,`ped_token_entrega`,`ped_notificado`,`ped_factura_enviada`,`ped_total`,`ped_cli_id_fk`,`ped_usu_id_fk`) values 
+('PED001','2025-03-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente',NULL,0,0,8450.00,1098765432,NULL),
+('PED002','2025-03-16','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,12700.00,1023456789,'USU003'),
+('PED003','2025-03-17','Nequi','USU001',NULL,NULL,'Anulado','Pendiente',NULL,0,0,5880.00,1087654321,NULL),
+('PED004','2025-03-18','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente',NULL,0,0,4200.00,1076543219,NULL),
+('PED005','2025-03-19','Daviplata',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,9800.00,1065432198,'USU002'),
+('PED050','2026-04-09','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente',NULL,0,0,17000.00,1098765432,NULL),
+('PED051','2026-04-09','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,30000.00,1087654321,'USU051'),
+('PED052','2026-04-09','Transferencia',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,5200.00,900123456,'USU052'),
+('PED053','2026-06-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente de pago','1d55b20c3f56441ca4610358c9d09a10',0,0,850.00,900123456,NULL);
 
 /*Table structure for table `t_producto` */
 
@@ -417,8 +425,8 @@ CREATE TABLE `t_producto` (
   `pro_tipo_control` varchar(50) DEFAULT NULL,
   `pro_estado` varchar(20) DEFAULT 'Activo' COMMENT 'Estado: Activo / Descontinuado / Suspendido',
   `pro_prov_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del proveedor principal',
-  `pro_presentacion` varchar(100) DEFAULT NULL COMMENT 'Presentación del producto (ej: Caja x 30, Frasco x 500ml)',
-  `pro_laboratorio` varchar(100) DEFAULT NULL COMMENT 'Laboratorio fabricante',
+  `pro_presentacion` varchar(100) DEFAULT NULL,
+  `pro_laboratorio` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`pro_id`),
   KEY `pro_prov_id_fk` (`pro_prov_id_fk`),
   CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`pro_prov_id_fk`) REFERENCES `t_proveedor` (`prov_id`)
@@ -426,18 +434,18 @@ CREATE TABLE `t_producto` (
 
 /*Data for the table `t_producto` */
 
-insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion`,`pro_precio`,`pro_cantidad_disponible`,`pro_stock_minimo`,`pro_fecha_caducidad`,`pro_registro_invima`,`pro_fecha_vencimiento_registro`,`pro_control_especial`,`pro_tipo_control`,`pro_estado`,`pro_prov_id_fk`) values 
-('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,200,20,'2026-08-31',NULL,NULL,0,NULL,'Activo','PROV002'),
-('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,150,15,'2026-06-30',NULL,NULL,0,NULL,'Activo','PROV001'),
-('PRO003','Loratadina 10mg','Antihistaminico','Caja x 10 tab',980.00,80,10,'2027-01-31',NULL,NULL,0,NULL,'Activo','PROV003'),
-('PRO004','Suero oral 500ml','Hidratacion','Electrolitos',3500.00,60,10,'2026-12-15',NULL,NULL,0,NULL,'Activo','PROV004'),
-('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,45,8,'2027-05-20',NULL,NULL,0,NULL,'Activo','PROV005'),
-('PRO050','Ibuprofeno 400mg','Analgesico','Tabletas x 20 unidades',8500.00,200,20,'2027-06-30',NULL,NULL,0,NULL,'Activo','PROV050'),
-('PRO051','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,150,15,'2027-09-15',NULL,NULL,0,NULL,'Activo','PROV051'),
-('PRO052','Loratadina 10mg','Antialergico','Tabletas x 10 unidades',5200.00,300,25,'2028-01-20',NULL,NULL,0,NULL,'Activo','PROV052'),
-('PRO099','Producto Test','Analgesico','Test desc',500.00,50,5,'2027-12-31',NULL,NULL,0,NULL,'Activo','PROV099'),
-('PRO100','test','Analgesico','test',1000.00,10,1,NULL,NULL,NULL,0,NULL,'Activo','PROV001'),
-('PROV099','Proveedor Test',NULL,NULL,NULL,NULL,10,NULL,NULL,NULL,0,NULL,'Activo',NULL);
+insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion`,`pro_precio`,`pro_cantidad_disponible`,`pro_stock_minimo`,`pro_fecha_caducidad`,`pro_registro_invima`,`pro_fecha_vencimiento_registro`,`pro_control_especial`,`pro_tipo_control`,`pro_estado`,`pro_prov_id_fk`,`pro_presentacion`,`pro_laboratorio`) values 
+('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,198,20,'2026-08-31',NULL,NULL,0,NULL,'Activo','PROV002',NULL,NULL),
+('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,150,15,'2026-06-30',NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
+('PRO003','Loratadina 10mg','Antihistaminico','Caja x 10 tab',980.00,80,10,'2027-01-31',NULL,NULL,0,NULL,'Activo','PROV003',NULL,NULL),
+('PRO004','Suero oral 500ml','Hidratacion','Electrolitos',3500.00,60,10,'2026-12-15',NULL,NULL,0,NULL,'Activo','PROV004',NULL,NULL),
+('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,45,8,'2027-05-20',NULL,NULL,0,NULL,'Activo','PROV005',NULL,NULL),
+('PRO050','Ibuprofeno 400mg','Analgesico','Tabletas x 20 unidades',8500.00,200,20,'2027-06-30',NULL,NULL,0,NULL,'Activo','PROV050',NULL,NULL),
+('PRO051','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,150,15,'2027-09-15',NULL,NULL,0,NULL,'Activo','PROV051',NULL,NULL),
+('PRO052','Loratadina 10mg','Antialergico','Tabletas x 10 unidades',5200.00,300,25,'2028-01-20',NULL,NULL,0,NULL,'Activo','PROV052',NULL,NULL),
+('PRO099','Producto Test','Analgesico','Test desc',500.00,50,5,'2027-12-31',NULL,NULL,0,NULL,'Activo','PROV099',NULL,NULL),
+('PRO100','test','Analgesico','test',1000.00,10,1,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
+('PRO200','Ibuprofeno 600mg','Analgesicos','Ibuprofeno generico 600mg x 30 tabs',2500.00,100,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL);
 
 /*Table structure for table `t_proveedor` */
 
@@ -465,7 +473,8 @@ insert  into `t_proveedor`(`prov_id`,`prov_nit`,`prov_nombre`,`prov_tipo`,`prov_
 ('PROV050','800111222-3','Laboratorios MedPlus','Laboratorio','6017001234','Zona Industrial Bogota','ventas@medplus.com'),
 ('PROV051','800333444-5','Distribuidora FarmaExpress','Distribuidor','6048005678','Calle 50 #30-20 Medellin','contacto@farmaexpress.co'),
 ('PROV052','800555666-7','Importadora Global Pharma','Importador','6023009876','Puerto de Buenaventura','info@globalpharma.com'),
-('PROV099','999888777-1','Proveedor Test','Distribuidor','6019999999','Bogota Test','test@prov.com');
+('PROV099','999888777-1','Proveedor Test','Distribuidor','6019999999','Bogota Test','test@prov.com'),
+('PROV200','900200300-5','Distribuidora Salud SAS','Distribuidor','Carlos Lopez','Av Siempre Viva 742','carlos@salud.com');
 
 /*Table structure for table `t_proveedor_producto` */
 
@@ -608,7 +617,9 @@ insert  into `t_usuario`(`usu_id`,`usu_nombre`,`usu_rol_id_fk`,`usu_correo`,`usu
 ('USU050','Andres Gomez','ROL002','andres.gomez@farmacia.com','$2b$12$HKI94lfawJsY1EENyeKBBu2cJgQAwnD6OyU8JrF9PDtBFhVZWUBZ6',1,NULL),
 ('USU051','Maria Torres','ROL001','maria.torres@farmacia.com','$2b$12$QPLMu0R/x.p2wIrCQv2E1.BGPfGwLAHV2pEa7mti.iy9RskmQJ20i',1,NULL),
 ('USU052','Pedro Ruiz','ROL003','pedro.ruiz@farmacia.com','$2b$12$mABNj6826p/AP1ubQlFZm.n2F6n0msL2gzVdRthlIxAPTIP/GtQaa',1,NULL),
-('USU099','Test User','ROL002','test@sd.com','$2b$12$D1AyTMydROT/YU9H5QHfwOZIyI1VOtn3mQSGGPZhTxeL/04aCN2li',1,NULL);
+('USU099','Test User','ROL002','test@sd.com','$2b$12$D1AyTMydROT/YU9H5QHfwOZIyI1VOtn3mQSGGPZhTxeL/04aCN2li',1,NULL),
+('USU200','Test Admin','ROL001','test@test.com','$2b$12$uVM.9BYpeNcsFEb/cDRvMOM94XD3/0dnPFjh7flZXe1Im8RayCZK.',1,NULL),
+('USU201','Vendedor Test','ROL002','vendedor@test.com','$2b$12$.vy3DcTkOHGv0/HqbeG1PO8GovPD9up6Yyezyo/4066XCp1lCjmGS',1,NULL);
 
 /*Table structure for table `t_usuario_factura` */
 
