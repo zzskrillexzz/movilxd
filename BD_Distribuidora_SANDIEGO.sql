@@ -213,7 +213,10 @@ CREATE TABLE `t_devolucion` (
 insert  into `t_devolucion`(`dev_id`,`dev_ped_id_fk`,`dev_pro_id_fk`,`dev_lot_id_fk`,`dev_cantidad`,`dev_motivo`,`dev_fecha`,`dev_com_id_fk`,`dev_usu_id_fk`) values 
 ('DEV001','PED001','PRO001','LOT001',1,'Producto llegó con empaque dañado — blister roto','2025-03-17',NULL,'USU002'),
 ('DEV002','PED002','PRO002','LOT002',1,'Cliente reportó producto con olor extraño al abrir','2025-03-18',NULL,'USU003'),
+('DEV003','PED003','PRO003','LOT003',2,'Reacción alérgica leve reportada — prevención','2025-03-20',NULL,'USU002'),
+('DEV004','PED004','PRO004','LOT004',1,'Suero oral derramado durante el transporte','2025-03-19',NULL,'USU003'),
 ('DEV005','PED005','PRO005','LOT005',1,'Tapa del envase llegó floja — producto contaminado','2025-03-21',NULL,'USU002'),
+('DEV050','PED050','PRO050','LOT006',1,'Blister abierto — producto defectuoso','2026-04-10',NULL,'USU050'),
 ('DEV051','PED051','PRO051','LOT007',2,'Error en el pedido — cliente solicitó presentación de 15 unidades no de 30','2026-04-11',NULL,'USU051'),
 ('DEV052','PED052','PRO052','LOT008',1,'Tabletas llegaron fragmentadas — defecto de fabricación','2026-04-12',NULL,'USU052');
 
