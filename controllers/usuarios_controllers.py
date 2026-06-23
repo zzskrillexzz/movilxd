@@ -43,6 +43,9 @@ def cnregistrarusuarios():
     if data["usu_estado"] not in [0, 1]:
         return jsonify({"mensaje": "El estado debe ser 0 (Inactivo) o 1 (Activo)"}), 400
 
+    # Normalizar correo a minúsculas
+    data["usu_correo"] = (data.get("usu_correo") or "").strip().lower()
+
     # Validar duplicado por ID
     c = current_app.mysql.connection.cursor()
     c.execute("SELECT usu_id FROM t_usuario WHERE usu_id = %s", (data["usu_id"],))
@@ -94,6 +97,9 @@ def cneditarusuarios():
         return jsonify({"mensaje": f"Rol inválido"}), 400
     if data["usu_estado"] not in [0, 1]:
         return jsonify({"mensaje": "El estado debe ser 0 o 1"}), 400
+
+    # Normalizar correo a minúsculas
+    data["usu_correo"] = (data.get("usu_correo") or "").strip().lower()
 
     # Verificar existencia y validar duplicidad de correo (que no sea de otro ID)
     c = current_app.mysql.connection.cursor()

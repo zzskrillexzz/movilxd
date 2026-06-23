@@ -12,9 +12,9 @@ def buscarPorCorreo(USU_CORREO):
     sql = """
         SELECT usu_id, usu_nombre, usu_rol_id_fk, usu_correo, usu_contrasena, usu_estado
         FROM t_usuario
-        WHERE usu_correo = %s
+        WHERE LOWER(usu_correo) = %s
     """
-    c.execute(sql, (USU_CORREO,))
+    c.execute(sql, ((USU_CORREO or "").strip().lower(),))
     p = c.fetchone()
     c.close()
     if p:
