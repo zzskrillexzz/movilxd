@@ -91,13 +91,14 @@ def cngenerar_reporte(tipo):
 def cnexportar_reporte(tipo, formato):
     """
     Exporta un reporte en PDF o Excel.
-    GET /reportes/exportar/<tipo>/<formato>?fecha_desde=...&fecha_hasta=...
+    GET /reportes/exportar/<tipo>/<formato>?fecha_desde=...&fecha_hasta=...&dias=...
     """
     fecha_desde = request.args.get('fecha_desde')
     fecha_hasta = request.args.get('fecha_hasta')
+    dias = request.args.get('dias', 30, type=int)
 
     if formato == 'pdf':
-        pdf_bytes = exportar_reporte_pdf(tipo, fecha_desde, fecha_hasta)
+        pdf_bytes = exportar_reporte_pdf(tipo, fecha_desde, fecha_hasta, dias)
         if pdf_bytes is None:
             return jsonify({"mensaje": f"Tipo de reporte desconocido: {tipo}"}), 400
         return send_file(
@@ -107,7 +108,7 @@ def cnexportar_reporte(tipo, formato):
             download_name=f"reporte_{tipo}_{date.today().isoformat()}.pdf"
         )
     elif formato == 'excel':
-        xlsx_bytes = exportar_reporte_excel(tipo, fecha_desde, fecha_hasta)
+        xlsx_bytes = exportar_reporte_excel(tipo, fecha_desde, fecha_hasta, dias)
         if xlsx_bytes is None:
             return jsonify({"mensaje": f"Tipo de reporte desconocido: {tipo}"}), 400
         return send_file(

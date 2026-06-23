@@ -192,30 +192,19 @@ def token_requerido(f):
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        # ── 1. Validar que el header exista ──
+        # ── 1. Obtener token: header Authorization O query param ?token= ──
+        token = None
         auth_header = request.headers.get('Authorization')
-        if not auth_header:
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ', 1)[1].strip()
+        elif request.args.get('token'):
+            token = request.args.get('token')
+
+        if not token:
             return jsonify({
                 "mensaje": "Token de autenticación requerido",
                 "error": "Token de autenticación requerido",
-                "detalle": "Header 'Authorization' no presente"
-            }), 401
-
-        # ── 2. Validar que sea Bearer token ──
-        if not auth_header.startswith('Bearer '):
-            return jsonify({
-                "mensaje": "Formato de token inválido",
-                "error": "Formato de token inválido",
-                "detalle": "Debe usar el esquema 'Bearer <token>'"
-            }), 401
-
-        # ── 3. Validar que el token no esté vacío ──
-        token = auth_header.split(' ', 1)[1].strip()
-        if not token:
-            return jsonify({
-                "mensaje": "Token vacío",
-                "error": "Token vacío",
-                "detalle": "El token no puede estar vacío"
+                "detalle": "Header 'Authorization' o parámetro 'token' requerido"
             }), 401
 
         # ── 4 y 5. Decodificar JWT (valida firma, algoritmo y expiración) ──
