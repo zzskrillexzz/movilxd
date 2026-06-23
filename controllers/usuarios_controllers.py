@@ -106,6 +106,23 @@ def cneditarusuarios():
     if data.get("usu_contrasena") and len(str(data["usu_contrasena"]).strip()) < 6:
         return jsonify({"mensaje": "La contraseña debe tener al menos 6 caracteres"}), 400
 
+    # Validar contraseña de administrador para autorizar cambios
+    admin_pass = data.get("admin_contrasena")
+    if not admin_pass or not admin_pass.strip():
+        return jsonify({"mensaje": "Debes ingresar la contraseña de un administrador para autorizar los cambios"}), 401
+    c = current_app.mysql.connection.cursor()
+    c.execute("""
+        SELECT u.usu_contrasena FROM t_usuario u
+        INNER JOIN t_rol r ON u.usu_rol_id_fk = r.rol_id
+        WHERE r.rol_nombre = 'Administrador'
+    """)
+    admin_hashes = [row[0] for row in c.fetchall()]
+    c.close()
+    from services.auth_service import verificarPassword
+    autorizado = any(verificarPassword(admin_pass, h) for h in admin_hashes if h)
+    if not autorizado:
+        return jsonify({"mensaje": "Contraseña de administrador incorrecta. No tienes permisos para editar este usuario."}), 401
+
     # Normalizar correo a minúsculas
     data["usu_correo"] = (data.get("usu_correo") or "").strip().lower()
 
