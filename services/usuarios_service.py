@@ -154,6 +154,11 @@ def eliminarUsuarios(USU_ID):
             dependencias.append("monitorías")
     except Exception:
         pass
+    # Las sesiones se eliminan automáticamente al borrar el usuario (no bloquean)
+    try:
+        c.execute("DELETE FROM t_sesion WHERE ses_usu_id_fk = %s", (USU_ID,))
+    except Exception:
+        pass
 
     if dependencias:
         c.close()
