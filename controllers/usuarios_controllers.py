@@ -43,6 +43,10 @@ def cnregistrarusuarios():
     if data["usu_estado"] not in [0, 1]:
         return jsonify({"mensaje": "El estado debe ser 0 (Inactivo) o 1 (Activo)"}), 400
 
+    # Validar longitud mínima de contraseña
+    if len(str(data["usu_contrasena"]).strip()) < 6:
+        return jsonify({"mensaje": "La contraseña debe tener al menos 6 caracteres"}), 400
+
     # Normalizar correo a minúsculas
     data["usu_correo"] = (data.get("usu_correo") or "").strip().lower()
 
@@ -97,6 +101,10 @@ def cneditarusuarios():
         return jsonify({"mensaje": f"Rol inválido"}), 400
     if data["usu_estado"] not in [0, 1]:
         return jsonify({"mensaje": "El estado debe ser 0 o 1"}), 400
+
+    # Validar longitud mínima de contraseña (solo si se envía una nueva)
+    if data.get("usu_contrasena") and len(str(data["usu_contrasena"]).strip()) < 6:
+        return jsonify({"mensaje": "La contraseña debe tener al menos 6 caracteres"}), 400
 
     # Normalizar correo a minúsculas
     data["usu_correo"] = (data.get("usu_correo") or "").strip().lower()
