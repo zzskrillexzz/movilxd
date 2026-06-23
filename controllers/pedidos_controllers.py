@@ -104,12 +104,20 @@ def cnregistrarpedidos():
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El ID del cliente debe ser un número entero"}), 400
 
-        # Validar duplicado
+        # Validar duplicado — si existe pero está vacío (sin detalles), eliminarlo y continuar
         c = current_app.mysql.connection.cursor()
         c.execute("SELECT ped_id FROM t_pedido WHERE ped_id = %s", (ped_id,))
-        if c.fetchone():
-            c.close()
-            return jsonify({"mensaje": f"Ya existe un pedido con el ID {ped_id}"}), 409
+        existing = c.fetchone()
+        if existing:
+            # Verificar si el pedido existente tiene detalles
+            c.execute("SELECT COUNT(*) FROM t_detalle_pedido WHERE det_ped_id_fk = %s", (ped_id,))
+            tiene_detalles = c.fetchone()[0] > 0
+            if tiene_detalles:
+                c.close()
+                return jsonify({"mensaje": f"Ya existe un pedido con el ID {ped_id} y tiene productos asociados"}), 409
+            # Pedido huérfano (sin detalles) — eliminarlo y permitir la creación
+            c.execute("DELETE FROM t_pedido WHERE ped_id = %s", (ped_id,))
+            current_app.mysql.connection.commit()
 
         # Validar que el cliente exista
         c.execute("SELECT cli_id FROM t_cliente WHERE cli_id = %s", (data["ped_cli_id_fk"],))

@@ -66,6 +66,11 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
         """, (det_lot_id_fk,))
         row_lote = c.fetchone()
         if row_lote:
+            if row_lote[2] == 'Cuarentena':
+                raise ValueError(
+                    f"Lote {det_lot_id_fk} está en CUARENTENA. "
+                    "No se puede vender un producto en cuarentena."
+                )
             if row_lote[2] == 'Vencido' or (row_lote[4] is not None and row_lote[4] < 0):
                 raise ValueError(
                     f"Lote {det_lot_id_fk} vencido (fecha: {row_lote[3]}). "
@@ -84,8 +89,20 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
         lotes_a_descontar = [(r[0], r[1] or 0) for r in c.fetchall()]
 
     if not lotes_a_descontar:
+        # Verificar si hay lotes en cuarentena para dar un mensaje más claro
+        c.execute(
+            "SELECT COUNT(*) FROM t_lote WHERE lot_pro_id_fk = %s AND lot_estado = 'Cuarentena'",
+            (det_pro_id_fk,)
+        )
+        en_cuarentena = c.fetchone()[0] > 0
+        if en_cuarentena:
+            raise ValueError(
+                f"No hay stock disponible para '{det_pro_id_fk}': "
+                f"los lotes existentes están en CUARENTENA. "
+                "Revise el estado de los lotes en el inventario."
+            )
         raise ValueError(
-            f"No hay stock disponible (no vencido) para el producto {det_pro_id_fk}"
+            f"No hay stock disponible para el producto {det_pro_id_fk}"
         )
 
     cantidad_restante = det_cantidad
@@ -103,7 +120,7 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
 
     if cantidad_restante > 0:
         raise ValueError(
-            f"Stock insuficiente (no vencido) para el producto {det_pro_id_fk}: "
+            f"Stock insuficiente para el producto {det_pro_id_fk}: "
             f"faltan {cantidad_restante} unidades"
         )
     # Actualizar det_lot_id_fk con el primer lote usado (para el movimiento)
