@@ -1,6 +1,6 @@
 from flask import jsonify, request, current_app
 from services.usuarios_service import listarUsuarios, registrarUsuarios, editarUsuarios, eliminarUsuarios, buscarUsuarios
-from utils.validators import validar_campos_texto, LIMITES
+from utils.validators import validar_campos_texto, validar_nombre_apellido, LIMITES
 from utils.error_handler import safe_controller
 
 @safe_controller
@@ -34,6 +34,11 @@ def cnregistrarusuarios():
     errores = validar_campos_texto(data, "usu_nombre", "usu_rol", "usu_correo", "usu_contrasena")
     if errores:
         return jsonify({"mensaje": " | ".join(errores)}), 400
+
+    # Validar que el nombre solo contenga letras
+    err_nom = validar_nombre_apellido(data.get("usu_nombre"), "nombre")
+    if err_nom:
+        return jsonify({"mensaje": err_nom}), 400
 
     # Validar rol contra BD
     c = current_app.mysql.connection.cursor()
@@ -101,6 +106,11 @@ def cneditarusuarios():
     errores = validar_campos_texto(data, "usu_nombre", "usu_rol", "usu_correo", "usu_contrasena")
     if errores:
         return jsonify({"mensaje": " | ".join(errores)}), 400
+
+    # Validar que el nombre solo contenga letras
+    err_nom = validar_nombre_apellido(data.get("usu_nombre"), "nombre")
+    if err_nom:
+        return jsonify({"mensaje": err_nom}), 400
 
     # Validar rol contra BD y estado
     c = current_app.mysql.connection.cursor()
