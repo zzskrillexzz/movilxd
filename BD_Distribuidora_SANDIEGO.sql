@@ -181,11 +181,17 @@ CREATE TABLE `t_detalle_pedido` (
 
 insert  into `t_detalle_pedido`(`det_id`,`det_ped_id_fk`,`det_pro_id_fk`,`det_lot_id_fk`,`det_cantidad`,`det_precio_unitario`,`det_subtotal`) values 
 ('DET001','PED001','PRO001',NULL,5,850.00,4250.00),
-('DET002','PED002','PRO002',NULL,3,1200.00,3600.00),
-('DET005','PED005','PRO005',NULL,1,4200.00,4200.00),
-('DET051','PED051','PRO051',NULL,2,15000.00,30000.00),
+('DET002','PED002','PRO001','LOT001',5,850.00,4250.00),
+('DET003','PED002','PRO002','LOT002',3,1200.00,3600.00),
+('DET004','PED002','PRO003','LOT003',2,980.00,1960.00),
+('DET005','PED005','PRO004','LOT004',1,3500.00,3500.00),
+('DET006','PED005','PRO005','LOT005',2,4200.00,8400.00),
+('DET007','PED005','PRO200','LOT200',1,2500.00,2500.00),
+('DET051','PED051','PRO050','LOT050',2,8500.00,17000.00),
 ('DET052','PED052','PRO052',NULL,1,5200.00,5200.00),
-('PED053-DET001','PED053','PRO001','LOT001',1,850.00,850.00);
+('DET053','PED051','PRO051','LOT051',1,15000.00,15000.00),
+('PED053-DET001','PED053','PRO001','LOT001',1,850.00,850.00),
+('PED054-DET001','PED054','PRO001','LOT001',1,850.00,850.00);
 
 /*Table structure for table `t_devolucion` */
 
@@ -283,7 +289,13 @@ insert  into `t_inventario_movimiento`(`inm_id`,`inm_tipo_movimiento`,`inm_pro_i
 ('INM051','Entrada','PRO051','LOT051',150,'2026-04-09','Compra COM051','USU051'),
 ('INM052','Salida','PRO052','LOT052',10,'2026-04-09','Venta PED052','USU052'),
 ('INM053','Salida ','PRO052','LOT099',1,'2026-04-09','Venta PED052','USU052'),
-('INM054','Salida','PRO001','LOT001',1,'2026-06-15','Venta PED053',NULL);
+('INM054','Salida','PRO001','LOT001',1,'2026-06-15','Venta PED053',NULL),
+('INM055','Entrada','PRO002',NULL,3,'2026-06-23','Anulacion venta PED002',NULL),
+('INM056','Entrada','PRO005',NULL,1,'2026-06-23','Anulacion venta PED005',NULL),
+('INM057','Entrada','PRO051',NULL,2,'2026-06-23','Anulacion venta PED051',NULL),
+('INM058','Salida','PRO001','LOT001',1,'2026-06-23','Venta PED054',NULL),
+('INM059','Entrada','PRO001','LOT001',1,'2026-06-23','Reversion venta PED054',NULL),
+('INM060','Salida','PRO001','LOT001',1,'2026-06-23','Venta PED054',NULL);
 
 /*Table structure for table `t_lote` */
 
@@ -309,7 +321,7 @@ CREATE TABLE `t_lote` (
 /*Data for the table `t_lote` */
 
 insert  into `t_lote`(`lot_id`,`lot_numero`,`lot_fecha_fabricacion`,`lot_fecha_vencimiento`,`lot_cantidad_inicial`,`lot_cantidad_actual`,`lot_pro_id_fk`,`lot_prov_id_fk`,`lot_estado`) values 
-('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,194,'PRO001','PROV002','Activo'),
+('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,193,'PRO001','PROV002','Activo'),
 ('LOT002','LT-IBU-2025-001','2025-02-05','2026-06-30',150,147,'PRO002','PROV001','Activo'),
 ('LOT003','LT-LOR-2025-001','2025-01-20','2027-01-31',80,80,'PRO003','PROV003','Activo'),
 ('LOT004','LT-SUE-2025-001','2025-03-01','2026-12-15',60,60,'PRO004','PROV004','Activo'),
@@ -357,7 +369,19 @@ insert  into `t_monitoria`(`mon_id`,`mon_pro_id_fk`,`mon_lot_id_fk`,`mon_inm_id_
 ('MON051','PRO051','LOT051','INM051','2026-04-09','Entrada',150,150,300,15000.00,2250000.00),
 ('MON052','PRO052','LOT052','INM052','2026-04-09','Salida',10,300,290,5200.00,52000.00),
 ('MON26061515571266','PRO001','LOT001','INM054','2026-06-15','Salida',1,199,198,850.00,850.00),
-('MON26061515571267','PRO001','LOT001','INM054','2026-06-15','Salida',1,200,199,850.00,850.00);
+('MON26061515571267','PRO001','LOT001','INM054','2026-06-15','Salida',1,200,199,850.00,850.00),
+('MON26062309330782','PRO002',NULL,'INM055','2026-06-23','Entrada',3,153,156,1200.00,3600.00),
+('MON26062309330783','PRO002',NULL,'INM055','2026-06-23','Entrada',3,150,153,1200.00,3600.00),
+('MON26062309343169','PRO005',NULL,'INM056','2026-06-23','Entrada',1,46,47,4200.00,4200.00),
+('MON26062309343170','PRO005',NULL,'INM056','2026-06-23','Entrada',1,45,46,4200.00,4200.00),
+('MON26062309381172','PRO051',NULL,'INM057','2026-06-23','Entrada',2,152,154,15000.00,30000.00),
+('MON26062309381173','PRO051',NULL,'INM057','2026-06-23','Entrada',2,150,152,15000.00,30000.00),
+('MON26062311311025','PRO001','LOT001','INM058','2026-06-23','Salida',1,197,196,850.00,850.00),
+('MON26062311311026','PRO001','LOT001','INM058','2026-06-23','Salida',1,198,197,850.00,850.00),
+('MON26062311312220','PRO001','LOT001','INM059','2026-06-23','Entrada',1,197,198,850.00,850.00),
+('MON26062311312221','PRO001','LOT001','INM059','2026-06-23','Entrada',1,196,197,850.00,850.00),
+('MON26062311312230','PRO001','LOT001','INM060','2026-06-23','Salida',1,197,196,850.00,850.00),
+('MON26062311312231','PRO001','LOT001','INM060','2026-06-23','Salida',1,198,197,850.00,850.00);
 
 /*Table structure for table `t_pedido` */
 
@@ -389,11 +413,12 @@ CREATE TABLE `t_pedido` (
 
 insert  into `t_pedido`(`ped_id`,`ped_fecha`,`ped_metodo_pago`,`ped_cuenta_bancaria`,`ped_comprobante`,`ped_comprobante_tipo`,`ped_estado_entrega`,`ped_estado_pago`,`ped_token_entrega`,`ped_notificado`,`ped_factura_enviada`,`ped_total`,`ped_cli_id_fk`,`ped_usu_id_fk`) values 
 ('PED001','2025-03-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente',NULL,0,0,8450.00,1098765432,NULL),
-('PED002','2025-03-16','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,12700.00,1023456789,'USU003'),
-('PED005','2025-03-19','Daviplata',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,9800.00,1065432198,'USU002'),
-('PED051','2026-04-09','Tarjeta',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,30000.00,1087654321,'USU051'),
-('PED052','2026-04-09','Transferencia',NULL,NULL,NULL,'En camino','Pendiente',NULL,0,0,5200.00,900123456,'USU052'),
-('PED053','2026-06-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente de pago','1d55b20c3f56441ca4610358c9d09a10',0,0,850.00,900123456,NULL);
+('PED002','2025-03-16','Tarjeta',NULL,'PED002_1782224912.png','image/png','En preparación','Verificado',NULL,0,0,12700.00,1023456789,'USU003'),
+('PED005','2025-03-19','Daviplata',NULL,'PED005_1782225263.png','image/png','En preparación','Verificado',NULL,0,0,9800.00,1065432198,'USU002'),
+('PED051','2026-04-09','Tarjeta',NULL,'PED051_1782225560.jpg','image/jpeg','En camino','Comprobante recibido',NULL,0,0,30000.00,1087654321,'USU051'),
+('PED052','2026-04-09','Transferencia',NULL,'PED052_1782224244.png','image/png','En preparación','Verificado',NULL,0,0,5200.00,900123456,'USU052'),
+('PED053','2026-06-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente de pago','1d55b20c3f56441ca4610358c9d09a10',0,0,850.00,900123456,NULL),
+('PED054','2026-06-23','Transferencia','USU001',NULL,NULL,'Anulado','Pendiente de pago',NULL,0,0,850.00,900123456,NULL);
 
 /*Table structure for table `t_producto` */
 
@@ -424,17 +449,17 @@ CREATE TABLE `t_producto` (
 /*Data for the table `t_producto` */
 
 insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion`,`pro_precio`,`pro_cantidad_disponible`,`pro_stock_minimo`,`pro_fecha_caducidad`,`pro_registro_invima`,`pro_fecha_vencimiento_registro`,`pro_control_especial`,`pro_tipo_control`,`pro_estado`,`pro_prov_id_fk`,`pro_presentacion`,`pro_laboratorio`) values 
-('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,198,20,'2026-08-31',NULL,NULL,0,NULL,'Activo','PROV002',NULL,NULL),
-('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,150,15,'2026-06-30',NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
+('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,196,20,'2026-08-31',NULL,NULL,0,NULL,'Activo','PROV002',NULL,NULL),
+('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,156,15,'2026-06-30',NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
 ('PRO003','Loratadina 10mg','Antihistaminico','Caja x 10 tab',980.00,80,10,'2027-01-31',NULL,NULL,0,NULL,'Activo','PROV003',NULL,NULL),
 ('PRO004','Suero oral 500ml','Hidratacion','Electrolitos',3500.00,60,10,'2026-12-15',NULL,NULL,0,NULL,'Activo','PROV004',NULL,NULL),
-('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,45,8,'2027-05-20',NULL,NULL,0,NULL,'Activo','PROV005',NULL,NULL),
+('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,47,8,'2027-05-20',NULL,NULL,0,NULL,'Activo','PROV005',NULL,NULL),
 ('PRO050','Ibuprofeno 400mg','Analgesico','Tabletas x 20 unidades',8500.00,200,20,'2027-06-30',NULL,NULL,0,NULL,'Activo','PROV050',NULL,NULL),
-('PRO051','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,150,15,'2027-09-15',NULL,NULL,0,NULL,'Activo','PROV051',NULL,NULL),
+('PRO051','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,154,15,'2027-09-15',NULL,NULL,0,NULL,'Activo','PROV051',NULL,NULL),
 ('PRO052','Loratadina 10mg','Antialergico','Tabletas x 10 unidades',5200.00,300,25,'2028-01-20',NULL,NULL,0,NULL,'Activo','PROV052',NULL,NULL),
 ('PRO099','Producto Test','Analgesico','Test desc',500.00,50,5,'2027-12-31',NULL,NULL,0,NULL,'Activo','PROV099',NULL,NULL),
 ('PRO100','test','Analgesico','test',1000.00,10,1,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
-('PRO200','Ibuprofeno 600mg','Analgesicos','Ibuprofeno generico 600mg x 30 tabs',2500.00,100,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL);
+('PRO200','Ibuprofeno 600mg','Analgesicos','Ibuprofeno generico 600mg x 30 tabs',2500.00,3,1,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL);
 
 /*Table structure for table `t_proveedor` */
 
@@ -525,7 +550,8 @@ CREATE TABLE `t_rol` (
   `rol_nombre` varchar(50) NOT NULL COMMENT 'Nombre del rol (Administrador, Vendedor, Bodeguero)',
   `rol_descripcion` varchar(255) DEFAULT NULL COMMENT 'Descripción del rol y sus permisos',
   `rol_estado` tinyint(1) DEFAULT 1 COMMENT '1=Activo / 0=Inactivo',
-  PRIMARY KEY (`rol_id`)
+  PRIMARY KEY (`rol_id`),
+  CONSTRAINT `t_rol_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `t_usuario` (`usu_rol_id_fk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Tabla de roles de usuarios';
 
 /*Data for the table `t_rol` */
@@ -533,8 +559,7 @@ CREATE TABLE `t_rol` (
 insert  into `t_rol`(`rol_id`,`rol_nombre`,`rol_descripcion`,`rol_estado`) values 
 ('ROL001','Administrador','Acceso total al sistema, gestion de usuarios y configuracion',1),
 ('ROL002','Vendedor','Gestion de ventas, pedidos y facturacion',1),
-('ROL003','Bodeguero','Gestion de inventario, compras y lotes',1),
-('ROL004','Contador','Gestion de reportes, analitica y libros contables',1);
+('ROL003','Bodeguero','Gestion de inventario, compras y lotes',1);
 
 /*Table structure for table `t_sesion` */
 
@@ -573,9 +598,13 @@ CREATE TABLE `t_token_revocado` (
   PRIMARY KEY (`tre_id`),
   KEY `tre_token_hash` (`tre_token_hash`),
   KEY `tre_usu_id_fk` (`tre_usu_id_fk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `t_token_revocado` */
+
+insert  into `t_token_revocado`(`tre_id`,`tre_token_hash`,`tre_fecha_revocacion`,`tre_usu_id_fk`) values 
+(1,'7b4537fbe6084c56cd3ab2a23f1b0ecace57ca40d975fa65fce7498afe9ebc97','2026-06-23 10:56:36','USU001'),
+(2,'5eb037d9910b0fb550daa4d1030ec69c30fd71da7348f37da3422bac4d257b1d','2026-06-23 11:20:33','USU001');
 
 /*Table structure for table `t_usuario` */
 
@@ -591,8 +620,7 @@ CREATE TABLE `t_usuario` (
   `usu_ultimo_acceso` datetime DEFAULT NULL COMMENT 'Fecha y hora del último login',
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_correo_unique` (`usu_correo`),
-  KEY `usu_rol_id_fk` (`usu_rol_id_fk`),
-  CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`usu_rol_id_fk`) REFERENCES `t_rol` (`rol_id`)
+  KEY `usu_rol_id_fk` (`usu_rol_id_fk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `t_usuario` */
@@ -608,7 +636,9 @@ insert  into `t_usuario`(`usu_id`,`usu_nombre`,`usu_rol_id_fk`,`usu_correo`,`usu
 ('USU052','Pedro Ruiz','ROL003','pedro.ruiz@farmacia.com','$2b$12$mABNj6826p/AP1ubQlFZm.n2F6n0msL2gzVdRthlIxAPTIP/GtQaa',1,NULL),
 ('USU099','Test User','ROL002','test@sd.com','$2b$12$D1AyTMydROT/YU9H5QHfwOZIyI1VOtn3mQSGGPZhTxeL/04aCN2li',1,NULL),
 ('USU200','Test Admin','ROL001','test@test.com','$2b$12$uVM.9BYpeNcsFEb/cDRvMOM94XD3/0dnPFjh7flZXe1Im8RayCZK.',1,NULL),
-('USU201','Vendedor Test','ROL002','vendedor@test.com','$2b$12$.vy3DcTkOHGv0/HqbeG1PO8GovPD9up6Yyezyo/4066XCp1lCjmGS',1,NULL);
+('USU201','Vendedor Test','ROL002','vendedor@test.com','$2b$12$.vy3DcTkOHGv0/HqbeG1PO8GovPD9up6Yyezyo/4066XCp1lCjmGS',1,NULL),
+('USU202','TEST','ROL002','test123@sd.com','$2b$12$bQX.cszMT0b.CI0JAfXP5OFqvkxwVATPak83uBYVd1FnFpEmDSxpe',1,NULL),
+('USU203','TEST1','ROL002','test1234@sd.com','$2b$12$TXH0.MFi/XQsrE.3m/IkU.YG2YZKKtFr0RohFPBgYCq.IewteA.p2',1,NULL);
 
 /*Table structure for table `t_usuario_factura` */
 
