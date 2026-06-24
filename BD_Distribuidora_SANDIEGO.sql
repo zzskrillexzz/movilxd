@@ -634,7 +634,6 @@ insert  into `t_usuario`(`usu_id`,`usu_nombre`,`usu_rol_id_fk`,`usu_correo`,`usu
 ('USU050','Andres Gomez','ROL002','andres.gomez@farmacia.com','$2b$12$HKI94lfawJsY1EENyeKBBu2cJgQAwnD6OyU8JrF9PDtBFhVZWUBZ6',1,NULL),
 ('USU051','Maria Torres','ROL001','maria.torres@farmacia.com','$2b$12$QPLMu0R/x.p2wIrCQv2E1.BGPfGwLAHV2pEa7mti.iy9RskmQJ20i',1,NULL),
 ('USU052','Pedro Ruiz','ROL003','pedro.ruiz@farmacia.com','$2b$12$mABNj6826p/AP1ubQlFZm.n2F6n0msL2gzVdRthlIxAPTIP/GtQaa',1,NULL),
-('USU099','Test User','ROL002','test@sd.com','$2b$12$D1AyTMydROT/YU9H5QHfwOZIyI1VOtn3mQSGGPZhTxeL/04aCN2li',1,NULL),
 ('USU200','Test Admin','ROL001','test@test.com','$2b$12$uVM.9BYpeNcsFEb/cDRvMOM94XD3/0dnPFjh7flZXe1Im8RayCZK.',1,NULL),
 ('USU201','Vendedor Test','ROL002','vendedor@test.com','$2b$12$.vy3DcTkOHGv0/HqbeG1PO8GovPD9up6Yyezyo/4066XCp1lCjmGS',1,NULL),
 ('USU202','TEST','ROL002','test123@sd.com','$2b$12$bQX.cszMT0b.CI0JAfXP5OFqvkxwVATPak83uBYVd1FnFpEmDSxpe',1,NULL);
