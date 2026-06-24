@@ -525,8 +525,7 @@ CREATE TABLE `t_rol` (
   `rol_nombre` varchar(50) NOT NULL COMMENT 'Nombre del rol (Administrador, Vendedor, Bodeguero)',
   `rol_descripcion` varchar(255) DEFAULT NULL COMMENT 'Descripción del rol y sus permisos',
   `rol_estado` tinyint(1) DEFAULT 1 COMMENT '1=Activo / 0=Inactivo',
-  PRIMARY KEY (`rol_id`),
-  CONSTRAINT `t_rol_ibfk_1` FOREIGN KEY (`rol_id`) REFERENCES `t_usuario` (`usu_rol_id_fk`)
+  PRIMARY KEY (`rol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Tabla de roles de usuarios';
 
 /*Data for the table `t_rol` */
@@ -592,7 +591,8 @@ CREATE TABLE `t_usuario` (
   `usu_ultimo_acceso` datetime DEFAULT NULL COMMENT 'Fecha y hora del último login',
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_correo_unique` (`usu_correo`),
-  KEY `usu_rol_id_fk` (`usu_rol_id_fk`)
+  KEY `usu_rol_id_fk` (`usu_rol_id_fk`),
+  CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`usu_rol_id_fk`) REFERENCES `t_rol` (`rol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `t_usuario` */

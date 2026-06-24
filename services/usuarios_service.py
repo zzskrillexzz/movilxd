@@ -119,16 +119,9 @@ def eliminarUsuarios(USU_ID):
     # Verificar dependencias antes de eliminar
     dependencias = []
 
-    # Obtener el rol del usuario
-    c.execute("SELECT usu_rol_id_fk FROM t_usuario WHERE usu_id = %s", (USU_ID,))
-    row_rol = c.fetchone()
-    rol_usuario = row_rol[0] if row_rol else None
-
-    # Verificar si es el último usuario con ese rol (FK constraint t_rol → t_usuario)
-    if rol_usuario:
-        c.execute("SELECT COUNT(*) FROM t_usuario WHERE usu_rol_id_fk = %s AND usu_id != %s", (rol_usuario, USU_ID))
-        if c.fetchone()[0] == 0:
-            dependencias.append(f"rol '{rol_usuario}' (es el único usuario con ese rol)")
+    # Nota: La FK estaba al revés (t_rol.rol_id → t_usuario.usu_rol_id_fk).
+    # Se corrigió: ahora t_usuario.usu_rol_id_fk → t_rol.rol_id
+    # Por lo tanto, el rol ya no es una dependencia para eliminar usuarios.
 
     c.execute("SELECT COUNT(*) FROM t_pedido WHERE ped_usu_id_fk = %s", (USU_ID,))
     if c.fetchone()[0] > 0:
