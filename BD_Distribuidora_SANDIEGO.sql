@@ -77,7 +77,7 @@ DROP TABLE IF EXISTS `t_cliente`;
 
 CREATE TABLE `t_cliente` (
   `cli_id` bigint(20) NOT NULL COMMENT 'Número de documento del cliente',
-  `cli_tipo_documento` varchar(10) DEFAULT 'CC' COMMENT 'Tipo: CC / NIT / CE / TI',
+  `cli_tipo_documento` varchar(10) DEFAULT 'CC' COMMENT 'Tipo: CC / NIT / CE',
   `cli_nombre` varchar(50) DEFAULT NULL COMMENT 'Nombre del cliente',
   `cli_apellido` varchar(50) DEFAULT NULL COMMENT 'Apellido del cliente',
   `cli_telefono` varchar(20) DEFAULT NULL COMMENT 'Teléfono del cliente',
