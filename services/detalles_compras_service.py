@@ -8,39 +8,27 @@ from utils.id_generator import generarIdSiguiente
 def _ingresarInventarioDesdeCompra(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
                                      dco_com_id_fk, dco_precio_compra, dco_subtotal):
     """
-    Incrementa stock del producto y lote tras una compra,
+    Incrementa stock del lote tras una compra,
     y registra movimiento + monitoria. Recibe cursor abierto.
-    Hace commit internamente.
     """
-    # ── 1. Incrementar producto (atómico) ──
-    c.execute(
-        "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible + %s "
-        "WHERE pro_id = %s",
-        (dco_cantidad, dco_pro_id_fk)
-    )
-    if c.rowcount == 0:
-        raise ValueError(f"Producto {dco_pro_id_fk} no encontrado")
+    c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+              (dco_pro_id_fk,))
+    stock_total_anterior = c.fetchone()[0] or 0
 
-    # Obtener stock anterior para monitoria
-    c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (dco_pro_id_fk,))
-    nuevo_stock = c.fetchone()[0] or 0
-    stock_anterior = nuevo_stock - dco_cantidad
-
-    # ── 2. Incrementar lote ──
-    stock_lote_anterior = 0
+    # ── 1. Incrementar lote ──
     if dco_lot_id_fk:
         c.execute("SELECT lot_cantidad_actual, lot_estado FROM t_lote WHERE lot_id = %s", (dco_lot_id_fk,))
         row_lote = c.fetchone()
         if row_lote:
-            stock_lote_anterior = row_lote[0] or 0
-            nuevo_stock_lote = stock_lote_anterior + dco_cantidad
+            nuevo_stock_lote = (row_lote[0] or 0) + dco_cantidad
             c.execute("UPDATE t_lote SET lot_cantidad_actual = %s WHERE lot_id = %s",
                       (nuevo_stock_lote, dco_lot_id_fk))
-            # Reactivar lote si estaba agotado
             if row_lote[1] == 'Agotado' and nuevo_stock_lote > 0:
                 c.execute("UPDATE t_lote SET lot_estado = 'Activo' WHERE lot_id = %s", (dco_lot_id_fk,))
 
-    # ── 3. Insertar movimiento de inventario (Entrada) ──
+    nuevo_stock_total = stock_total_anterior + dco_cantidad
+
+    # ── 2. Insertar movimiento de inventario (Entrada) ──
     inm_id = generarIdSiguiente('t_inventario_movimiento', 'inm_id', 'INM', 3)
     c.execute("""
         INSERT INTO t_inventario_movimiento
@@ -49,7 +37,7 @@ def _ingresarInventarioDesdeCompra(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad
         VALUES (%s, 'Entrada', %s, %s, %s, CURDATE(), %s, NULL)
     """, (inm_id, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad, f"Compra {dco_com_id_fk}"))
 
-    # ── 4. Insertar monitoria ──
+    # ── 3. Insertar monitoria ──
     mon_id = generarIdSiguiente('t_monitoria', 'mon_id', 'MON', 3)
     c.execute("""
         INSERT INTO t_monitoria
@@ -57,46 +45,39 @@ def _ingresarInventarioDesdeCompra(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad
              mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
         VALUES (%s, %s, %s, %s, CURDATE(), 'Entrada', %s, %s, %s, %s, %s)
     """, (mon_id, dco_pro_id_fk, dco_lot_id_fk, inm_id, dco_cantidad,
-          stock_anterior, nuevo_stock, dco_precio_compra, dco_subtotal))
+          stock_total_anterior, nuevo_stock_total, dco_precio_compra, dco_subtotal))
 
 
 def _revertirIngresoInventario(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
                                  dco_com_id_fk, dco_precio_compra, dco_subtotal):
     """
     Revierte el ingreso de inventario de una compra:
-    descuenta stock del producto y lote, y registra movimiento de Salida + monitoria.
+    descuenta stock del lote, y registra movimiento de Salida + monitoria.
     """
-    # ── 1. Descontar producto (atómico) ──
-    c.execute(
-        "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible - %s "
-        "WHERE pro_id = %s AND pro_cantidad_disponible >= %s",
-        (dco_cantidad, dco_pro_id_fk, dco_cantidad)
-    )
-    if c.rowcount == 0:
-        c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (dco_pro_id_fk,))
-        row = c.fetchone()
-        if not row:
-            raise ValueError(f"Producto {dco_pro_id_fk} no encontrado")
-        raise ValueError(f"Stock insuficiente para revertir compra de {dco_pro_id_fk}: "
-                         f"disponible {row[0] or 0}, solicitado {dco_cantidad}")
+    c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+              (dco_pro_id_fk,))
+    stock_total_anterior = c.fetchone()[0] or 0
 
-    c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (dco_pro_id_fk,))
-    nuevo_stock = c.fetchone()[0] or 0
-    stock_anterior = nuevo_stock + dco_cantidad
-
-    # ── 2. Descontar lote ──
+    # ── 1. Descontar lote ──
     if dco_lot_id_fk:
         c.execute("SELECT lot_cantidad_actual FROM t_lote WHERE lot_id = %s", (dco_lot_id_fk,))
         row_lote = c.fetchone()
         if row_lote:
-            stock_lote_anterior = row_lote[0] or 0
-            nuevo_stock_lote = stock_lote_anterior - dco_cantidad
+            stock_lote_actual = row_lote[0] or 0
+            if stock_lote_actual < dco_cantidad:
+                raise ValueError(
+                    f"Stock insuficiente en lote {dco_lot_id_fk}: "
+                    f"disponible {stock_lote_actual}, solicitado {dco_cantidad}"
+                )
+            nuevo_stock_lote = stock_lote_actual - dco_cantidad
             c.execute("UPDATE t_lote SET lot_cantidad_actual = %s WHERE lot_id = %s",
                       (nuevo_stock_lote, dco_lot_id_fk))
             if nuevo_stock_lote <= 0:
                 c.execute("UPDATE t_lote SET lot_estado = 'Agotado' WHERE lot_id = %s", (dco_lot_id_fk,))
 
-    # ── 3. Insertar movimiento de inventario (Salida) ──
+    nuevo_stock_total = stock_total_anterior - dco_cantidad
+
+    # ── 2. Insertar movimiento de inventario (Salida) ──
     inm_id = generarIdSiguiente('t_inventario_movimiento', 'inm_id', 'INM', 3)
     c.execute("""
         INSERT INTO t_inventario_movimiento
@@ -106,7 +87,7 @@ def _revertirIngresoInventario(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
     """, (inm_id, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
           f"Reversion compra {dco_com_id_fk}"))
 
-    # ── 4. Insertar monitoria ──
+    # ── 3. Insertar monitoria ──
     mon_id = generarIdSiguiente('t_monitoria', 'mon_id', 'MON', 3)
     c.execute("""
         INSERT INTO t_monitoria
@@ -114,7 +95,7 @@ def _revertirIngresoInventario(c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
              mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
         VALUES (%s, %s, %s, %s, CURDATE(), 'Salida', %s, %s, %s, %s, %s)
     """, (mon_id, dco_pro_id_fk, dco_lot_id_fk, inm_id, dco_cantidad,
-          stock_anterior, nuevo_stock, dco_precio_compra, dco_subtotal))
+          stock_total_anterior, nuevo_stock_total, dco_precio_compra, dco_subtotal))
 
 
 # ── CRUD principal ──

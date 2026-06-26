@@ -75,14 +75,19 @@ def dashboard_resumen():
     c.execute("SELECT COUNT(*) FROM t_producto WHERE pro_estado = 'Activo'")
     total_productos = c.fetchone()[0]
 
-    # Stock total
-    c.execute("SELECT COALESCE(SUM(pro_cantidad_disponible), 0) FROM t_producto WHERE pro_estado = 'Activo'")
+    # Stock total (desde lotes activos)
+    c.execute("""
+        SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote 
+        WHERE lot_estado = 'Activo'
+    """)
     stock_total = int(c.fetchone()[0])
 
-    # Stock bajo
+    # Productos sin stock
     c.execute("""
-        SELECT COUNT(*) FROM t_producto
-        WHERE pro_estado = 'Activo' AND pro_cantidad_disponible <= pro_stock_minimo
+        SELECT COUNT(*) FROM t_producto p
+        WHERE p.pro_estado = 'Activo'
+        AND (SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote 
+             WHERE lot_pro_id_fk = p.pro_id AND lot_estado = 'Activo') <= 0
     """)
     stock_bajo = c.fetchone()[0]
 

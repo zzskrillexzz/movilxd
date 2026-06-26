@@ -96,7 +96,7 @@ def eliminarProveedores(prov_id):
     if cursor.fetchone()[0] > 0:
         dependencias.append("lotes")
     try:
-        cursor.execute("SELECT COUNT(*) FROM t_producto WHERE pro_prov_id_fk = %s", (prov_id,))
+        cursor.execute("SELECT COUNT(*) FROM t_proveedor_producto WHERE ppp_prov_id_fk = %s", (prov_id,))
         if cursor.fetchone()[0] > 0:
             dependencias.append("productos")
     except Exception:

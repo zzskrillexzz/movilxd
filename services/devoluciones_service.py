@@ -89,22 +89,15 @@ def registrarDevolucion(dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantida
                      VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
                   (dev_id, dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_motivo, dev_fecha, dev_usu_id_fk))
 
-        # ── Reingresar stock al producto (BUG-009: UPDATE atómico) ──
-        c.execute(
-            "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible + %s "
-            "WHERE pro_id = %s",
-            (dev_cantidad, dev_pro_id_fk)
-        )
-        c.execute("SELECT pro_cantidad_disponible, pro_precio FROM t_producto WHERE pro_id = %s", (dev_pro_id_fk,))
+        # ── Obtener stock total actual desde lotes ──
+        c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+                  (dev_pro_id_fk,))
+        stock_total_anterior = c.fetchone()[0] or 0
+
+        # ── Obtener precio del producto ──
+        c.execute("SELECT pro_precio FROM t_producto WHERE pro_id = %s", (dev_pro_id_fk,))
         row = c.fetchone()
-        if row:
-            nuevo_stock = row[0] or 0
-            precio_unitario = float(row[1]) if row[1] else 0
-            stock_anterior = nuevo_stock - dev_cantidad
-        else:
-            stock_anterior = 0
-            precio_unitario = 0
-            nuevo_stock = dev_cantidad
+        precio_unitario = float(row[0]) if row and row[0] else 0
 
         # ── Reingresar stock al lote si aplica ──
         if dev_lot_id_fk:
@@ -124,6 +117,8 @@ def registrarDevolucion(dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantida
             VALUES (%s, 'Entrada', %s, %s, %s, %s, %s, %s)
         """, (inm_id, dev_pro_id_fk, dev_lot_id_fk, dev_cantidad, dev_fecha, f"Devolucion {dev_id} - {dev_motivo}", dev_usu_id_fk))
 
+        nuevo_stock_total = stock_total_anterior + dev_cantidad
+
         # ── Registrar monitoria ──
         mon_id = generarIdSiguiente('t_monitoria', 'mon_id', 'MON', 3)
         costo_total = dev_cantidad * precio_unitario
@@ -131,7 +126,7 @@ def registrarDevolucion(dev_com_id_fk, dev_pro_id_fk, dev_lot_id_fk, dev_cantida
             INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
                                      mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
             VALUES (%s, %s, %s, %s, %s, 'Entrada', %s, %s, %s, %s, %s)
-        """, (mon_id, dev_pro_id_fk, dev_lot_id_fk, inm_id, dev_fecha, dev_cantidad, stock_anterior, nuevo_stock,
+        """, (mon_id, dev_pro_id_fk, dev_lot_id_fk, inm_id, dev_fecha, dev_cantidad, stock_total_anterior, nuevo_stock_total,
               precio_unitario, costo_total))
 
         current_app.mysql.connection.commit()

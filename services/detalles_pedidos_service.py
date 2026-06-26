@@ -30,29 +30,12 @@ def listarDetallesPedidos(page=1, limit=50, q=None, order_by=None, **filters):
 
 def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_id_fk, det_precio_unitario, det_subtotal):
     """
-    Descuenta stock del producto y lote, y registra movimiento + monitoria.
-    Recibe un cursor abierto y hace commit internamente.
-    
-    BUG-009: Usa UPDATE atómico para evitar TOCTOU.
+    Descuenta stock del lote, y registra movimiento + monitoria.
+    Recibe un cursor abierto.
     """
-    # ── 1. Validar y descontar producto (atómicamente) ──
-    c.execute(
-        "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible - %s "
-        "WHERE pro_id = %s AND pro_cantidad_disponible >= %s",
-        (det_cantidad, det_pro_id_fk, det_cantidad)
-    )
-    if c.rowcount == 0:
-        # Verificar si el producto existe o si fue por stock insuficiente
-        c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (det_pro_id_fk,))
-        row = c.fetchone()
-        if not row:
-            raise ValueError(f"Producto {det_pro_id_fk} no encontrado")
-        raise ValueError(f"Stock insuficiente para {det_pro_id_fk}: disponible {row[0] or 0}, solicitado {det_cantidad}")
-    
-    # Obtener stock anterior para monitoria
-    c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (det_pro_id_fk,))
-    nuevo_stock = c.fetchone()[0] or 0
-    stock_anterior = nuevo_stock + det_cantidad
+    c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+              (det_pro_id_fk,))
+    stock_total_anterior = c.fetchone()[0] or 0
 
     # ── 2. Descontar lote(s) ──
     # Si no se especifica lote, auto-asignar el más antiguo con stock disponible (FIFO)
@@ -127,6 +110,8 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
     if lotes_usados:
         det_lot_id_fk = lotes_usados[0]
 
+    nuevo_stock_total = stock_total_anterior - det_cantidad
+
     # ── 3. Insertar movimiento de inventario ──
     inm_id = generarIdSiguiente('t_inventario_movimiento', 'inm_id', 'INM', 3)
     c.execute("""
@@ -140,7 +125,7 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
         INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
                                  mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
         VALUES (%s, %s, %s, %s, CURDATE(), 'Salida', %s, %s, %s, %s, %s)
-    """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_anterior, nuevo_stock,
+    """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_total_anterior, nuevo_stock_total,
           det_precio_unitario, det_subtotal))
 
     return det_lot_id_fk
@@ -148,24 +133,12 @@ def _descontarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_
 
 def _reingresarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped_id_fk, det_precio_unitario, det_subtotal):
     """
-    Revierte el descuento: suma stock al producto y lote, y registra movimiento + monitoria de Entrada.
-    Recibe un cursor abierto y hace commit internamente.
-    
-    BUG-009: Usa UPDATE atómico.
+    Revierte el descuento: suma stock al lote, y registra movimiento + monitoria de Entrada.
+    Recibe un cursor abierto.
     """
-    # ── 1. Reingresar producto (atómico) ──
-    c.execute(
-        "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible + %s "
-        "WHERE pro_id = %s",
-        (det_cantidad, det_pro_id_fk)
-    )
-    if c.rowcount == 0:
-        raise ValueError(f"Producto {det_pro_id_fk} no encontrado")
-    
-    # Obtener nuevo stock para monitoria
-    c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (det_pro_id_fk,))
-    nuevo_stock = c.fetchone()[0] or 0
-    stock_anterior = nuevo_stock - det_cantidad
+    c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+              (det_pro_id_fk,))
+    stock_total_anterior = c.fetchone()[0] or 0
 
     # ── 2. Reingresar lote si aplica ──
     stock_lote_anterior = None
@@ -180,6 +153,8 @@ def _reingresarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped
             if row_lote[1] == 'Agotado' and nuevo_stock_lote > 0:
                 c.execute("UPDATE t_lote SET lot_estado = 'Activo' WHERE lot_id = %s", (det_lot_id_fk,))
 
+    nuevo_stock_total = stock_total_anterior + det_cantidad
+
     # ── 3. Insertar movimiento de inventario ──
     inm_id = generarIdSiguiente('t_inventario_movimiento', 'inm_id', 'INM', 3)
     c.execute("""
@@ -193,7 +168,7 @@ def _reingresarInventario(c, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_ped
         INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
                                  mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
         VALUES (%s, %s, %s, %s, CURDATE(), 'Entrada', %s, %s, %s, %s, %s)
-    """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_anterior, nuevo_stock,
+    """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_total_anterior, nuevo_stock_total,
           det_precio_unitario, det_subtotal))
 
 

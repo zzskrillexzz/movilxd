@@ -257,20 +257,10 @@ def revertirInventarioPedido(ped_id):
     for det in detalles:
         det_id, det_pro_id_fk, det_lot_id_fk, det_cantidad, det_precio_unitario, det_subtotal = det
 
-        # Reingresar stock al producto (BUG-009: UPDATE atómico)
-        c.execute(
-            "UPDATE t_producto SET pro_cantidad_disponible = pro_cantidad_disponible + %s "
-            "WHERE pro_id = %s",
-            (det_cantidad, det_pro_id_fk)
-        )
-        c.execute("SELECT pro_cantidad_disponible FROM t_producto WHERE pro_id = %s", (det_pro_id_fk,))
-        row = c.fetchone()
-        if row:
-            nuevo_stock = row[0] or 0
-            stock_anterior = nuevo_stock - det_cantidad
-        else:
-            stock_anterior = 0
-            nuevo_stock = det_cantidad
+        # Obtener stock total desde lotes antes de reingresar
+        c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+                  (det_pro_id_fk,))
+        stock_total_anterior = c.fetchone()[0] or 0
 
         # Reingresar stock al lote si aplica
         if det_lot_id_fk:
@@ -290,6 +280,8 @@ def revertirInventarioPedido(ped_id):
             VALUES (%s, 'Entrada', %s, %s, %s, CURDATE(), %s, NULL)
         """, (inm_id, det_pro_id_fk, det_lot_id_fk, det_cantidad, f"Anulacion venta {ped_id}"))
 
+        nuevo_stock_total = stock_total_anterior + det_cantidad
+
         # Monitoria
         mon_id = generarIdSiguiente('t_monitoria', 'mon_id', 'MON', 3)
         costo_total = det_cantidad * (float(det_precio_unitario) if det_precio_unitario else 0)
@@ -297,7 +289,7 @@ def revertirInventarioPedido(ped_id):
             INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
                                      mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
             VALUES (%s, %s, %s, %s, CURDATE(), 'Entrada', %s, %s, %s, %s, %s)
-        """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_anterior, nuevo_stock,
+        """, (mon_id, det_pro_id_fk, det_lot_id_fk, inm_id, det_cantidad, stock_total_anterior, nuevo_stock_total,
               float(det_precio_unitario) if det_precio_unitario else 0, costo_total))
 
     # Eliminar los detalles ya revertidos

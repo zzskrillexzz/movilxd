@@ -64,6 +64,27 @@ def buscarProductosPorProveedor(PPP_PROV_ID_FK):
     return lista
 
 
+def buscarProductosPorProveedorConDatos(PPP_PROV_ID_FK):
+    """
+    Retorna productos de un proveedor con todos los datos del producto (JOIN).
+    """
+    c = current_app.mysql.connection.cursor()
+    sql = """
+        SELECT p.pro_id, p.pro_nombre, p.pro_categoria, p.pro_descripcion,
+               p.pro_precio, p.pro_estado
+        FROM t_proveedor_producto pp
+        JOIN t_producto p ON p.pro_id = pp.ppp_pro_id_fk
+        WHERE pp.ppp_prov_id_fk = %s
+        ORDER BY p.pro_nombre ASC
+    """
+    c.execute(sql, (PPP_PROV_ID_FK,))
+    datos = c.fetchall()
+    c.close()
+
+    from models.productos_model import productos
+    return [productos(p[0], p[1], p[2], p[3], p[4], p[5]).toDic() for p in datos]
+
+
 def buscarProveedoresPorProducto(PPP_PRO_ID_FK):
     c = current_app.mysql.connection.cursor()
     sql = "SELECT ppp_prov_id_fk, ppp_pro_id_fk FROM t_proveedor_producto WHERE ppp_pro_id_fk = %s"

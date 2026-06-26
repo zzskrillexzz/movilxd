@@ -108,12 +108,13 @@ def reporte_ventas(fecha_desde=None, fecha_hasta=None):
 
 def reporte_inventario():
     """
-    Reporte de inventario actual: productos con stock, lote, vencimiento.
+    Reporte de inventario actual: productos con stock (desde lotes), lote, vencimiento.
     """
     c = current_app.mysql.connection.cursor()
     c.execute("""
-        SELECT p.pro_id, p.pro_nombre, p.pro_categoria, p.pro_cantidad_disponible,
-               p.pro_stock_minimo, p.pro_precio,
+        SELECT p.pro_id, p.pro_nombre, p.pro_categoria, p.pro_precio,
+               COALESCE((SELECT SUM(lot_cantidad_actual) FROM t_lote 
+                         WHERE lot_pro_id_fk = p.pro_id AND lot_estado = 'Activo'), 0) as stock_total,
                l.lot_id, l.lot_numero, l.lot_fecha_vencimiento, l.lot_cantidad_actual,
                l.lot_estado
         FROM t_producto p
@@ -123,11 +124,11 @@ def reporte_inventario():
     """)
     resultados = [{
         "pro_id": r[0], "pro_nombre": r[1], "pro_categoria": r[2],
-        "pro_cantidad_disponible": r[3], "pro_stock_minimo": r[4],
-        "pro_precio": float(r[5] or 0),
-        "lot_id": r[6], "lot_numero": r[7],
-        "lot_fecha_vencimiento": str(r[8]) if r[8] else None,
-        "lot_cantidad_actual": r[9], "lot_estado": r[10]
+        "pro_precio": float(r[3] or 0),
+        "stock_total": r[4] or 0,
+        "lot_id": r[5], "lot_numero": r[6],
+        "lot_fecha_vencimiento": str(r[7]) if r[7] else None,
+        "lot_cantidad_actual": r[8], "lot_estado": r[9]
     } for r in c.fetchall()]
     c.close()
     return resultados
@@ -325,33 +326,28 @@ def exportar_reporte_pdf(tipo, fecha_desde=None, fecha_hasta=None, dias=None):
         titulo = 'Reporte de Ventas'
     elif tipo == 'inventario':
         datos = reporte_inventario()
-        col = ['Producto', 'Categoría', 'Stock', 'Stock Mín', 'Estado', 'Precio', 'Lote', 'Vencimiento', 'Cant. Lote']
+        col = ['Producto', 'Categoría', 'Stock Total', 'Precio', 'Lote', 'Vencimiento', 'Cant. Lote']
         filas = []
         row_colors = []
-        criticos = 0
         for d in datos:
-            stock = d['pro_cantidad_disponible'] or 0
-            minimo = d['pro_stock_minimo'] or 0
-            critico = stock <= minimo
-            if critico:
-                criticos += 1
-            estado = '⚠ Crítico' if critico else '✓ Normal'
+            stock = d['stock_total'] or 0
             filas.append([d['pro_nombre'], d['pro_categoria'], stock,
-                          minimo, estado, f"${d['pro_precio']:,.0f}",
+                          f"${d['pro_precio']:,.0f}",
                           d['lot_numero'] or '-', d['lot_fecha_vencimiento'] or '-',
                           d['lot_cantidad_actual'] or 0])
-            row_colors.append(colors.HexColor('#fef2f2') if critico else None)
+            row_colors.append(colors.HexColor('#fef2f2') if stock <= 0 else None)
         titulo = 'Reporte de Inventario'
 
         from reportlab.platypus import Paragraph
         from reportlab.lib.styles import ParagraphStyle
         from reportlab.lib import colors
-        total = len(datos)
+        total = len(set(d['pro_id'] for d in datos))
+        sin_stock = sum(1 for d in datos if (d['stock_total'] or 0) <= 0)
         resumen = [
-            Paragraph(f"<b>Total productos:</b> {total}  |  <b>Stock crítico:</b> {criticos}  |  <b>Saludables:</b> {total - criticos}",
+            Paragraph(f"<b>Total productos:</b> {total}  |  <b>Sin stock:</b> {sin_stock}  |  <b>Con stock:</b> {total - sin_stock}",
                       ParagraphStyle('Resumen', fontSize=9, textColor=colors.HexColor('#475569'), spaceAfter=4)),
-            Paragraph("<font color='#dc2626'><b>■</b></font> Crítico — stock menor o igual al mínimo &nbsp;&nbsp;&nbsp; "
-                      "<font color='#16a34a'><b>■</b></font> Normal — stock suficiente",
+            Paragraph("<font color='#dc2626'><b>■</b></font> Sin stock disponible &nbsp;&nbsp;&nbsp; "
+                      "<font color='#16a34a'><b>■</b></font> Con stock suficiente",
                       ParagraphStyle('Leyenda', fontSize=8, textColor=colors.HexColor('#94a3b8')))
         ]
 
@@ -385,18 +381,16 @@ def exportar_reporte_excel(tipo, fecha_desde=None, fecha_hasta=None, dias=None):
         from openpyxl.styles import PatternFill, Font
         from openpyxl.utils import get_column_letter
         datos = reporte_inventario()
-        col = ['Producto', 'Categoría', 'Stock', 'Stock Mín', 'Estado', 'Precio', 'Lote', 'Vencimiento', 'Cant. Lote']
+        col = ['Producto', 'Categoría', 'Stock Total', 'Precio', 'Lote', 'Vencimiento', 'Cant. Lote']
         filas = []
         critico_fill = PatternFill(start_color='fef2f2', end_color='fef2f2', fill_type='solid')
         critico_font = Font(name='Arial', size=9, color='dc2626')
         verde_font = Font(name='Arial', size=9, color='16a34a')
         for d in datos:
-            stock = d['pro_cantidad_disponible'] or 0
-            minimo = d['pro_stock_minimo'] or 0
-            critico = stock <= minimo
-            estado = 'Crítico' if critico else 'Normal'
+            stock = d['stock_total'] or 0
+            estado = 'Sin stock' if stock <= 0 else 'Normal'
             filas.append([d['pro_nombre'], d['pro_categoria'], stock,
-                          minimo, estado, float(d['pro_precio']),
+                          float(d['pro_precio']),
                           d['lot_numero'] or '-', d['lot_fecha_vencimiento'] or '-',
                           d['lot_cantidad_actual'] or 0])
         titulo = 'Inventario'
@@ -408,15 +402,12 @@ def exportar_reporte_excel(tipo, fecha_desde=None, fecha_hasta=None, dias=None):
         wb = load_workbook(BytesIO(xlsx_bytes))
         ws = wb.active
         for row_idx in range(2, len(filas) + 2):
-            estado_cell = ws.cell(row=row_idx, column=5)  # Columna E = Estado
-            if estado_cell.value == 'Crítico':
+            stock_cell = ws.cell(row=row_idx, column=3)  # Columna C = Stock Total
+            if stock_cell.value is not None and (isinstance(stock_cell.value, (int, float)) and stock_cell.value <= 0):
                 for col_idx in range(1, len(col) + 1):
                     cell = ws.cell(row=row_idx, column=col_idx)
                     cell.fill = critico_fill
-                    if col_idx in (3,):  # Stock column
-                        cell.font = critico_font
-            else:
-                ws.cell(row=row_idx, column=5).font = verde_font
+                    cell.font = critico_font
         buf = BytesIO()
         wb.save(buf)
         return buf.getvalue()

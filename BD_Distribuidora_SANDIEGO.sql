@@ -430,61 +430,51 @@ CREATE TABLE `t_producto` (
   `pro_categoria` varchar(50) DEFAULT NULL COMMENT 'Categoría del producto',
   `pro_descripcion` varchar(255) DEFAULT NULL COMMENT 'Descripción del producto',
   `pro_precio` decimal(12,2) DEFAULT NULL COMMENT 'Precio unitario de venta',
-  `pro_cantidad_disponible` int(11) DEFAULT 0 COMMENT 'Stock total disponible (suma de lotes activos)',
-  `pro_stock_minimo` int(11) DEFAULT 10 COMMENT 'Stock mínimo para alertas de reposición',
-  `pro_fecha_caducidad` date DEFAULT NULL COMMENT 'Fecha de vencimiento del lote activo más próximo',
-  `pro_registro_invima` varchar(50) DEFAULT NULL,
-  `pro_fecha_vencimiento_registro` date DEFAULT NULL,
-  `pro_control_especial` tinyint(1) DEFAULT 0,
-  `pro_tipo_control` varchar(50) DEFAULT NULL,
+
+
   `pro_estado` varchar(20) DEFAULT 'Activo' COMMENT 'Estado: Activo / Descontinuado / Suspendido',
-  `pro_prov_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del proveedor principal',
-  `pro_presentacion` varchar(100) DEFAULT NULL,
-  `pro_laboratorio` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`pro_id`),
-  KEY `pro_prov_id_fk` (`pro_prov_id_fk`),
-  CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`pro_prov_id_fk`) REFERENCES `t_proveedor` (`prov_id`)
+  PRIMARY KEY (`pro_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `t_producto` */
 
-insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion`,`pro_precio`,`pro_cantidad_disponible`,`pro_stock_minimo`,`pro_fecha_caducidad`,`pro_registro_invima`,`pro_fecha_vencimiento_registro`,`pro_control_especial`,`pro_tipo_control`,`pro_estado`,`pro_prov_id_fk`,`pro_presentacion`,`pro_laboratorio`) values 
-('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,196,20,'2026-08-31',NULL,NULL,0,NULL,'Activo','PROV002',NULL,NULL),
-('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,156,15,'2026-06-30',NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
-('PRO003','Loratadina 10mg','Antihistaminico','Caja x 10 tab',980.00,80,10,'2027-01-31',NULL,NULL,0,NULL,'Activo','PROV003',NULL,NULL),
-('PRO004','Suero oral 500ml','Hidratacion','Electrolitos',3500.00,60,10,'2026-12-15',NULL,NULL,0,NULL,'Activo','PROV004',NULL,NULL),
-('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,47,8,'2027-05-20',NULL,NULL,0,NULL,'Activo','PROV005',NULL,NULL),
-('PRO006','Ibuprofeno 400mg','Analgesico','Tabletas x 20 unidades',8500.00,200,20,'2027-06-30',NULL,NULL,0,NULL,'Activo','PROV050',NULL,NULL),
-('PRO007','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,154,15,'2027-09-15',NULL,NULL,0,NULL,'Activo','PROV051',NULL,NULL),
-('PRO008','Loratadina 10mg','Antialergico','Tabletas x 10 unidades',5200.00,300,25,'2028-01-20',NULL,NULL,0,NULL,'Activo','PROV052',NULL,NULL),
-('PRO009','Ibuprofeno 600mg','Analgesicos','Ibuprofeno generico 600mg x 30 tabs',2500.00,3,1,NULL,NULL,NULL,0,NULL,'Activo','PROV001',NULL,NULL),
-('PRO010','Aspirina 100mg','Analgesico',NULL,2500.00,100,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001','Tabletas','Bayer'),
-('PRO011','Naproxeno 500mg','Antiinflamatorio',NULL,3800.00,80,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001','Tabletas','Bayer'),
-('PRO012','Diclofenaco 50mg','Antiinflamatorio',NULL,2200.00,90,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001','Tabletas','Bayer'),
-('PRO013','Vitamina C 1000mg','Vitaminas',NULL,4500.00,60,10,NULL,NULL,NULL,0,NULL,'Activo','PROV001','Efervescente','Bayer'),
-('PRO014','Dolex 500mg','Analgesico',NULL,3200.00,120,10,NULL,NULL,NULL,0,NULL,'Activo','PROV002','Tabletas','Tecnoquimicas'),
-('PRO015','Metamizol 500mg','Analgesico',NULL,2800.00,75,10,NULL,NULL,NULL,0,NULL,'Activo','PROV002','Tabletas','Tecnoquimicas'),
-('PRO016','Omeprazol 20mg','Gastrointestinal',NULL,3500.00,95,10,NULL,NULL,NULL,0,NULL,'Activo','PROV002','Capsulas','Tecnoquimicas'),
-('PRO017','Captopril 25mg','Cardiovascular',NULL,1800.00,110,10,NULL,NULL,NULL,0,NULL,'Activo','PROV003','Tabletas','Genfar'),
-('PRO018','Losartan 50mg','Cardiovascular',NULL,2200.00,100,10,NULL,NULL,NULL,0,NULL,'Activo','PROV003','Tabletas','Genfar'),
-('PRO019','Metformina 850mg','Antidiabetico',NULL,2500.00,85,10,NULL,NULL,NULL,0,NULL,'Activo','PROV003','Tabletas','Genfar'),
-('PRO020','Salbutamol 100mcg','Respiratorio',NULL,5200.00,50,10,NULL,NULL,NULL,0,NULL,'Activo','PROV003','Inhalador','Genfar'),
-('PRO021','Complejo B inyectable','Vitaminas',NULL,8500.00,40,10,NULL,NULL,NULL,0,NULL,'Activo','PROV004','Ampolla 2ml','La Sante'),
-('PRO022','Suero fisiologico 500ml','Solucion',NULL,4200.00,70,10,NULL,NULL,NULL,0,NULL,'Activo','PROV004','Bolsa','La Sante'),
-('PRO023','Multivitaminico jarabe','Vitaminas',NULL,12500.00,30,10,NULL,NULL,NULL,0,NULL,'Activo','PROV004','Frasco 120ml','La Sante'),
-('PRO024','Alcohol antiséptico 500ml','Antiseptico',NULL,6800.00,65,10,NULL,NULL,NULL,0,NULL,'Activo','PROV005','Frasco','Cofarma'),
-('PRO025','Gasa esteril 10x10cm','Insumo',NULL,1500.00,200,10,NULL,NULL,NULL,0,NULL,'Activo','PROV005','Paquete x5','Cofarma'),
-('PRO026','Jeringa 5ml','Insumo',NULL,800.00,300,10,NULL,NULL,NULL,0,NULL,'Activo','PROV005','Unidad','Cofarma'),
-('PRO027','Guantes latex talla M','Insumo',NULL,3500.00,150,10,NULL,NULL,NULL,0,NULL,'Activo','PROV005','Caja x100','Cofarma'),
-('PRO028','Dexametasona 4mg','Antiinflamatorio',NULL,2100.00,60,10,NULL,NULL,NULL,0,NULL,'Activo','PROV050','Tabletas','MedPlus'),
-('PRO029','Hidroxicloroquina 200mg','Antimalarico',NULL,9500.00,45,10,NULL,NULL,NULL,0,NULL,'Activo','PROV050','Tabletas','MedPlus'),
-('PRO030','Azitromicina 500mg','Antibiotico',NULL,7800.00,55,10,NULL,NULL,NULL,0,NULL,'Activo','PROV051','Tabletas','FarmaExpress'),
-('PRO031','Cefalexina 500mg','Antibiotico',NULL,6200.00,50,10,NULL,NULL,NULL,0,NULL,'Activo','PROV051','Capsulas','FarmaExpress'),
-('PRO032','Sildenafil 50mg','Impotencia',NULL,15000.00,35,10,NULL,NULL,NULL,0,NULL,'Activo','PROV052','Tabletas','Global Pharma'),
-('PRO033','Enalapril 10mg','Cardiovascular',NULL,3200.00,80,10,NULL,NULL,NULL,0,NULL,'Activo','PROV052','Tabletas','Global Pharma'),
-('PRO034','Parche curitas surtido','Insumo',NULL,2500.00,100,10,NULL,NULL,NULL,0,NULL,'Activo','PROV200','Caja x50','Salud SAS'),
-('PRO035','Venda elastica 10cm','Insumo',NULL,1800.00,90,10,NULL,NULL,NULL,0,NULL,'Activo','PROV200','Unidad','Salud SAS'),
-('PRO036','Bajalenguas','Insumo',NULL,500.00,250,10,NULL,NULL,NULL,0,NULL,'Activo','PROV200','Paquete x100','Salud SAS');
+insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion`,`pro_precio`,`pro_estado`) values 
+('PRO001','Acetaminofen 500','Analgesico','Caja x 10 tab',850.00,'Activo'),
+('PRO002','Ibuprofeno 400','Antiinflamatorio','Caja x 10 tab',1200.00,'Activo'),
+('PRO003','Loratadina 10mg','Antihistaminico','Caja x 10 tab',980.00,'Activo'),
+('PRO004','Suero oral 500ml','Hidratacion','Electrolitos',3500.00,'Activo'),
+('PRO005','Alcohol 70% 250ml','Antiseptico','Uso externo',4200.00,'Activo'),
+('PRO006','Ibuprofeno 400mg','Analgesico','Tabletas x 20 unidades',8500.00,'Activo'),
+('PRO007','Amoxicilina 500mg','Antibiotico','Capsulas x 30 unidades',15000.00,'Activo'),
+('PRO008','Loratadina 10mg','Antialergico','Tabletas x 10 unidades',5200.00,'Activo'),
+('PRO009','Ibuprofeno 600mg','Analgesicos','Ibuprofeno generico 600mg x 30 tabs',2500.00,'Activo'),
+('PRO010','Aspirina 100mg','Analgesico',NULL,2500.00,'Activo'),
+('PRO011','Naproxeno 500mg','Antiinflamatorio',NULL,3800.00,'Activo'),
+('PRO012','Diclofenaco 50mg','Antiinflamatorio',NULL,2200.00,'Activo'),
+('PRO013','Vitamina C 1000mg','Vitaminas',NULL,4500.00,'Activo'),
+('PRO014','Dolex 500mg','Analgesico',NULL,3200.00,'Activo'),
+('PRO015','Metamizol 500mg','Analgesico',NULL,2800.00,'Activo'),
+('PRO016','Omeprazol 20mg','Gastrointestinal',NULL,3500.00,'Activo'),
+('PRO017','Captopril 25mg','Cardiovascular',NULL,1800.00,'Activo'),
+('PRO018','Losartan 50mg','Cardiovascular',NULL,2200.00,'Activo'),
+('PRO019','Metformina 850mg','Antidiabetico',NULL,2500.00,'Activo'),
+('PRO020','Salbutamol 100mcg','Respiratorio',NULL,5200.00,'Activo'),
+('PRO021','Complejo B inyectable','Vitaminas',NULL,8500.00,'Activo'),
+('PRO022','Suero fisiologico 500ml','Solucion',NULL,4200.00,'Activo'),
+('PRO023','Multivitaminico jarabe','Vitaminas',NULL,12500.00,'Activo'),
+('PRO024','Alcohol antiséptico 500ml','Antiseptico',NULL,6800.00,'Activo'),
+('PRO025','Gasa esteril 10x10cm','Insumo',NULL,1500.00,'Activo'),
+('PRO026','Jeringa 5ml','Insumo',NULL,800.00,'Activo'),
+('PRO027','Guantes latex talla M','Insumo',NULL,3500.00,'Activo'),
+('PRO028','Dexametasona 4mg','Antiinflamatorio',NULL,2100.00,'Activo'),
+('PRO029','Hidroxicloroquina 200mg','Antimalarico',NULL,9500.00,'Activo'),
+('PRO030','Azitromicina 500mg','Antibiotico',NULL,7800.00,'Activo'),
+('PRO031','Cefalexina 500mg','Antibiotico',NULL,6200.00,'Activo'),
+('PRO032','Sildenafil 50mg','Impotencia',NULL,15000.00,'Activo'),
+('PRO033','Enalapril 10mg','Cardiovascular',NULL,3200.00,'Activo'),
+('PRO034','Parche curitas surtido','Insumo',NULL,2500.00,'Activo'),
+('PRO035','Venda elastica 10cm','Insumo',NULL,1800.00,'Activo'),
+('PRO036','Bajalenguas','Insumo',NULL,500.00,'Activo');
 
 /*Table structure for table `t_proveedor` */
 
@@ -522,6 +512,7 @@ DROP TABLE IF EXISTS `t_proveedor_producto`;
 CREATE TABLE `t_proveedor_producto` (
   `ppp_prov_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del proveedor',
   `ppp_pro_id_fk` varchar(20) DEFAULT NULL COMMENT 'ID del producto',
+  UNIQUE KEY `uq_prov_prod` (`ppp_prov_id_fk`,`ppp_pro_id_fk`),
   KEY `ppp_prov_id_fk` (`ppp_prov_id_fk`),
   KEY `ppp_pro_id_fk` (`ppp_pro_id_fk`),
   CONSTRAINT `prov_pro_ibfk_1` FOREIGN KEY (`ppp_prov_id_fk`) REFERENCES `t_proveedor` (`prov_id`),
@@ -531,15 +522,45 @@ CREATE TABLE `t_proveedor_producto` (
 /*Data for the table `t_proveedor_producto` */
 
 insert  into `t_proveedor_producto`(`ppp_prov_id_fk`,`ppp_pro_id_fk`) values 
-('PROV002','PRO001'),
-('PROV001','PRO002'),
-('PROV003','PRO003'),
-('PROV004','PRO004'),
-('PROV005','PRO005'),
 ('PROV001','PRO001'),
+('PROV001','PRO002'),
+('PROV001','PRO009'),
+('PROV001','PRO010'),
+('PROV001','PRO011'),
+('PROV001','PRO012'),
+('PROV001','PRO013'),
+('PROV002','PRO001'),
+('PROV002','PRO038'),
+('PROV002','PRO014'),
+('PROV002','PRO015'),
+('PROV002','PRO016'),
+('PROV003','PRO003'),
+('PROV003','PRO017'),
+('PROV003','PRO018'),
+('PROV003','PRO019'),
+('PROV003','PRO020'),
+('PROV004','PRO004'),
+('PROV004','PRO021'),
+('PROV004','PRO022'),
+('PROV004','PRO023'),
+('PROV005','PRO005'),
+('PROV005','PRO024'),
+('PROV005','PRO025'),
+('PROV005','PRO026'),
+('PROV005','PRO027'),
+('PROV005','PRO037'),
 ('PROV050','PRO006'),
+('PROV050','PRO028'),
+('PROV050','PRO029'),
 ('PROV051','PRO007'),
-('PROV052','PRO008');
+('PROV051','PRO030'),
+('PROV051','PRO031'),
+('PROV052','PRO008'),
+('PROV052','PRO032'),
+('PROV052','PRO033'),
+('PROV200','PRO034'),
+('PROV200','PRO035'),
+('PROV200','PRO036');
 
 /*Table structure for table `t_reporte` */
 
@@ -699,10 +720,12 @@ BEGIN
     -- Generar ID basado en timestamp
     SET v_nuevo_id = CONCAT('MON', DATE_FORMAT(NOW(), '%y%m%d%H%i%s'), FLOOR(RAND() * 99));
 
-    -- Obtener stock actual del producto
-    SELECT pro_cantidad_disponible, pro_precio 
+    -- Obtener stock total desde lotes
+    SELECT COALESCE(SUM(lot_cantidad_actual), 0), COALESCE(AVG(pro_precio), 0)
     INTO v_saldo_anterior, v_costo
-    FROM t_producto WHERE pro_id = NEW.inm_pro_id_fk;
+    FROM t_lote l
+    JOIN t_producto p ON p.pro_id = l.lot_pro_id_fk
+    WHERE l.lot_pro_id_fk = NEW.inm_pro_id_fk;
 
     -- Calcular nuevo saldo
     IF NEW.inm_tipo_movimiento = 'Entrada' THEN
@@ -730,11 +753,6 @@ BEGIN
         v_costo,
         NEW.inm_cantidad * v_costo
     );
-
-    -- Actualizar stock del producto
-    UPDATE t_producto 
-    SET pro_cantidad_disponible = v_saldo_actual 
-    WHERE pro_id = NEW.inm_pro_id_fk;
 
 END */$$
 
@@ -804,8 +822,7 @@ DROP TABLE IF EXISTS `v_stock_minimo`;
  `pro_id` varchar(20) ,
  `pro_nombre` varchar(100) ,
  `pro_categoria` varchar(50) ,
- `stock_actual` int(11) ,
- `stock_minimo` int(11) 
+ `stock_actual` decimal(32,0) 
 )*/;
 
 /*View structure for view v_historial_ventas */
@@ -834,7 +851,7 @@ DROP TABLE IF EXISTS `v_stock_minimo`;
 /*!50001 DROP TABLE IF EXISTS `v_stock_minimo` */;
 /*!50001 DROP VIEW IF EXISTS `v_stock_minimo` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_stock_minimo` AS select `t_producto`.`pro_id` AS `pro_id`,`t_producto`.`pro_nombre` AS `pro_nombre`,`t_producto`.`pro_categoria` AS `pro_categoria`,`t_producto`.`pro_cantidad_disponible` AS `stock_actual`,`t_producto`.`pro_stock_minimo` AS `stock_minimo` from `t_producto` where `t_producto`.`pro_cantidad_disponible` <= `t_producto`.`pro_stock_minimo` and `t_producto`.`pro_estado` = 'Activo' */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_stock_minimo` AS select `p`.`pro_id` AS `pro_id`,`p`.`pro_nombre` AS `pro_nombre`,`p`.`pro_categoria` AS `pro_categoria`,coalesce(sum(`l`.`lot_cantidad_actual`),0) AS `stock_actual` from (`t_producto` `p` left join `t_lote` `l` on(`l`.`lot_pro_id_fk` = `p`.`pro_id` and `l`.`lot_estado` = 'Activo')) where `p`.`pro_estado` = 'Activo' group by `p`.`pro_id`,`p`.`pro_nombre`,`p`.`pro_categoria` having coalesce(sum(`l`.`lot_cantidad_actual`),0) <= 0 */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

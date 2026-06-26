@@ -7,10 +7,8 @@ def listarProductos(page=1, limit=50, q=None, order_by=None, **filters):
     sb = SearchBuilder(
         table='t_producto',
         search_fields=['pro_id', 'pro_nombre', 'pro_categoria', 'pro_descripcion'],
-        exact_fields=['pro_estado', 'pro_categoria', 'pro_prov_id_fk', 'pro_control_especial'],
-        range_fields={'pro_precio': 'decimal', 'pro_cantidad_disponible': 'int', 'pro_stock_minimo': 'int'},
-        join_clause='LEFT JOIN t_proveedor ON pro_prov_id_fk = prov_id',
-        select_columns='t_producto.*, prov_nombre as proveedor_nombre',
+        exact_fields=['pro_estado', 'pro_categoria'],
+        range_fields={'pro_precio': 'decimal'},
         default_order='pro_id ASC'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
@@ -21,38 +19,31 @@ def listarProductos(page=1, limit=50, q=None, order_by=None, **filters):
         prod = productos(
             proID=item['pro_id'], proNombre=item['pro_nombre'], proCategoria=item['pro_categoria'],
             proDescripcion=item['pro_descripcion'], proPrecio=item['pro_precio'],
-            proCantidad=item['pro_cantidad_disponible'], proStockMinimo=item['pro_stock_minimo'],
-            proFechaCaducidad=item['pro_fecha_caducidad'],
-            proRegistroInvima=item['pro_registro_invima'],
-            proFechaVencimientoRegistro=item['pro_fecha_vencimiento_registro'],
-            proControlEspecial=item['pro_control_especial'], proTipoControl=item['pro_tipo_control'],
-            proEstado=item['pro_estado'], proIDprovedor=item['pro_prov_id_fk'],
-            proPresentacion=item.get('pro_presentacion'),
-            proLaboratorio=item.get('pro_laboratorio')
+            proEstado=item['pro_estado']
         ).toDic()
         lista.append(prod)
 
     result['data'] = lista
     return result
 
-def registrarProductos(data):
+def registrarProductos(data, proveedor_id=None):
     try:
         cursor = current_app.mysql.connection.cursor()
         sql = """
-            INSERT INTO t_producto (pro_id, pro_nombre, pro_categoria, pro_descripcion, pro_precio,
-                                    pro_cantidad_disponible, pro_stock_minimo, pro_fecha_caducidad,
-                                    pro_registro_invima, pro_fecha_vencimiento_registro,
-                                    pro_control_especial, pro_tipo_control, pro_estado, pro_prov_id_fk)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO t_producto (pro_id, pro_nombre, pro_categoria, pro_descripcion, pro_precio, pro_estado)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(sql, (
             data.get('id'), data.get('nombre'), data.get('categoria'), data.get('descripcion'),
-            data.get('precio'), data.get('cantidad_disponible'), data.get('stock_minimo', 10),
-            data.get('fecha_caducidad'), data.get('registro_invima'),
-            data.get('fecha_vencimiento_registro'),
-            1 if data.get('control_especial') else 0,
-            data.get('tipo_control'), data.get('estado', 'Activo'), data.get('proveedor_id')
+            data.get('precio'), data.get('estado', 'Activo')
         ))
+
+        if proveedor_id:
+            cursor.execute(
+                "INSERT INTO t_proveedor_producto (ppp_prov_id_fk, ppp_pro_id_fk) VALUES (%s, %s)",
+                (proveedor_id, data.get('id'))
+            )
+
         current_app.mysql.connection.commit()
         cursor.close()
         return {"mensaje": "Producto registrado correctamente"}
@@ -195,19 +186,12 @@ def editarProductos(pro_id, data):
         cursor = current_app.mysql.connection.cursor()
         sql = """
             UPDATE t_producto
-            SET pro_nombre=%s, pro_categoria=%s, pro_descripcion=%s, pro_precio=%s,
-                pro_cantidad_disponible=%s, pro_stock_minimo=%s, pro_fecha_caducidad=%s,
-                pro_registro_invima=%s, pro_fecha_vencimiento_registro=%s,
-                pro_control_especial=%s, pro_tipo_control=%s, pro_estado=%s, pro_prov_id_fk=%s
+            SET pro_nombre=%s, pro_categoria=%s, pro_descripcion=%s, pro_precio=%s, pro_estado=%s
             WHERE pro_id=%s
         """
         cursor.execute(sql, (
             data.get('nombre'), data.get('categoria'), data.get('descripcion'), data.get('precio'),
-            data.get('cantidad_disponible'), data.get('stock_minimo', 10), data.get('fecha_caducidad'),
-            data.get('registro_invima'), data.get('fecha_vencimiento_registro'),
-            1 if data.get('control_especial') else 0, data.get('tipo_control'),
-            data.get('estado', 'Activo'), data.get('proveedor_id'),
-            pro_id
+            data.get('estado', 'Activo'), pro_id
         ))
         current_app.mysql.connection.commit()
         cursor.close()

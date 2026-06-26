@@ -5,6 +5,7 @@ from controllers.proveedores_productos_controllers import (
     cnregistrarproveedoresproductos,
     cneliminarproveedoresproductos,
     cnbuscarproductosporproveedor,
+    cnbuscarproductosporproveedorcondatos,
     cnbuscarproveedoresporproducto
 )
 
@@ -32,6 +33,11 @@ def eliminar():
 @token_requerido
 def buscar_por_proveedor(prov_id):
     return cnbuscarproductosporproveedor(prov_id)
+
+@proveedores_productos_bp.route('/buscar-por-proveedor-con-datos/<prov_id>', methods=["GET"])
+@token_requerido
+def buscar_por_proveedor_con_datos(prov_id):
+    return cnbuscarproductosporproveedorcondatos(prov_id)
 
 @proveedores_productos_bp.route('/buscar-por-producto/<pro_id>', methods=["GET"])
 @token_requerido

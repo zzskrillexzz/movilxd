@@ -4,6 +4,7 @@ from services.proveedores_productos_service import (
     registrarProveedoresProductos, 
     eliminarProveedoresProductos,
     buscarProductosPorProveedor,
+    buscarProductosPorProveedorConDatos,
     buscarProveedoresPorProducto
 )
 from utils.error_handler import safe_controller
@@ -71,6 +72,11 @@ def cnbuscarproductosporproveedor(prov_id):
     if datos:
         return jsonify(datos), 200
     return jsonify({"mensaje": "No se encontraron productos para este proveedor"}), 404
+
+@safe_controller
+def cnbuscarproductosporproveedorcondatos(prov_id):
+    datos = buscarProductosPorProveedorConDatos(prov_id)
+    return jsonify(datos), 200
 
 @safe_controller
 def cnbuscarproveedoresporproducto(pro_id):
