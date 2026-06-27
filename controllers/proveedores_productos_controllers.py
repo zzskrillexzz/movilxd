@@ -75,7 +75,10 @@ def cnbuscarproductosporproveedor(prov_id):
 
 @safe_controller
 def cnbuscarproductosporproveedorcondatos(prov_id):
-    datos = buscarProductosPorProveedorConDatos(prov_id)
+    q = request.args.get('q', None)
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 8, type=int)
+    datos = buscarProductosPorProveedorConDatos(prov_id, q=q, page=page, limit=limit)
     return jsonify(datos), 200
 
 @safe_controller

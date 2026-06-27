@@ -64,25 +64,42 @@ def buscarProductosPorProveedor(PPP_PROV_ID_FK):
     return lista
 
 
-def buscarProductosPorProveedorConDatos(PPP_PROV_ID_FK):
+def buscarProductosPorProveedorConDatos(PPP_PROV_ID_FK, q=None, page=1, limit=8):
     """
-    Retorna productos de un proveedor con todos los datos del producto (JOIN).
+    Retorna productos de un proveedor con todos los datos del producto (JOIN)
+    con soporte de búsqueda (q) y paginación.
     """
     c = current_app.mysql.connection.cursor()
-    sql = """
+
+    base_where = "WHERE pp.ppp_prov_id_fk = %s"
+    params = [PPP_PROV_ID_FK]
+
+    if q and q.strip():
+        like = f'%{q.strip()}%'
+        base_where += " AND (p.pro_id LIKE %s OR p.pro_nombre LIKE %s OR p.pro_categoria LIKE %s)"
+        params.extend([like, like, like])
+
+    c.execute(f"SELECT COUNT(*) FROM t_proveedor_producto pp JOIN t_producto p ON p.pro_id = pp.ppp_pro_id_fk {base_where}", params)
+    total = c.fetchone()[0]
+
+    offset = (page - 1) * limit
+    c.execute(f"""
         SELECT p.pro_id, p.pro_nombre, p.pro_categoria, p.pro_descripcion,
                p.pro_precio, p.pro_estado
         FROM t_proveedor_producto pp
         JOIN t_producto p ON p.pro_id = pp.ppp_pro_id_fk
-        WHERE pp.ppp_prov_id_fk = %s
+        {base_where}
         ORDER BY p.pro_nombre ASC
-    """
-    c.execute(sql, (PPP_PROV_ID_FK,))
-    datos = c.fetchall()
+        LIMIT %s OFFSET %s
+    """, params + [limit, offset])
+    rows = c.fetchall()
     c.close()
 
     from models.productos_model import productos
-    return [productos(p[0], p[1], p[2], p[3], p[4], p[5]).toDic() for p in datos]
+    lista = [productos(r[0], r[1], r[2], r[3], r[4], r[5]).toDic() for r in rows]
+
+    pages = max(1, -(-total // limit))
+    return {'data': lista, 'total': total, 'page': page, 'limit': limit, 'pages': pages}
 
 
 def buscarProveedoresPorProducto(PPP_PRO_ID_FK):
