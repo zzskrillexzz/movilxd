@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app, render_template_string
+from flask import jsonify, request, current_app, render_template_string, g
 from services.pedidos_service import (
     listarPedidos, registrarPedidos,
     editarPedidos, eliminarPedidos, buscarPedido, verificarPago,
@@ -442,6 +442,10 @@ def cneverificarpago(id):
                     from datetime import date
                     factura_existente = buscarFacturas(id)
                     if not factura_existente:
+                        # Usar el usuario logueado como fallback si ped_usu_id_fk es NULL
+                        usuario_id = pedido.get('ped_usu_id_fk')
+                        if not usuario_id:
+                            usuario_id = g.get('usuario_actual', {}).get('id') if hasattr(g, 'usuario_actual') else None
                         factura_data = {
                             'id': id,
                             'fecha_emision': pedido.get('ped_fecha', date.today().isoformat()),
@@ -449,7 +453,7 @@ def cneverificarpago(id):
                             'forma_pago': pedido.get('ped_metodo_pago', ''),
                             'cuenta_bancaria': pedido.get('ped_cuenta_bancaria', ''),
                             'total': pedido.get('ped_total', 0),
-                            'usuario_id': pedido.get('ped_usu_id_fk', ''),
+                            'usuario_id': usuario_id,
                             'estado': 'Vigente',
                             'cli_id_fk': pedido.get('ped_cli_id_fk')
                         }
@@ -457,7 +461,7 @@ def cneverificarpago(id):
                         factura_creada = True
                 except Exception as e:
                     # La factura no es crítica, reportar pero no fallar
-                    print(f"Error al crear factura automática para pedido {id}: {e}")
+                    log.error(f"Error al crear factura automática para pedido {id}: {e}")
                     factura_creada = str(e)
 
             # Si se rechazó el pago, revertir el inventario
