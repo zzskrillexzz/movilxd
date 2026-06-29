@@ -449,7 +449,7 @@ def cneverificarpago(id):
                             usuario_id = g.get('usuario_actual', {}).get('id') if hasattr(g, 'usuario_actual') else None
                         factura_data = {
                             'id': id,
-                            'fecha_emision': pedido.get('ped_fecha') or datetime.now(ZoneInfo("America/Bogota")).strftime('%Y-%m-%d %H:%M:%S'),
+                            'fecha_emision': datetime.now(ZoneInfo("America/Bogota")).strftime('%Y-%m-%d %H:%M:%S'),
                             'email_enviado': 0,
                             'forma_pago': pedido.get('ped_metodo_pago', ''),
                             'cuenta_bancaria': pedido.get('ped_cuenta_bancaria', ''),
