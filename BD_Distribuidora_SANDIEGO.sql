@@ -889,6 +889,9 @@ DROP TABLE IF EXISTS `v_stock_minimo`;
 
 /*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_stock_minimo` AS select `p`.`pro_id` AS `pro_id`,`p`.`pro_nombre` AS `pro_nombre`,`p`.`pro_categoria` AS `pro_categoria`,coalesce(sum(`l`.`lot_cantidad_actual`),0) AS `stock_actual` from (`t_producto` `p` left join `t_lote` `l` on(`l`.`lot_pro_id_fk` = `p`.`pro_id` and `l`.`lot_estado` = 'Activo')) where `p`.`pro_estado` = 'Activo' group by `p`.`pro_id`,`p`.`pro_nombre`,`p`.`pro_categoria` having coalesce(sum(`l`.`lot_cantidad_actual`),0) <= 0 */;
 
+/* ── Migración: fac_fecha_emision de DATE a DATETIME (hora Colombia en facturas) ── */
+ALTER TABLE `t_factura` MODIFY COLUMN `fac_fecha_emision` DATETIME DEFAULT NULL COMMENT 'Fecha y hora de emisión (hora Colombia)';
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

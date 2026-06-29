@@ -439,7 +439,8 @@ def cneverificarpago(id):
             if estado == 'Verificado':
                 try:
                     from services.facturas_service import buscarFacturas, registrarFacturas
-                    from datetime import date
+                    from datetime import datetime
+                    from zoneinfo import ZoneInfo
                     factura_existente = buscarFacturas(id)
                     if not factura_existente:
                         # Usar el usuario logueado como fallback si ped_usu_id_fk es NULL
@@ -448,7 +449,7 @@ def cneverificarpago(id):
                             usuario_id = g.get('usuario_actual', {}).get('id') if hasattr(g, 'usuario_actual') else None
                         factura_data = {
                             'id': id,
-                            'fecha_emision': pedido.get('ped_fecha', date.today().isoformat()),
+                            'fecha_emision': pedido.get('ped_fecha') or datetime.now(ZoneInfo("America/Bogota")).strftime('%Y-%m-%d %H:%M:%S'),
                             'email_enviado': 0,
                             'forma_pago': pedido.get('ped_metodo_pago', ''),
                             'cuenta_bancaria': pedido.get('ped_cuenta_bancaria', ''),
