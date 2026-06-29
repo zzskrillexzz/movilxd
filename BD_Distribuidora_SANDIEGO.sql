@@ -191,7 +191,14 @@ insert  into `t_detalle_pedido`(`det_id`,`det_ped_id_fk`,`det_pro_id_fk`,`det_lo
 ('DET052','PED052','PRO008',NULL,1,5200.00,5200.00),
 ('DET053','PED051','PRO007','LOT051',1,15000.00,15000.00),
 ('PED053-DET001','PED053','PRO001','LOT001',1,850.00,850.00),
-('PED054-DET001','PED054','PRO001','LOT001',1,850.00,850.00);
+('PED054-DET001','PED054','PRO001','LOT001',1,850.00,850.00),
+('PED055-DET001','PED055','PRO037','LOT006',450,2000.00,900000.00),
+('PED056-DET001','PED056','PRO037','LOT007',10,2000.00,20000.00),
+('PED057-DET001','PED057','PRO008','LOT052',7,5200.00,36400.00),
+('PED058-DET001','PED058','PRO006','LOT050',1,8500.00,8500.00),
+('PED059-DET001','PED059','PRO001','LOT001',6,850.00,5100.00),
+('PED060-DET001','PED060','PRO001','LOT001',18,850.00,15300.00),
+('PED061-DET001','PED061','PRO001','LOT001',9,850.00,7650.00);
 
 /*Table structure for table `t_devolucion` */
 
@@ -288,14 +295,20 @@ insert  into `t_inventario_movimiento`(`inm_id`,`inm_tipo_movimiento`,`inm_pro_i
 ('INM050','Entrada','PRO006','LOT050',100,'2026-04-09','Compra COM050','USU051'),
 ('INM051','Entrada','PRO007','LOT051',150,'2026-04-09','Compra COM051','USU051'),
 ('INM052','Salida','PRO008','LOT052',10,'2026-04-09','Venta PED052','USU052'),
-('INM053','Salida ','PRO008','LOT099',1,'2026-04-09','Venta PED052','USU052'),
 ('INM054','Salida','PRO001','LOT001',1,'2026-06-15','Venta PED053',NULL),
 ('INM055','Entrada','PRO002',NULL,3,'2026-06-23','Anulacion venta PED002',NULL),
 ('INM056','Entrada','PRO005',NULL,1,'2026-06-23','Anulacion venta PED005',NULL),
 ('INM057','Entrada','PRO007',NULL,2,'2026-06-23','Anulacion venta PED051',NULL),
 ('INM058','Salida','PRO001','LOT001',1,'2026-06-23','Venta PED054',NULL),
 ('INM059','Entrada','PRO001','LOT001',1,'2026-06-23','Reversion venta PED054',NULL),
-('INM060','Salida','PRO001','LOT001',1,'2026-06-23','Venta PED054',NULL);
+('INM060','Salida','PRO001','LOT001',1,'2026-06-23','Venta PED054',NULL),
+('INM061','Salida','PRO037','LOT006',450,'2026-06-27','Venta PED055',NULL),
+('INM062','Salida','PRO037','LOT007',10,'2026-06-27','Venta PED056',NULL),
+('INM063','Salida','PRO008','LOT052',7,'2026-06-27','Venta PED057',NULL),
+('INM064','Salida','PRO006','LOT050',1,'2026-06-27','Venta PED058',NULL),
+('INM065','Salida','PRO001','LOT001',6,'2026-06-27','Venta PED059',NULL),
+('INM066','Salida','PRO001','LOT001',18,'2026-06-29','Venta PED060',NULL),
+('INM067','Salida','PRO001','LOT001',9,'2026-06-29','Venta PED061',NULL);
 
 /*Table structure for table `t_lote` */
 
@@ -321,15 +334,18 @@ CREATE TABLE `t_lote` (
 /*Data for the table `t_lote` */
 
 insert  into `t_lote`(`lot_id`,`lot_numero`,`lot_fecha_fabricacion`,`lot_fecha_vencimiento`,`lot_cantidad_inicial`,`lot_cantidad_actual`,`lot_pro_id_fk`,`lot_prov_id_fk`,`lot_estado`) values 
-('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,193,'PRO001','PROV002','Activo'),
+('LOT001','LT-ACE-2025-001','2025-01-10','2026-08-31',200,160,'PRO001','PROV002','Activo'),
 ('LOT002','LT-IBU-2025-001','2025-02-05','2026-06-30',150,147,'PRO002','PROV001','Activo'),
 ('LOT003','LT-LOR-2025-001','2025-01-20','2027-01-31',80,80,'PRO003','PROV003','Activo'),
 ('LOT004','LT-SUE-2025-001','2025-03-01','2026-12-15',60,60,'PRO004','PROV004','Activo'),
 ('LOT005','LT-ALC-2025-001','2025-02-15','2027-05-20',45,44,'PRO005','PROV005','Activo'),
-('LOT050','LT-IBU-2026-050','2026-01-15','2027-06-30',100,100,'PRO006','PROV050','Activo'),
+('LOT006','LT-POC-2026-001','2026-06-04','2026-11-26',300,0,'PRO037','PROV002','Agotado'),
+('LOT007','LT-POC-2026-002','2026-06-27','2026-12-24',400,240,'PRO037','PROV052','Activo'),
+('LOT008','LT-IBU-2026-051','2026-06-13','2026-11-20',200,200,'PRO009','PROV099','Activo'),
+('LOT009','LT-ACE-2026-001','2026-06-24','2027-02-18',300,300,'PRO001','PROV001','Activo'),
+('LOT050','LT-IBU-2026-050','2026-01-15','2027-06-30',100,99,'PRO006','PROV050','Activo'),
 ('LOT051','LT-AMO-2026-051','2026-02-01','2027-09-15',150,150,'PRO007','PROV051','Activo'),
-('LOT052','LT-LOR-2026-052','2026-03-10','2028-01-20',300,300,'PRO008','PROV052','Activo'),
-('LOT099','LT-TEST-2026','2026-01-01','2027-06-30',100,100,'PRO001','PROV002','Activo'),
+('LOT052','LT-LOR-2026-052','2026-03-10','2028-01-20',300,293,'PRO008','PROV052','Activo'),
 ('LOT200','LOT200','2026-06-01','2027-06-01',100,100,'PRO009','PROV001','Activo');
 
 /*Table structure for table `t_monitoria` */
@@ -381,7 +397,21 @@ insert  into `t_monitoria`(`mon_id`,`mon_pro_id_fk`,`mon_lot_id_fk`,`mon_inm_id_
 ('MON26062311312220','PRO001','LOT001','INM059','2026-06-23','Entrada',1,197,198,850.00,850.00),
 ('MON26062311312221','PRO001','LOT001','INM059','2026-06-23','Entrada',1,196,197,850.00,850.00),
 ('MON26062311312230','PRO001','LOT001','INM060','2026-06-23','Salida',1,197,196,850.00,850.00),
-('MON26062311312231','PRO001','LOT001','INM060','2026-06-23','Salida',1,198,197,850.00,850.00);
+('MON26062311312231','PRO001','LOT001','INM060','2026-06-23','Salida',1,198,197,850.00,850.00),
+('MON26062709353733','PRO037','LOT006','INM061','2026-06-27','Salida',450,250,-200,2000.00,900000.00),
+('MON26062709353734','PRO037','LOT006','INM061','2026-06-27','Salida',450,700,250,2000.00,900000.00),
+('MON26062719230726','PRO037','LOT007','INM062','2026-06-27','Salida',10,240,230,2000.00,20000.00),
+('MON26062719230727','PRO037','LOT007','INM062','2026-06-27','Salida',10,250,240,2000.00,20000.00),
+('MON26062719250852','PRO008','LOT052','INM063','2026-06-27','Salida',7,293,286,5200.00,36400.00),
+('MON26062719250853','PRO008','LOT052','INM063','2026-06-27','Salida',7,300,293,5200.00,36400.00),
+('MON26062719250854','PRO006','LOT050','INM064','2026-06-27','Salida',1,100,99,8500.00,8500.00),
+('MON2606271925316','PRO006','LOT050','INM064','2026-06-27','Salida',1,99,98,8500.00,8500.00),
+('MON26062719584645','PRO001','LOT001','INM065','2026-06-27','Salida',6,287,281,850.00,5100.00),
+('MON26062719584646','PRO001','LOT001','INM065','2026-06-27','Salida',6,293,287,850.00,5100.00),
+('MON26062914570178','PRO001','LOT001','INM066','2026-06-29','Salida',18,269,251,850.00,15300.00),
+('MON26062914570179','PRO001','LOT001','INM066','2026-06-29','Salida',18,287,269,850.00,15300.00),
+('MON26062915203084','PRO001','LOT001','INM067','2026-06-29','Salida',9,460,451,850.00,7650.00),
+('MON26062915203085','PRO001','LOT001','INM067','2026-06-29','Salida',9,469,460,850.00,7650.00);
 
 /*Table structure for table `t_pedido` */
 
@@ -418,7 +448,14 @@ insert  into `t_pedido`(`ped_id`,`ped_fecha`,`ped_metodo_pago`,`ped_cuenta_banca
 ('PED051','2026-04-09','Tarjeta',NULL,'PED051_1782225560.jpg','image/jpeg','En camino','Comprobante recibido',NULL,0,0,30000.00,1087654321,'USU051'),
 ('PED052','2026-04-09','Transferencia',NULL,'PED052_1782224244.png','image/png','En preparación','Verificado',NULL,0,0,5200.00,900123456,'USU052'),
 ('PED053','2026-06-15','Efectivo','USU001',NULL,NULL,'Anulado','Pendiente de pago','1d55b20c3f56441ca4610358c9d09a10',0,0,850.00,900123456,NULL),
-('PED054','2026-06-23','Transferencia','USU001',NULL,NULL,'Anulado','Pendiente de pago',NULL,0,0,850.00,900123456,NULL);
+('PED054','2026-06-23','Transferencia','USU001',NULL,NULL,'Anulado','Pendiente de pago',NULL,0,0,850.00,900123456,NULL),
+('PED055','2026-06-27','Efectivo',NULL,NULL,NULL,'Pendiente','Pendiente de pago',NULL,0,0,900000.00,900123456,'USU001'),
+('PED056','2026-06-29','Efectivo',NULL,NULL,NULL,'Pendiente','Pendiente de pago',NULL,0,0,20000.00,900123456,'USU001'),
+('PED057','2026-09-16','Efectivo',NULL,NULL,NULL,'En preparación','Pendiente de pago',NULL,0,0,36400.00,1023456789,'USU001'),
+('PED058','2026-06-30','Tarjeta',NULL,NULL,NULL,'Pendiente','Pendiente de pago',NULL,0,0,8500.00,998877665,'USU001'),
+('PED059','2026-06-30','Efectivo',NULL,NULL,NULL,'Pendiente','Pendiente de pago',NULL,0,0,5100.00,998877665,'USU001'),
+('PED060','2026-06-30','Efectivo',NULL,NULL,NULL,'En preparación','Pendiente de pago',NULL,0,0,15300.00,1076543219,'USU001'),
+('PED061','2026-06-29','Efectivo',NULL,NULL,NULL,'En preparación','Pendiente de pago',NULL,0,0,7650.00,1076543219,'USU001');
 
 /*Table structure for table `t_producto` */
 
@@ -430,8 +467,6 @@ CREATE TABLE `t_producto` (
   `pro_categoria` varchar(50) DEFAULT NULL COMMENT 'Categoría del producto',
   `pro_descripcion` varchar(255) DEFAULT NULL COMMENT 'Descripción del producto',
   `pro_precio` decimal(12,2) DEFAULT NULL COMMENT 'Precio unitario de venta',
-
-
   `pro_estado` varchar(20) DEFAULT 'Activo' COMMENT 'Estado: Activo / Descontinuado / Suspendido',
   PRIMARY KEY (`pro_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -474,7 +509,10 @@ insert  into `t_producto`(`pro_id`,`pro_nombre`,`pro_categoria`,`pro_descripcion
 ('PRO033','Enalapril 10mg','Cardiovascular',NULL,3200.00,'Activo'),
 ('PRO034','Parche curitas surtido','Insumo',NULL,2500.00,'Activo'),
 ('PRO035','Venda elastica 10cm','Insumo',NULL,1800.00,'Activo'),
-('PRO036','Bajalenguas','Insumo',NULL,500.00,'Activo');
+('PRO036','Bajalenguas','Insumo',NULL,500.00,'Activo'),
+('PRO037','poco','Analgesico','hola',2000.00,'Activo'),
+('PRO038','paracetamina','Analgesico','no se',2000.00,'Activo'),
+('PRO039','Acetaminofen 500','Analgesico','Tabletas x 10 unidades',300.00,'Activo');
 
 /*Table structure for table `t_proveedor` */
 
@@ -529,11 +567,13 @@ insert  into `t_proveedor_producto`(`ppp_prov_id_fk`,`ppp_pro_id_fk`) values
 ('PROV001','PRO011'),
 ('PROV001','PRO012'),
 ('PROV001','PRO013'),
+('PROV001','PRO037'),
+('PROV001','PRO038'),
 ('PROV002','PRO001'),
-('PROV002','PRO038'),
 ('PROV002','PRO014'),
 ('PROV002','PRO015'),
 ('PROV002','PRO016'),
+('PROV002','PRO038'),
 ('PROV003','PRO003'),
 ('PROV003','PRO017'),
 ('PROV003','PRO018'),
@@ -558,6 +598,7 @@ insert  into `t_proveedor_producto`(`ppp_prov_id_fk`,`ppp_pro_id_fk`) values
 ('PROV052','PRO008'),
 ('PROV052','PRO032'),
 ('PROV052','PRO033'),
+('PROV099','PRO039'),
 ('PROV200','PRO034'),
 ('PROV200','PRO035'),
 ('PROV200','PRO036');
@@ -716,17 +757,14 @@ BEGIN
     DECLARE v_saldo_actual INT;
     DECLARE v_costo DECIMAL(12,2);
     DECLARE v_nuevo_id VARCHAR(20);
-
     -- Generar ID basado en timestamp
     SET v_nuevo_id = CONCAT('MON', DATE_FORMAT(NOW(), '%y%m%d%H%i%s'), FLOOR(RAND() * 99));
-
     -- Obtener stock total desde lotes
     SELECT COALESCE(SUM(lot_cantidad_actual), 0), COALESCE(AVG(pro_precio), 0)
     INTO v_saldo_anterior, v_costo
     FROM t_lote l
     JOIN t_producto p ON p.pro_id = l.lot_pro_id_fk
     WHERE l.lot_pro_id_fk = NEW.inm_pro_id_fk;
-
     -- Calcular nuevo saldo
     IF NEW.inm_tipo_movimiento = 'Entrada' THEN
         SET v_saldo_actual = v_saldo_anterior + NEW.inm_cantidad;
@@ -735,7 +773,6 @@ BEGIN
     ELSE
         SET v_saldo_actual = v_saldo_anterior + NEW.inm_cantidad;
     END IF;
-
     -- Insertar en monitoria
     INSERT INTO t_monitoria (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, 
                           mon_fecha, mon_tipo, mon_cantidad, mon_saldo_anterior, 
@@ -753,7 +790,6 @@ BEGIN
         v_costo,
         NEW.inm_cantidad * v_costo
     );
-
 END */$$
 
 
