@@ -1,7 +1,7 @@
 from datetime import date
 from flask import Blueprint, jsonify, current_app
 from services.auth_service import token_requerido, rol_requerido
-from controllers.lotes_controllers import cnlistadolotes, cnregistrarlotes, cnEditarlotes, cnEliminarLotes
+from controllers.lotes_controllers import cnlistadolotes, cnregistrarlotes, cnEditarlotes, cnEliminarLotes, cnActivarlote
 from utils.error_handler import safe_controller
 
 lotes_bp = Blueprint('lotes', __name__)
@@ -27,6 +27,12 @@ def editar():
 @token_requerido
 def eliminar(id):
     return cnEliminarLotes(id)
+
+@lotes_bp.route('/<id>/activar', methods=["POST"])
+@token_requerido
+@rol_requerido('Administrador', 'Vendedor', 'Bodeguero')
+def activar(id):
+    return cnActivarlote(id)
 
 # ── Endpoint UNA SOLA VEZ: renumerar lotes secuencialmente ──
 @lotes_bp.route('/renumerar', methods=["POST"])

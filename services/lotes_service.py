@@ -135,3 +135,96 @@ def eliminarLotes(LOT_ID, fuerza=False):
         current_app.mysql.connection.commit()
         c.close()
         return {"ok": True, "mensaje": f"Lote {LOT_ID} eliminado correctamente"}, 200
+
+
+def activarLote(LOT_ID):
+    """
+    Activa un lote Pendiente: cambia estado a Activo, actualiza cantidad_actual,
+    registra movimiento de inventario (Entrada) y monitoria,
+    y marca la compra asociada como Recibida.
+    """
+    c = current_app.mysql.connection.cursor()
+    try:
+        current_app.mysql.connection.begin()
+
+        # Verificar que el lote existe y está Pendiente
+        c.execute("""
+            SELECT lot_estado, lot_cantidad_inicial, lot_cantidad_actual,
+                   lot_pro_id_fk, lot_prov_id_fk
+            FROM t_lote WHERE lot_id = %s
+        """, (LOT_ID,))
+        lote = c.fetchone()
+        if not lote:
+            c.close()
+            return {"ok": False, "mensaje": f"No existe un lote con ID {LOT_ID}"}, 404
+        if lote[0] != 'Pendiente':
+            c.close()
+            return {"ok": False, "mensaje": f"El lote {LOT_ID} no está en estado Pendiente (actual: {lote[0]})"}, 400
+
+        lot_estado, lot_cantidad_inicial, lot_cantidad_actual, lot_pro_id_fk, lot_prov_id_fk = lote
+
+        # Actualizar lote: Activo + cantidad_actual = cantidad_inicial
+        c.execute("""
+            UPDATE t_lote
+            SET lot_estado = 'Activo', lot_cantidad_actual = %s
+            WHERE lot_id = %s
+        """, (lot_cantidad_inicial, LOT_ID))
+
+        # Obtener precio de compra desde el detalle de compra asociado
+        c.execute("""
+            SELECT dco_precio_compra, dco_subtotal, dco_cantidad, dco_com_id_fk
+            FROM t_detalle_compra WHERE dco_lot_id_fk = %s LIMIT 1
+        """, (LOT_ID,))
+        detalle = c.fetchone()
+        dco_precio_compra = float(detalle[0]) if detalle and detalle[0] else 0
+        dco_subtotal = float(detalle[1]) if detalle and detalle[1] else 0
+        dco_cantidad = detalle[2] if detalle else lot_cantidad_inicial
+        dco_com_id_fk = detalle[3] if detalle else None
+
+        # Stock total anterior del producto
+        c.execute("SELECT COALESCE(SUM(lot_cantidad_actual), 0) FROM t_lote WHERE lot_pro_id_fk = %s",
+                  (lot_pro_id_fk,))
+        stock_total_anterior = c.fetchone()[0] or 0
+        # Restar lo que este lote aportará (porque todavia no se sumó)
+        stock_total_anterior = max(0, stock_total_anterior - lot_cantidad_inicial)
+        nuevo_stock_total = stock_total_anterior + lot_cantidad_inicial
+
+        # Insertar movimiento de inventario (Entrada)
+        from utils.id_generator import generarIdSiguiente
+        inm_id = generarIdSiguiente('t_inventario_movimiento', 'inm_id', 'INM', 3)
+        c.execute("""
+            INSERT INTO t_inventario_movimiento
+                (inm_id, inm_tipo_movimiento, inm_pro_id_fk, inm_lot_id_fk, inm_cantidad,
+                 inm_fecha, inm_motivo, inm_usu_id_fk)
+            VALUES (%s, 'Entrada', %s, %s, %s, CURDATE(), %s, NULL)
+        """, (inm_id, lot_pro_id_fk, LOT_ID, lot_cantidad_inicial,
+              f"Activacion lote {LOT_ID}"))
+
+        # Insertar monitoria
+        mon_id = generarIdSiguiente('t_monitoria', 'mon_id', 'MON', 3)
+        c.execute("""
+            INSERT INTO t_monitoria
+                (mon_id, mon_pro_id_fk, mon_lot_id_fk, mon_inm_id_fk, mon_fecha, mon_tipo,
+                 mon_cantidad, mon_saldo_anterior, mon_saldo_actual, mon_costo_unitario, mon_costo_total)
+            VALUES (%s, %s, %s, %s, CURDATE(), 'Entrada', %s, %s, %s, %s, %s)
+        """, (mon_id, lot_pro_id_fk, LOT_ID, inm_id, lot_cantidad_inicial,
+              stock_total_anterior, nuevo_stock_total, dco_precio_compra, dco_subtotal))
+
+        # Marcar la compra asociada como Recibida si está Pendiente
+        if dco_com_id_fk:
+            c.execute("""
+                UPDATE t_compra SET com_estado = 'Recibida'
+                WHERE com_id = %s AND com_estado = 'Pendiente'
+            """, (dco_com_id_fk,))
+
+        current_app.mysql.connection.commit()
+        c.close()
+        return {
+            "ok": True,
+            "mensaje": f"Lote {LOT_ID} activado correctamente. Stock actualizado y compra {dco_com_id_fk or ''} marcada como Recibida."
+        }, 200
+
+    except Exception as e:
+        current_app.mysql.connection.rollback()
+        c.close()
+        raise e

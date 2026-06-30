@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import current_app
 from models.detalles_compras_model import detalles_compras
 from utils.search_builder import SearchBuilder
@@ -122,19 +124,58 @@ def listarDetallesCompras(page=1, limit=50, q=None, order_by=None, **filters):
     return result
 
 
+def _generarLotNumero(c, pro_id, fecha_vencimiento):
+    c.execute("SELECT pro_nombre FROM t_producto WHERE pro_id = %s", (pro_id,))
+    row = c.fetchone()
+    abrev = row[0][:3].upper() if row and row[0] else 'XXX'
+    if isinstance(fecha_vencimiento, str) and len(fecha_vencimiento) >= 4:
+        anio = fecha_vencimiento[:4]
+    else:
+        anio = str(fecha_vencimiento.year) if hasattr(fecha_vencimiento, 'year') else str(date.today().year)
+    clave = f"{abrev}-{anio}"
+    c.execute("""
+        SELECT COUNT(*) FROM t_lote WHERE lot_numero LIKE %s
+    """, (f"LT-{clave}-%",))
+    seq = str(c.fetchone()[0] + 1).zfill(3)
+    return f"LT-{clave}-{seq}"
+
+
 def registrarDetallesCompras(DCO_ID, DCO_COM_ID_FK, DCO_PRO_ID_FK, DCO_LOT_ID_FK,
-                              DCO_CANTIDAD, DCO_PRECIO_COMPRA, DCO_SUBTOTAL):
+                              DCO_CANTIDAD, DCO_PRECIO_COMPRA, DCO_SUBTOTAL,
+                              DCO_FECHA_FABRICACION=None, DCO_FECHA_VENCIMIENTO=None,
+                              DCO_PROV_ID_FK=None):
     c = current_app.mysql.connection.cursor()
     try:
         current_app.mysql.connection.begin()
 
-        # 1. Ingresar al inventario (producto + lote + movimiento + monitoria)
-        _ingresarInventarioDesdeCompra(
-            c, DCO_PRO_ID_FK, DCO_LOT_ID_FK, DCO_CANTIDAD,
-            DCO_COM_ID_FK, DCO_PRECIO_COMPRA, DCO_SUBTOTAL
-        )
+        pendiente = False
 
-        # 2. Insertar el detalle de compra
+        # Auto-crear lote si no se proporcionó uno y hay fechas
+        if not DCO_LOT_ID_FK and DCO_FECHA_FABRICACION and DCO_FECHA_VENCIMIENTO and DCO_PROV_ID_FK:
+            lot_id = generarIdSiguiente('t_lote', 'lot_id', 'LOT', 3)
+            lot_numero = _generarLotNumero(c, DCO_PRO_ID_FK, DCO_FECHA_VENCIMIENTO)
+            c.execute("""
+                INSERT INTO t_lote
+                    (lot_id, lot_numero, lot_fecha_fabricacion, lot_fecha_vencimiento,
+                     lot_cantidad_inicial, lot_cantidad_actual, lot_pro_id_fk, lot_prov_id_fk, lot_estado)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (lot_id, lot_numero, DCO_FECHA_FABRICACION, DCO_FECHA_VENCIMIENTO,
+                  DCO_CANTIDAD, 0, DCO_PRO_ID_FK, DCO_PROV_ID_FK, 'Pendiente'))
+            DCO_LOT_ID_FK = lot_id
+            pendiente = True
+
+        # Ingresar al inventario solo si el lote no es Pendiente
+        if DCO_LOT_ID_FK and not pendiente:
+            _ingresarInventarioDesdeCompra(
+                c, DCO_PRO_ID_FK, DCO_LOT_ID_FK, DCO_CANTIDAD,
+                DCO_COM_ID_FK, DCO_PRECIO_COMPRA, DCO_SUBTOTAL
+            )
+        elif DCO_LOT_ID_FK and pendiente:
+            # Para lotes Pendiente, actualizar cantidad_inicial si el lote ya existia
+            # (no deberia pasar en flujo normal, pero por seguridad)
+            pass
+
+        # Insertar el detalle de compra
         sql = """
             INSERT INTO t_detalle_compra
                 (dco_id, dco_com_id_fk, dco_pro_id_fk, dco_lot_id_fk,

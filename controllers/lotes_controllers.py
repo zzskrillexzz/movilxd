@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, date
 from flask import jsonify, request, current_app
-from services.lotes_service import listarLotes, registrarLotes, editarLotes, eliminarLotes
+from services.lotes_service import listarLotes, registrarLotes, editarLotes, eliminarLotes, activarLote
 from utils.validators import validar_campos_texto
 from utils.error_handler import safe_controller
 
@@ -97,7 +97,7 @@ def cnregistrarlotes():
         return jsonify({"mensaje": " | ".join(msg)}), 400
 
     # Validar estado
-    estados_validos = ["Activo", "Agotado", "Vencido", "Cuarentena"]
+    estados_validos = ["Activo", "Agotado", "Vencido", "Cuarentena", "Pendiente"]
     if data["lot_estado"] not in estados_validos:
         return jsonify({"mensaje": f"Estado inválido. Valores permitidos: {estados_validos}"}), 400
 
@@ -218,3 +218,9 @@ def cnEditarlotes():
 
     resultado = editarLotes(data["lot_id"], data)
     return jsonify(resultado), 200
+
+
+@safe_controller
+def cnActivarlote(lot_id):
+    resultado, codigo = activarLote(lot_id)
+    return jsonify(resultado), codigo

@@ -68,11 +68,22 @@ def cnregistrardetallescompras():
         if not c.fetchone():
             c.close()
             return jsonify({"mensaje": f"No existe un lote con el ID {dco_lot_id}"}), 404
+
+    # Obtener proveedor de la compra (necesario para auto-crear lote)
+    dco_prov_id_fk = None
+    dco_fecha_fabricacion = data.get("dco_fecha_fabricacion")
+    dco_fecha_vencimiento = data.get("dco_fecha_vencimiento")
+    if not dco_lot_id and dco_fecha_fabricacion and dco_fecha_vencimiento:
+        c.execute("SELECT com_prov_id_fk FROM t_compra WHERE com_id = %s", (data["dco_com_id_fk"],))
+        row = c.fetchone()
+        if row:
+            dco_prov_id_fk = row[0]
     c.close()
 
     resultado = registrarDetallesCompras(
         data["dco_id"], data["dco_com_id_fk"], data["dco_pro_id_fk"],
-        dco_lot_id, data["dco_cantidad"], data["dco_precio_compra"], data["dco_subtotal"]
+        dco_lot_id, data["dco_cantidad"], data["dco_precio_compra"], data["dco_subtotal"],
+        dco_fecha_fabricacion, dco_fecha_vencimiento, dco_prov_id_fk
     )
     return jsonify({"mensaje": "Detalle de compra registrado correctamente (inventario actualizado)", "datos": resultado}), 201
 
