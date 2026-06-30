@@ -4,13 +4,29 @@ from utils.search_builder import SearchBuilder
 
 def listarProductos(page=1, limit=50, q=None, order_by=None, **filters):
     c = current_app.mysql.connection.cursor()
-    sb = SearchBuilder(
-        table='t_producto',
-        search_fields=['pro_id', 'pro_nombre', 'pro_categoria', 'pro_descripcion'],
-        exact_fields=['pro_estado', 'pro_categoria'],
-        range_fields={'pro_precio': 'decimal'},
-        default_order='pro_id DESC'
-    )
+
+    pro_prov_id_fk = filters.pop('pro_prov_id_fk', None)
+
+    if pro_prov_id_fk:
+        sb = SearchBuilder(
+            table='t_producto',
+            search_fields=['pro_id', 'pro_nombre', 'pro_categoria', 'pro_descripcion'],
+            exact_fields=['pro_estado', 'pro_categoria'],
+            join_clause='JOIN t_proveedor_producto ON t_producto.pro_id = t_proveedor_producto.ppp_pro_id_fk',
+            select_columns='DISTINCT t_producto.*, t_proveedor_producto.ppp_prov_id_fk AS proveedor_id',
+            default_order='t_producto.pro_id DESC',
+        )
+        filters['t_proveedor_producto.ppp_prov_id_fk'] = pro_prov_id_fk
+    else:
+        sb = SearchBuilder(
+            table='t_producto',
+            search_fields=['pro_id', 'pro_nombre', 'pro_categoria', 'pro_descripcion'],
+            exact_fields=['pro_estado', 'pro_categoria'],
+            range_fields={'pro_precio': 'decimal'},
+            select_columns='t_producto.*, (SELECT ppp_prov_id_fk FROM t_proveedor_producto WHERE ppp_pro_id_fk = t_producto.pro_id LIMIT 1) AS proveedor_id',
+            default_order='pro_id DESC'
+        )
+
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()
 
@@ -21,6 +37,7 @@ def listarProductos(page=1, limit=50, q=None, order_by=None, **filters):
             proDescripcion=item['pro_descripcion'], proPrecio=item['pro_precio'],
             proEstado=item['pro_estado']
         ).toDic()
+        prod['proveedor_id'] = item.get('proveedor_id')
         lista.append(prod)
 
     result['data'] = lista
