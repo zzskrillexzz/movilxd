@@ -201,20 +201,77 @@ def registrarDetallesCompras(DCO_ID, DCO_COM_ID_FK, DCO_PRO_ID_FK, DCO_LOT_ID_FK
 
 def editarDetallesCompras(DCO_ID, data):
     c = current_app.mysql.connection.cursor()
-    sql = """
-        UPDATE t_detalle_compra
-        SET dco_com_id_fk=%s, dco_pro_id_fk=%s, dco_lot_id_fk=%s,
-            dco_cantidad=%s, dco_precio_compra=%s, dco_subtotal=%s
-        WHERE dco_id=%s
-    """
-    c.execute(sql, (
-        data.get('dco_com_id_fk'), data.get('dco_pro_id_fk'), data.get('dco_lot_id_fk'),
-        data.get('dco_cantidad'), data.get('dco_precio_compra'), data.get('dco_subtotal'),
-        DCO_ID
-    ))
-    current_app.mysql.connection.commit()
-    c.close()
-    return {"mensaje": "Detalle de compra actualizado"}
+    try:
+        current_app.mysql.connection.begin()
+
+        # Obtener datos actuales del detalle
+        c.execute("""
+            SELECT dco_com_id_fk, dco_pro_id_fk, dco_lot_id_fk,
+                   dco_cantidad, dco_precio_compra, dco_subtotal
+            FROM t_detalle_compra WHERE dco_id = %s
+        """, (DCO_ID,))
+        old = c.fetchone()
+        if not old:
+            c.close()
+            return {"mensaje": "Detalle no encontrado"}
+
+        old_cantidad = old[3]
+        old_lot_id = old[2]
+        old_precio = float(old[4]) if old[4] else 0
+        old_subtotal = float(old[5]) if old[5] else 0
+
+        nueva_cantidad = data.get('dco_cantidad', old_cantidad)
+        nuevo_lot_id = data.get('dco_lot_id_fk', old_lot_id)
+        nuevo_precio = data.get('dco_precio_compra', old_precio)
+        nuevo_subtotal = data.get('dco_subtotal', old_subtotal)
+        nueva_fab = data.get('dco_fecha_fabricacion')
+        nueva_ven = data.get('dco_fecha_vencimiento')
+
+        # Ajustar inventario si cambió la cantidad
+        if nueva_cantidad != old_cantidad and nuevo_lot_id:
+            diferencia = nueva_cantidad - old_cantidad
+            if diferencia > 0:
+                # Aumentó la cantidad → ingresar más al inventario
+                _ingresarInventarioDesdeCompra(
+                    c, data.get('dco_pro_id_fk', old[1]), nuevo_lot_id,
+                    diferencia, old[0], nuevo_precio,
+                    diferencia * nuevo_precio
+                )
+            elif diferencia < 0:
+                # Disminuyó la cantidad → revertir parcialmente
+                _revertirIngresoInventario(
+                    c, data.get('dco_pro_id_fk', old[1]), nuevo_lot_id,
+                    abs(diferencia), old[0], nuevo_precio,
+                    abs(diferencia) * nuevo_precio
+                )
+
+        # Actualizar el detalle
+        sql = """
+            UPDATE t_detalle_compra
+            SET dco_com_id_fk=%s, dco_pro_id_fk=%s, dco_lot_id_fk=%s,
+                dco_cantidad=%s, dco_precio_compra=%s, dco_subtotal=%s,
+                dco_fecha_fabricacion=%s, dco_fecha_vencimiento=%s
+            WHERE dco_id=%s
+        """
+        c.execute(sql, (
+            data.get('dco_com_id_fk', old[0]),
+            data.get('dco_pro_id_fk', old[1]),
+            nuevo_lot_id,
+            nueva_cantidad,
+            nuevo_precio,
+            nuevo_subtotal,
+            nueva_fab,
+            nueva_ven,
+            DCO_ID
+        ))
+
+        current_app.mysql.connection.commit()
+        c.close()
+        return {"mensaje": "Detalle de compra actualizado"}
+    except Exception as e:
+        current_app.mysql.connection.rollback()
+        c.close()
+        raise e
 
 
 def eliminarDetallesCompras(DCO_ID):
@@ -232,14 +289,29 @@ def eliminarDetallesCompras(DCO_ID):
 
         c.execute("DELETE FROM t_detalle_compra WHERE dco_id = %s", (DCO_ID,))
 
-        # Revertir inventario si el detalle existía
+        # Revertir inventario solo si el detalle existía y el lote no está Pendiente
         if detalle:
             dco_com_id_fk, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad, \
                 dco_precio_compra, dco_subtotal = detalle
-            _revertirIngresoInventario(
-                c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
-                dco_com_id_fk, dco_precio_compra, dco_subtotal
-            )
+            
+            # Verificar estado del lote — si está Pendiente, nunca tuvo inventario ingresado
+            saltar_reversion = False
+            if dco_lot_id_fk:
+                c.execute("SELECT lot_estado FROM t_lote WHERE lot_id = %s", (dco_lot_id_fk,))
+                row_lote = c.fetchone()
+                if row_lote and row_lote[0] == 'Pendiente':
+                    saltar_reversion = True
+                    # Si el lote es Pendiente y solo tenía este detalle, eliminarlo también
+                    c.execute("SELECT COUNT(*) FROM t_detalle_compra WHERE dco_lot_id_fk = %s AND dco_id != %s",
+                              (dco_lot_id_fk, DCO_ID))
+                    if c.fetchone()[0] == 0:
+                        c.execute("DELETE FROM t_lote WHERE lot_id = %s", (dco_lot_id_fk,))
+            
+            if not saltar_reversion:
+                _revertirIngresoInventario(
+                    c, dco_pro_id_fk, dco_lot_id_fk, dco_cantidad,
+                    dco_com_id_fk, dco_precio_compra, dco_subtotal
+                )
 
         current_app.mysql.connection.commit()
         return c.rowcount > 0
