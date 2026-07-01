@@ -265,6 +265,15 @@ def editarDetallesCompras(DCO_ID, data):
             DCO_ID
         ))
 
+        # Sincronizar fechas del lote asociado
+        if nuevo_lot_id and (nueva_fab or nueva_ven):
+            c.execute("""
+                UPDATE t_lote
+                SET lot_fecha_fabricacion = COALESCE(%s, lot_fecha_fabricacion),
+                    lot_fecha_vencimiento = COALESCE(%s, lot_fecha_vencimiento)
+                WHERE lot_id = %s
+            """, (nueva_fab, nueva_ven, nuevo_lot_id))
+
         current_app.mysql.connection.commit()
         c.close()
         return {"mensaje": "Detalle de compra actualizado"}
