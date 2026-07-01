@@ -47,8 +47,8 @@ def cnregistrarcompras():
     if errores:
         return jsonify({"mensaje": " | ".join(errores)}), 400
 
-    # En POST (crear) no se permite "Cancelada" - solo al editar (PUT)
-    estados_validos = ["Pendiente", "Recibida"]
+    # En POST (crear) solo se permite "Pendiente" — "Recibida" se asigna al activar el lote
+    estados_validos = ["Pendiente"]
     if data["com_estado"] not in estados_validos:
         return jsonify({"mensaje": f"Estado inválido al crear. Valores permitidos: {estados_validos}"}), 400
 
