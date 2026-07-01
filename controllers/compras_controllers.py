@@ -99,7 +99,7 @@ def cneditarcompras(COM_ID):
     if not data:
         return jsonify({"mensaje": "No se enviaron datos JSON"}), 400
 
-    # Validar fecha (no fechas futuras ni absurdas)
+    # Validar fecha (no fechas absurdas — en edición se permiten fechas pasadas)
     if data.get("com_fecha"):
         try:
             fecha_str = data["com_fecha"]
@@ -108,8 +108,6 @@ def cneditarcompras(COM_ID):
                 fecha_obj = date(año, mes, dia)
                 if año < 2020:
                     return jsonify({"mensaje": "La fecha de la compra no es válida (año muy antiguo)"}), 400
-                if fecha_obj < date.today():
-                    return jsonify({"mensaje": "La fecha de la compra no puede ser anterior a hoy"}), 400
         except (ValueError, TypeError):
             return jsonify({"mensaje": "El formato de la fecha no es válido (use YYYY-MM-DD)"}), 400
 
