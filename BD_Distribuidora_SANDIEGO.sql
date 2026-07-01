@@ -140,6 +140,8 @@ CREATE TABLE `t_detalle_compra` (
   `dco_cantidad` int(11) DEFAULT NULL COMMENT 'Cantidad comprada',
   `dco_precio_compra` decimal(12,2) DEFAULT NULL COMMENT 'Precio de compra unitario',
   `dco_subtotal` decimal(12,2) DEFAULT NULL COMMENT 'Subtotal (cantidad × precio_compra)',
+  `dco_fecha_fabricacion` date DEFAULT NULL COMMENT 'Fecha de fabricación del producto',
+  `dco_fecha_vencimiento` date DEFAULT NULL COMMENT 'Fecha de vencimiento del producto',
   PRIMARY KEY (`dco_id`),
   KEY `dco_com_id_fk` (`dco_com_id_fk`),
   KEY `dco_pro_id_fk` (`dco_pro_id_fk`),
