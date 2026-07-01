@@ -117,7 +117,8 @@ def listarDetallesCompras(page=1, limit=50, q=None, order_by=None, **filters):
     for item in result['data']:
         dc = detalles_compras(item['dco_id'], item['dco_com_id_fk'], item['dco_pro_id_fk'],
                               item.get('dco_lot_id_fk'), item['dco_cantidad'],
-                              item['dco_precio_compra'], item['dco_subtotal']).todic()
+                              item['dco_precio_compra'], item['dco_subtotal'],
+                              item.get('dco_fecha_fabricacion'), item.get('dco_fecha_vencimiento')).todic()
         lista.append(dc)
 
     result['data'] = lista
@@ -249,7 +250,8 @@ def buscarDetallesCompras(DCO_ID):
     c = current_app.mysql.connection.cursor()
     c.execute("""
         SELECT dco_id, dco_com_id_fk, dco_pro_id_fk, dco_lot_id_fk,
-               dco_cantidad, dco_precio_compra, dco_subtotal
+               dco_cantidad, dco_precio_compra, dco_subtotal,
+               dco_fecha_fabricacion, dco_fecha_vencimiento
         FROM t_detalle_compra WHERE dco_id = %s
     """, (DCO_ID,))
     row = c.fetchone()
@@ -262,6 +264,8 @@ def buscarDetallesCompras(DCO_ID):
             "dco_lot_id_fk": row[3],
             "dco_cantidad": row[4],
             "dco_precio_compra": float(row[5]) if row[5] else None,
-            "dco_subtotal": float(row[6]) if row[6] else None
+            "dco_subtotal": float(row[6]) if row[6] else None,
+            "dco_fecha_fabricacion": str(row[7]) if row[7] else None,
+            "dco_fecha_vencimiento": str(row[8]) if row[8] else None
         }
     return None
