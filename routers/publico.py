@@ -95,6 +95,14 @@ def dashboard_resumen():
     c.execute("SELECT COUNT(*) FROM t_proveedor")
     total_proveedores = c.fetchone()[0]
 
+    # Clientes activos
+    c.execute("SELECT COUNT(*) FROM t_cliente")
+    total_clientes = c.fetchone()[0]
+
+    # Usuarios activos
+    c.execute("SELECT COUNT(*) FROM t_usuario WHERE usu_estado = 1")
+    total_usuarios = c.fetchone()[0]
+
     # Pedidos activos y pendientes
     c.execute("""
         SELECT COUNT(*) FROM t_pedido
@@ -165,6 +173,8 @@ def dashboard_resumen():
     return jsonify({
         "productos": {"total": total_productos, "stock_total": stock_total, "stock_bajo": stock_bajo},
         "proveedores": {"total": total_proveedores},
+        "clientes": {"total": total_clientes},
+        "usuarios": {"total": total_usuarios},
         "pedidos": {"activos": pedidos_activos, "pendientes": pedidos_pendientes},
         "compras": {"pendientes": compras_pendientes, "recibidas": compras_recibidas},
         "vencimientos": {"criticos": vencimientos_criticos, "proximos": vencimientos_proximos},

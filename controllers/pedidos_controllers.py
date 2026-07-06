@@ -177,7 +177,7 @@ def cnregistrarpedidos():
             data.get("ped_cuenta_bancaria"),
             data.get("ped_comprobante"),
             data.get("ped_comprobante_tipo"),
-            fk_usuario
+            fk_usuario if fk_usuario else None
         )
         # Agregar desglose de IVA en la respuesta
         if isinstance(resultado, dict):

@@ -1,7 +1,7 @@
 import base64
 
 class pedidos:
-    def __init__(self, ID, FECHA, METODO_DE_PAGO, CUENTA_BANCARIA=None, ped_comprobante=None, ped_comprobante_tipo=None, ESTADO=None, TOTAL=None, ID_CLIENTE=None, ped_det_id_fk=None, ped_usu_id_fk=None):
+    def __init__(self, ID, FECHA, METODO_DE_PAGO, CUENTA_BANCARIA=None, ped_comprobante=None, ped_comprobante_tipo=None, ESTADO=None, TOTAL=None, ID_CLIENTE=None, ped_det_id_fk=None, ped_usu_id_fk=None, usu_nombre=None):
         self.ped_id = ID
         self.ped_fecha = FECHA
         self.ped_metodo_pago = METODO_DE_PAGO
@@ -13,6 +13,7 @@ class pedidos:
         self.ped_cli_id_fk = ID_CLIENTE
         self.ped_det_id_fk = ped_det_id_fk
         self.ped_usu_id_fk = ped_usu_id_fk
+        self.usu_nombre = usu_nombre
 
     def a_diccionario(self):
         result = {
@@ -25,6 +26,7 @@ class pedidos:
             "ped_cli_id_fk": self.ped_cli_id_fk,
             "ped_det_id_fk": self.ped_det_id_fk,
             "ped_usu_id_fk": self.ped_usu_id_fk,
+            "usu_nombre": self.usu_nombre,
         }
         if self.ped_comprobante:
             if isinstance(self.ped_comprobante, bytes):

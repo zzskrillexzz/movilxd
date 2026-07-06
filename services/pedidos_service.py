@@ -12,7 +12,9 @@ def listarPedidos(page=1, limit=50, q=None, order_by=None, **filters):
         search_fields=['ped_id', 'ped_metodo_pago', 'ped_estado_entrega', 'ped_estado_pago'],
         exact_fields=['ped_estado_entrega', 'ped_estado_pago', 'ped_metodo_pago', 'ped_cli_id_fk', 'ped_usu_id_fk'],
         range_fields={'ped_fecha': 'date', 'ped_total': 'decimal'},
-        default_order='ped_id DESC'
+        default_order='ped_id DESC',
+        join_clause='LEFT JOIN t_usuario ON ped_usu_id_fk = usu_id',
+        select_columns='t_pedido.*, t_usuario.usu_nombre'
     )
     result = sb.execute(c, page=page, limit=limit, q=q, order_by=order_by, **filters)
     c.close()
@@ -26,13 +28,38 @@ def listarPedidos(page=1, limit=50, q=None, order_by=None, **filters):
             ped_comprobante=None,
             ped_comprobante_tipo=item.get('ped_comprobante_tipo'),
             ESTADO=item['ped_estado_entrega'], TOTAL=item['ped_total'],
-            ID_CLIENTE=item['ped_cli_id_fk'], ped_usu_id_fk=item.get('ped_usu_id_fk')
+            ID_CLIENTE=item['ped_cli_id_fk'], ped_usu_id_fk=item.get('ped_usu_id_fk'),
+            usu_nombre=item.get('usu_nombre')
         ).a_diccionario()
         ped['ped_estado_pago'] = item.get('ped_estado_pago') or 'Pendiente de pago'
         ped['ped_tiene_comprobante'] = tiene
         ped['ped_token_entrega'] = item.get('ped_token_entrega')
         ped['ped_notificado'] = bool(item.get('ped_notificado')) if item.get('ped_notificado') is not None else False
         ped['ped_factura_enviada'] = bool(item.get('ped_factura_enviada')) if item.get('ped_factura_enviada') is not None else False
+
+        c2 = current_app.mysql.connection.cursor()
+        c2.execute("""
+            SELECT d.det_id, d.det_pro_id_fk, d.det_cantidad,
+                   d.det_precio_unitario, d.det_subtotal, p.pro_nombre
+            FROM t_detalle_pedido d
+            LEFT JOIN t_producto p ON d.det_pro_id_fk = p.pro_id
+            WHERE d.det_ped_id_fk = %s
+        """, (item['ped_id'],))
+        detalles_raw = c2.fetchall()
+        c2.close()
+        ped['detalles'] = [
+            {
+                "det_id": d[0],
+                "det_ped_id_fk": item['ped_id'],
+                "det_pro_id_fk": d[1],
+                "det_cantidad": d[2],
+                "det_precio_unitario": float(d[3]) if d[3] else 0,
+                "det_subtotal": float(d[4]) if d[4] else 0,
+                "pro_nombre": d[5],
+            }
+            for d in detalles_raw
+        ] if detalles_raw else []
+
         listav.append(ped)
 
     result['data'] = listav
@@ -324,17 +351,41 @@ def eliminarPedidos(ID):
 
 def buscarPedido(ID):
     c = current_app.mysql.connection.cursor()
-    sql = """SELECT ped_id, ped_fecha, ped_metodo_pago, ped_cuenta_bancaria, ped_comprobante, ped_comprobante_tipo, ped_estado_entrega, ped_estado_pago, ped_total, ped_cli_id_fk, ped_usu_id_fk, ped_token_entrega, ped_notificado, ped_factura_enviada FROM t_pedido WHERE ped_id=%s"""
+    sql = """SELECT p.ped_id, p.ped_fecha, p.ped_metodo_pago, p.ped_cuenta_bancaria, p.ped_comprobante, p.ped_comprobante_tipo, p.ped_estado_entrega, p.ped_estado_pago, p.ped_total, p.ped_cli_id_fk, p.ped_usu_id_fk, p.ped_token_entrega, p.ped_notificado, p.ped_factura_enviada, u.usu_nombre FROM t_pedido p LEFT JOIN t_usuario u ON p.ped_usu_id_fk = u.usu_id WHERE p.ped_id=%s"""
     c.execute(sql, (ID,))
     r = c.fetchone()
     c.close()
     if r:
         tiene = r[5] is not None
-        ped = pedidos(ID=r[0], FECHA=r[1], METODO_DE_PAGO=r[2], CUENTA_BANCARIA=r[3], ped_comprobante=r[4], ped_comprobante_tipo=r[5], ESTADO=r[6], TOTAL=r[8], ID_CLIENTE=r[9], ped_usu_id_fk=r[10]).a_diccionario()
+        ped = pedidos(ID=r[0], FECHA=r[1], METODO_DE_PAGO=r[2], CUENTA_BANCARIA=r[3], ped_comprobante=r[4], ped_comprobante_tipo=r[5], ESTADO=r[6], TOTAL=r[8], ID_CLIENTE=r[9], ped_usu_id_fk=r[10], usu_nombre=r[14]).a_diccionario()
         ped['ped_estado_pago'] = r[7] or 'Pendiente de pago'
         ped['ped_tiene_comprobante'] = tiene
         ped['ped_token_entrega'] = r[11]
         ped['ped_notificado'] = bool(r[12]) if r[12] is not None else False
         ped['ped_factura_enviada'] = bool(r[13]) if r[13] is not None else False
+
+        c2 = current_app.mysql.connection.cursor()
+        c2.execute("""
+            SELECT d.det_id, d.det_pro_id_fk, d.det_cantidad,
+                   d.det_precio_unitario, d.det_subtotal, p.pro_nombre
+            FROM t_detalle_pedido d
+            LEFT JOIN t_producto p ON d.det_pro_id_fk = p.pro_id
+            WHERE d.det_ped_id_fk = %s
+        """, (ID,))
+        detalles_raw = c2.fetchall()
+        c2.close()
+        ped['detalles'] = [
+            {
+                "det_id": d[0],
+                "det_ped_id_fk": ID,
+                "det_pro_id_fk": d[1],
+                "det_cantidad": d[2],
+                "det_precio_unitario": float(d[3]) if d[3] else 0,
+                "det_subtotal": float(d[4]) if d[4] else 0,
+                "pro_nombre": d[5],
+            }
+            for d in detalles_raw
+        ] if detalles_raw else []
+
         return ped
     return None
